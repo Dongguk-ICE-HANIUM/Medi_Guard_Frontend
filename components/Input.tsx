@@ -14,6 +14,7 @@ interface InputFieldProps extends TextInputProps {
   label?: string;
   variant?: "icon" | "basic";
   iconName?: keyof typeof Ionicons.glyphMap;
+  error?: string;
   onIconPress?: () => void;
 }
 
@@ -21,6 +22,7 @@ function Input({
   label,
   variant = "basic",
   iconName,
+  error,
   onIconPress,
   ...props
 }: InputFieldProps) {
@@ -40,6 +42,7 @@ function Input({
             </TouchableOpacity>
           )}
         </View>
+        {Boolean(error) && <Text style={styles.error}>{error}</Text>}
       </View>
     </View>
   );
@@ -72,6 +75,12 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     padding: 5,
+  },
+  error: {
+    fontSize: 12,
+    marginTop: 5,
+    marginLeft: 5,
+    color: colors.RED,
   },
 });
 
