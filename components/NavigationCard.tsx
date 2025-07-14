@@ -1,8 +1,6 @@
 import { colors } from "@/constants/index";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { router } from "expo-router";
 import React from "react";
-
 import {
   Pressable,
   PressableProps,
@@ -17,7 +15,11 @@ interface NavigationCardProps extends PressableProps {
   icon?: "next" | "plus";
 }
 
-function NavigationCard({ text, icon = "next" }: NavigationCardProps) {
+function NavigationCard({
+  text,
+  icon = "next",
+  ...props
+}: NavigationCardProps) {
   return (
     <Pressable
       style={({ pressed }) => [
@@ -25,7 +27,7 @@ function NavigationCard({ text, icon = "next" }: NavigationCardProps) {
         NavigationCardStyles[icon],
         pressed && ButtonStyles.pressed,
       ]}
-      onPress={() => router.push("/medicine/medicineList")}
+      {...props}
     >
       <Text style={NavigationCardStyles.text}>{text}</Text>
       <View style={NavigationCardStyles.iconBox}>

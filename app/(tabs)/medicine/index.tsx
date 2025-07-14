@@ -1,13 +1,26 @@
 import NavigationCard from "@/components/NavigationCard";
 import { ScreenLayout } from "@/components/ScreenLayout";
+import { router } from "expo-router";
 import { StyleSheet, View } from "react-native";
 
 export default function MedicineScreen() {
   return (
     <ScreenLayout>
       <View style={styles.navCardContainer}>
-        <NavigationCard text="전체 복용약 보기" icon="next" />
-        <NavigationCard text="약물 등록하기" icon="plus" />
+        <NavigationCard
+          text="전체 복용약 보기"
+          icon="next"
+          onPress={() => {
+            router.push("/medicine/MedicineList");
+          }}
+        />
+        <NavigationCard
+          text="약물 등록하기"
+          icon="plus"
+          onPress={() => {
+            router.push("/medicine/Register");
+          }}
+        />
       </View>
     </ScreenLayout>
   );
