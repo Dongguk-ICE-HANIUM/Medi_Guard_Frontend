@@ -1,10 +1,22 @@
-import { Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import NavigationCard from "@/components/NavigationCard";
+import { ScreenLayout } from "@/components/ScreenLayout";
+import { StyleSheet, View } from "react-native";
 
 export default function MedicineScreen() {
   return (
-    <SafeAreaView>
-      <Text>약물관리 스크린</Text>
-    </SafeAreaView>
+    <ScreenLayout>
+      <View style={styles.navCardContainer}>
+        <NavigationCard text="전체 복용약 보기" icon="next" />
+        <NavigationCard text="약물 등록하기" icon="plus" />
+      </View>
+    </ScreenLayout>
   );
 }
+
+const styles = StyleSheet.create({
+  navCardContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 20,
+  },
+});
