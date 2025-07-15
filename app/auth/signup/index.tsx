@@ -37,7 +37,7 @@ export default function SignupScreen() {
         <PasswordConfirmInput />
       </View>
       <View style={styles.Button}>
-        <Button text="계속하기" onPress={signupForm.handleSubmit(onSubmit)} />
+        <Button text="계속" onPress={signupForm.handleSubmit(onSubmit)} />
       </View>
     </FormProvider>
   );
