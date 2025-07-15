@@ -8,7 +8,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { ButtonStyles } from "./Styles/ButtonStyles.js";
+import { ButtonStyles } from "../Styles/ButtonStyles.js";
 
 interface NavigationCardProps extends PressableProps {
   text: string;

@@ -1,7 +1,7 @@
-import NavigationCard from "@/components/NavigationCard";
+import NavigationCard from "@/components/Card/NavigationCard";
 import { ScreenLayout } from "@/components/ScreenLayout";
 import { router } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 export default function MedicineScreen() {
   return (
@@ -22,6 +22,9 @@ export default function MedicineScreen() {
           }}
         />
       </View>
+      <View style={styles.todayContainer}>
+        <Text>Today's</Text>
+      </View>
     </ScreenLayout>
   );
 }
@@ -32,4 +35,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 20,
   },
+  todayContainer: {},
 });
