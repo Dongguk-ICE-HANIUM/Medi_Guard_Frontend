@@ -13,6 +13,7 @@ import {
 interface InputFieldProps extends TextInputProps {
   label?: string;
   variant?: "icon" | "basic";
+  size?: "small" | "full";
   iconName?: keyof typeof Ionicons.glyphMap;
   error?: string;
   onIconPress?: () => void;
@@ -23,13 +24,25 @@ function Input({
   variant = "basic",
   iconName,
   error,
+  size,
   onIconPress,
   ...props
 }: InputFieldProps) {
+  const getContainerStyle = () => {
+    const baseStyle = styles.container;
+
+    switch (size) {
+      case "small":
+        return [baseStyle, { width: 186, marginRight: 8 }];
+      default:
+        return baseStyle;
+    }
+  };
+
   return (
     <View>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View style={styles.container}>
+      <View style={getContainerStyle()}>
         <View style={styles.inputContainer}>
           <TextInput
             placeholderTextColor={colors.TEXT_GRAY}
