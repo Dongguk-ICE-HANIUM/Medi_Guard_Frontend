@@ -1,7 +1,7 @@
-import { CalenderResponse, DayData } from "@/types/calender";
+import { CalendarResponse, DayData } from "@/types/calendar";
 import axios, { AxiosInstance } from "axios";
 
-class CalenderApi {
+class CalendarApi {
   private axiosInstance: AxiosInstance;
 
   constructor() {
@@ -19,10 +19,10 @@ class CalenderApi {
     ] = `Bearer ${token}`;
   }
 
-  async getCalenderData(date: string): Promise<DayData[]> {
+  async getCalendarData(date: string): Promise<DayData[]> {
     try {
-      const response = await this.axiosInstance.get<CalenderResponse>(
-        "/calender",
+      const response = await this.axiosInstance.get<CalendarResponse>(
+        "/calendar",
         { params: { date } }
       );
       if (response.data.errorCode) {
@@ -36,4 +36,5 @@ class CalenderApi {
     }
   }
 }
-export default new CalenderApi();
+
+export default new CalendarApi();

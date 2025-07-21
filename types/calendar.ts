@@ -5,7 +5,7 @@ export interface DayData {
   isScheduled: boolean;
 }
 
-export interface CalenderResponse {
+export interface CalendarResponse {
   errorCode: string | null;
   message: string;
   result: {

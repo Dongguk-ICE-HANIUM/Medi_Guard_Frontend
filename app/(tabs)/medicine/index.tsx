@@ -1,9 +1,17 @@
+import { Calender } from "@/components/Calendar";
 import NavigationCard from "@/components/Card/NavigationCard";
 import { ScreenLayout } from "@/components/ScreenLayout";
+import { useCalendar } from "@/hooks/useCalendar";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import { router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function MedicineScreen() {
+  const { currentDate } = useCalendar();
+
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentDay = currentDate.getDay();
+
   return (
     <ScreenLayout>
       <View style={styles.navCardContainer}>
@@ -22,9 +30,16 @@ export default function MedicineScreen() {
           }}
         />
       </View>
-      <View style={styles.todayContainer}>
-        <Text>Today's</Text>
+      <View style={styles.calendarConatainer}>
+        <View style={styles.calenderTitleTextContainer}>
+          <Text style={styles.calendarTitleText}>
+            {currentMonth}월 {currentDay}일
+          </Text>
+          <AntDesign name="downcircleo" size={17} color="black" />
+        </View>
+        <Calender />
       </View>
+      <View style={styles.todayContainer}></View>
     </ScreenLayout>
   );
 }
@@ -34,6 +49,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: 20,
+  },
+  calendarConatainer: {
+    marginTop: 15,
+  },
+  calenderTitleTextContainer: {
+    flexDirection: "row",
+    gap: 7,
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  calendarTitleText: {
+    fontSize: 17,
   },
   todayContainer: {},
 });
