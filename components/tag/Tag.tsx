@@ -12,7 +12,6 @@ import {
 interface TagProps extends PressableProps {
   tagInfo: TagInfo;
   size?: "small" | "large";
-  icon?: string;
   onPress?: () => void;
 }
 

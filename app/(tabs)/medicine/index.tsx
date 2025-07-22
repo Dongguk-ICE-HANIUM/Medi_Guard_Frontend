@@ -1,4 +1,6 @@
+import Button from "@/components/Button";
 import Calendar from "@/components/Calendar";
+import GroupMedicineCard from "@/components/Card/GroupMedicineCard";
 import NavigationCard from "@/components/Card/NavigationCard";
 import { ScreenLayout } from "@/components/ScreenLayout";
 import { useCalendar } from "@/hooks/useCalendar";
@@ -39,7 +41,10 @@ export default function MedicineScreen() {
         </View>
         <Calendar />
       </View>
-      <View style={styles.todayContainer}></View>
+      <View style={styles.todayContainer}>
+        <GroupMedicineCard />
+      </View>
+      <Button size="large" text="완료"></Button>
     </ScreenLayout>
   );
 }
@@ -61,5 +66,7 @@ const styles = StyleSheet.create({
   calendarTitleText: {
     fontSize: 17,
   },
-  todayContainer: {},
+  todayContainer: {
+    marginTop: 15,
+  },
 });
