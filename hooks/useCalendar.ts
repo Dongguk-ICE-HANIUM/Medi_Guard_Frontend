@@ -16,6 +16,91 @@ export interface useCalendarReturn {
   setCurrentDate: (date: Date) => void;
 }
 
+//
+// 더미 데이터 생성 함수
+//
+export const generateDummyData = (year: number, month: number): DayData[] => {
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const mockData: DayData[] = [];
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    // 특별한 날짜들에 미리 정의된 태그 조합
+    if (day === 1) {
+      // 1일 - 모든 태그 표시
+      mockData.push({
+        didTakePill: true,
+        hasSideEffect: true,
+        isTakeScheduled: true,
+        isScheduled: true,
+      });
+    } else if (day === 5) {
+      // 5일 - 복용 + 부작용
+      mockData.push({
+        didTakePill: true,
+        hasSideEffect: true,
+        isTakeScheduled: false,
+        isScheduled: false,
+      });
+    } else if (day === 10) {
+      // 10일 - 복용예정 + 진료
+      mockData.push({
+        didTakePill: false,
+        hasSideEffect: false,
+        isTakeScheduled: true,
+        isScheduled: true,
+      });
+    } else if (day === 15) {
+      // 15일 - 복용만
+      mockData.push({
+        didTakePill: true,
+        hasSideEffect: false,
+        isTakeScheduled: false,
+        isScheduled: false,
+      });
+    } else if (day === 20) {
+      // 20일 - 부작용만
+      mockData.push({
+        didTakePill: false,
+        hasSideEffect: true,
+        isTakeScheduled: false,
+        isScheduled: false,
+      });
+    } else if (day === 25) {
+      // 25일 - 복용예정만
+      mockData.push({
+        didTakePill: false,
+        hasSideEffect: false,
+        isTakeScheduled: true,
+        isScheduled: false,
+      });
+    } else if (day === 28) {
+      // 28일 - 진료만
+      mockData.push({
+        didTakePill: false,
+        hasSideEffect: false,
+        isTakeScheduled: false,
+        isScheduled: true,
+      });
+    } else {
+      // 나머지 날짜들은 랜덤하게 (일관성을 위해 day를 시드로 사용)
+      const seed = day * 137;
+      const random1 = (Math.sin(seed) + 1) / 2;
+      const random2 = (Math.sin(seed * 2) + 1) / 2;
+      const random3 = (Math.sin(seed * 3) + 1) / 2;
+      const random4 = (Math.sin(seed * 4) + 1) / 2;
+
+      mockData.push({
+        didTakePill: random1 > 0.4, // 60% 확률로 복용
+        hasSideEffect: random2 > 0.9, // 10% 확률로 부작용
+        isTakeScheduled: random3 > 0.8, // 20% 확률로 복용 예정
+        isScheduled: random4 > 0.95, // 5% 확률로 진료 예정
+      });
+    }
+  }
+
+  return mockData;
+};
+
 export const useCalendar = (initialDate?: Date): useCalendarReturn => {
   const [calendarData, setCalendarData] = useState<DayData[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -23,6 +108,8 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
   const [currentDate, setCurrentDate] = useState<Date>(
     initialDate || new Date()
   );
+
+  const USE_DUMMY_DATA = __DEV__ || true;
 
   const formatDate = useCallback((date: Date): string => {
     const year = date.getFullYear().toString().slice(-2);
@@ -36,6 +123,23 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
       setLoading(true);
       setError(null);
       try {
+        if (USE_DUMMY_DATA) {
+          //더미 데이터 출력
+          console.log(
+            "더미 데이터 : ",
+            date.getFullYear(),
+            date.getMonth() + 1
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+          const year = date.getFullYear();
+          const month = date.getMonth();
+          const mockData = generateDummyData(year, month);
+
+          setCalendarData(mockData);
+          return;
+        }
         const formattedDate = formatDate(date);
         const data = await calendarApi.getCalendarData(formattedDate);
         setCalendarData(data);
@@ -48,7 +152,7 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
         setLoading(false);
       }
     },
-    [formatDate]
+    [formatDate, USE_DUMMY_DATA]
   );
 
   const changeMonth = useCallback((direction: number) => {
@@ -106,7 +210,7 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
       if (daystatus.isTakeScheduled) {
         tags.push({
           type: "pillSchedule",
-          label: "복용 예정",
+          label: "예정",
           color: colors.YELLOW,
         });
       }

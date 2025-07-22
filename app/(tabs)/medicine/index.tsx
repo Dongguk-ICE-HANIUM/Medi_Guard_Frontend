@@ -1,4 +1,4 @@
-import { Calender } from "@/components/Calendar";
+import Calendar from "@/components/Calendar";
 import NavigationCard from "@/components/Card/NavigationCard";
 import { ScreenLayout } from "@/components/ScreenLayout";
 import { useCalendar } from "@/hooks/useCalendar";
@@ -31,13 +31,13 @@ export default function MedicineScreen() {
         />
       </View>
       <View style={styles.calendarConatainer}>
-        <View style={styles.calenderTitleTextContainer}>
+        <View style={styles.calendarTitleTextContainer}>
           <Text style={styles.calendarTitleText}>
             {currentMonth}월 {currentDay}일
           </Text>
           <AntDesign name="downcircleo" size={17} color="black" />
         </View>
-        <Calender />
+        <Calendar />
       </View>
       <View style={styles.todayContainer}></View>
     </ScreenLayout>
@@ -53,9 +53,8 @@ const styles = StyleSheet.create({
   calendarConatainer: {
     marginTop: 15,
   },
-  calenderTitleTextContainer: {
+  calendarTitleTextContainer: {
     flexDirection: "row",
-    gap: 7,
     alignItems: "center",
     marginBottom: 15,
   },

@@ -1,6 +1,5 @@
 import { colors } from "@/constants";
 import { useCalendar } from "@/hooks/useCalendar";
-import { TagInfo } from "@/types/tags";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
   ActivityIndicator,
@@ -10,8 +9,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import TagsContainer from "./tag/TagsContainer";
 
-export function Calender() {
+export default function Calendar() {
   const {
     calendarData,
     loading,
@@ -43,17 +43,6 @@ export function Calender() {
     return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
   };
 
-  const renderDayTags = (tags: TagInfo[]): React.ReactNode[] => {
-    return tags.map((tag, index) => (
-      <View
-        key={`${tag.type}-${index}`}
-        style={[styles.tag, { backgroundColor: tag.color }]}
-      >
-        <Text style={styles.tagText}>{tag.label}</Text>
-      </View>
-    ));
-  };
-
   const renderCalendarDay = (
     day: number,
     dayIndex: number
@@ -82,10 +71,19 @@ export function Calender() {
           }
         }}
       >
-        <Text style={[styles.dayNumber, isToday && styles.todayNumber]}>
-          {day}
-        </Text>
-        <View style={styles.tagsContainer}>{renderDayTags(tags)}</View>
+        {isToday ? (
+          <View style={styles.todayCircle}>
+            <Text style={[styles.dayNumber, isToday && styles.todayNumber]}>
+              {day}
+            </Text>
+          </View>
+        ) : (
+          <Text style={[styles.dayNumber, isToday && styles.todayNumber]}>
+            {day}
+          </Text>
+        )}
+
+        <TagsContainer tags={tags} maxTags={2} />
       </TouchableOpacity>
     );
   };
@@ -181,7 +179,6 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
 
-  tagsContainer: {},
   loadingContainer: {},
 
   calendarGrid: {
@@ -189,10 +186,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
 
-  tag: {},
-  tagText: {},
-
-  calendarConatiner: { margin: 5, paddingHorizontal: 8 },
+  calendarConatiner: { margin: 5 },
   dayOfWeekContainer: {
     flexDirection: "row",
   },
@@ -207,28 +201,35 @@ const styles = StyleSheet.create({
     width: "14.28%",
     alignItems: "center",
     paddingVertical: 4,
-    minHeight: 50,
-    justifyContent: "center",
+    minHeight: 40,
+    justifyContent: "flex-start",
   },
 
   dayNumber: {
     fontSize: 17,
+    justifyContent: "flex-start",
   },
-  todayNumber: {
+  todayContainer: {},
+  todayCircle: {
     backgroundColor: colors.PINK,
-    borderRadius: 18,
-    height: 36,
-    width: 36,
-    textAlign: "center",
+    height: 32,
+    width: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
     opacity: 0.8,
     lineHeight: 36,
+    zIndex: 2,
+  },
+  todayNumber: {
+    zIndex: -1,
   },
   prevDayContainer: {
     width: "14.28%",
     alignItems: "center",
     paddingVertical: 4,
     minHeight: 50,
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
   prevDay: {
     fontSize: 17,
@@ -240,11 +241,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 4,
     minHeight: 50,
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
   nextDay: {
     fontSize: 17,
     color: colors.TEXT_GRAY,
   },
-  todayContainer: {},
 });
