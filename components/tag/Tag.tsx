@@ -1,16 +1,20 @@
 import { colors } from "@/constants";
-import { TagInfo } from "@/types/tags";
-import Feather from "@expo/vector-icons/Feather";
+import { tagIcons, TagInfo } from "@/types/tags";
 import React from "react";
 import { Pressable, PressableProps, StyleSheet, Text } from "react-native";
 
 interface TagProps extends PressableProps {
   tagInfo: TagInfo;
   size?: "small" | "large";
+  icon?: string;
   onPress?: () => void;
 }
 
 function Tag({ tagInfo, size = "small", onPress, ...props }: TagProps) {
+  const iconInfo = tagIcons[tagInfo.type];
+  const IconComponet = iconInfo?.Icon;
+  const iconName = iconInfo?.name;
+
   return (
     <Pressable
       style={({ pressed }) => [
@@ -22,7 +26,7 @@ function Tag({ tagInfo, size = "small", onPress, ...props }: TagProps) {
       onPress={onPress}
       {...props}
     >
-      <Feather name="x-circle" size={10} color="black" />
+      <IconComponet name={iconName as any} size={size === "small" ? 10 : 12} />
       <Text style={styles[`${size}Text`]}>{tagInfo.label}</Text>
     </Pressable>
   );
@@ -33,16 +37,16 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     flexDirection: "row",
     justifyContent: "flex-start",
-    paddingHorizontal: 3,
-    gap: 1,
+    paddingHorizontal: 4,
+    gap: 2,
   },
   small: { width: 45, height: 15, alignItems: "center" },
-  large: {},
   smallText: {
     paddingVertical: 2,
     textAlign: "center",
-    fontSize: 11,
+    fontSize: 10,
   },
+  large: {},
   largeText: {},
   pressed: {},
   pillTaken: { backgroundColor: colors.BLUE, borderRadius: 8 },
