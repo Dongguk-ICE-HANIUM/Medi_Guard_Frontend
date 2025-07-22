@@ -1,7 +1,13 @@
 import { colors } from "@/constants";
 import { tagIcons, TagInfo } from "@/types/tags";
 import React from "react";
-import { Pressable, PressableProps, StyleSheet, Text } from "react-native";
+import {
+  Pressable,
+  PressableProps,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 interface TagProps extends PressableProps {
   tagInfo: TagInfo;
@@ -12,7 +18,7 @@ interface TagProps extends PressableProps {
 
 function Tag({ tagInfo, size = "small", onPress, ...props }: TagProps) {
   const iconInfo = tagIcons[tagInfo.type];
-  const IconComponet = iconInfo?.Icon;
+  const IconComponent = iconInfo?.Icon;
   const iconName = iconInfo?.name;
 
   return (
@@ -26,7 +32,12 @@ function Tag({ tagInfo, size = "small", onPress, ...props }: TagProps) {
       onPress={onPress}
       {...props}
     >
-      <IconComponet name={iconName as any} size={size === "small" ? 10 : 12} />
+      <View style={styles.tagIcon}>
+        <IconComponent
+          name={iconName as any}
+          size={size === "small" ? 8 : 12}
+        />
+      </View>
       <Text style={styles[`${size}Text`]}>{tagInfo.label}</Text>
     </Pressable>
   );
@@ -49,10 +60,16 @@ const styles = StyleSheet.create({
   large: {},
   largeText: {},
   pressed: {},
-  pillTaken: { backgroundColor: colors.BLUE, borderRadius: 8 },
-  pillMissed: { backgroundColor: colors.RED, borderRadius: 8 },
-  sideEffect: { backgroundColor: colors.PURPLE, borderRadius: 8 },
-  pillSchedule: { backgroundColor: colors.YELLOW, borderRadius: 8 },
+  tagIcon: {
+    width: 8,
+    height: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pillTaken: { backgroundColor: "#B6D0FF", borderRadius: 8 },
+  pillMissed: { backgroundColor: "#FF6E70", borderRadius: 8 },
+  sideEffect: { backgroundColor: "#D9B6FF", borderRadius: 8 },
+  pillSchedule: { backgroundColor: "#FFFDB6", borderRadius: 8 },
   appointment: { backgroundColor: colors.PINK, borderRadius: 8 },
 });
 

@@ -65,14 +65,6 @@ export const generateDummyData = (year: number, month: number): DayData[] => {
         isTakeScheduled: false,
         isScheduled: false,
       });
-    } else if (day === 25) {
-      // 25일 - 복용예정만
-      mockData.push({
-        didTakePill: false,
-        hasSideEffect: false,
-        isTakeScheduled: true,
-        isScheduled: false,
-      });
     } else if (day === 28) {
       // 28일 - 진료만
       mockData.push({
@@ -90,9 +82,9 @@ export const generateDummyData = (year: number, month: number): DayData[] => {
       const random4 = (Math.sin(seed * 4) + 1) / 2;
 
       mockData.push({
-        didTakePill: random1 > 0.4, // 60% 확률로 복용
-        hasSideEffect: random2 > 0.9, // 10% 확률로 부작용
-        isTakeScheduled: random3 > 0.8, // 20% 확률로 복용 예정
+        didTakePill: random1 > 0.6, // 60% 확률로 복용
+        hasSideEffect: random2 > 0.95, // 10% 확률로 부작용
+        isTakeScheduled: random3 > 0.98, // 20% 확률로 복용 예정
         isScheduled: random4 > 0.95, // 5% 확률로 진료 예정
       });
     }

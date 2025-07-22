@@ -210,19 +210,15 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   todayContainer: {},
-  todayCircle: {
+  todayCircle: {},
+  todayNumber: {
     backgroundColor: colors.PINK,
-    height: 32,
-    width: 32,
-    borderRadius: 16,
+    height: 20,
+    width: 20,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     opacity: 0.8,
-    lineHeight: 36,
-    zIndex: 2,
-  },
-  todayNumber: {
-    zIndex: -1,
   },
   prevDayContainer: {
     width: "14.28%",

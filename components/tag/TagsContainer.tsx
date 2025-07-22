@@ -1,3 +1,4 @@
+import { colors } from "@/constants";
 import { TagInfo } from "@/types/tags";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
   container: {},
   more: {
     width: 45,
-    backgroundColor: "#BDBDBD",
+    backgroundColor: colors.LIGHT_GRAY,
     borderRadius: 8,
     height: 15,
     alignItems: "center",
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
   moreText: {
     paddingVertical: 2,
     textAlign: "center",
-    fontSize: 11,
+    fontSize: 10,
   },
 });
 
