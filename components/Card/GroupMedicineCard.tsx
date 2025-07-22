@@ -1,15 +1,19 @@
 import { colors } from "@/constants";
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "../Button";
 
-interface GroupMedicineCardProps {}
+interface GroupMedicineCardProps {
+  drugGroup: {
+    id: string;
+    name: string;
+  };
+}
 
-const GroupMedicineCard = () => {
-  const [content, setContent] = useState([]);
+const GroupMedicineCard = ({ drugGroup }: GroupMedicineCardProps) => {
   return (
     <View style={styles.groupMediCardContainer}>
-      <Text style={styles.groupCardtitle}>{content}봄 진료 처방약</Text>
+      <Text style={styles.groupCardtitle}>{drugGroup.name}</Text>
       <Button size="small" icon="right" />
     </View>
   );
