@@ -1,11 +1,17 @@
 import { colors } from "@/constants";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import CheckBox from "./CheckBox";
+import { SingleMedicineCardProps } from "./SingleMedicineCard";
 
-const Toggle = () => {
+interface ToggleProps {
+  drugItem: SingleMedicineCardProps["drugItem"];
+}
+const Toggle = ({ drugItem }: ToggleProps) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>복용 체크하기</Text>
+      <Text style={styles.text}>복용 체크</Text>
+      <CheckBox drugItem={drugItem} />
     </View>
   );
 };
@@ -19,14 +25,16 @@ const styles = StyleSheet.create({
     borderStyle: "dashed",
     borderRadius: 16,
     width: "100%",
-    height: 40,
     flexDirection: "row",
     alignItems: "center",
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    justifyContent: "space-between",
+    gap: 20,
   },
   text: {
     color: colors.PINK,
     fontWeight: "bold",
-    fontSize: 13,
+    fontSize: 16,
   },
 });

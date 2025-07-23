@@ -42,7 +42,7 @@ export default function MedicineScreen() {
       name: "타이레놀",
       startDate: new Date("2025-03-3"),
       endDate: new Date("2025-03-18"),
-      timeSlot: 12,
+      timeSlot: 1005,
       takenDaysCount: 7,
       missedDaysCount: 2,
     },
@@ -72,7 +72,7 @@ export default function MedicineScreen() {
   };
 
   return (
-    <ScrollView style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
       <View>
         <View style={styles.navCardContainer}>
           <NavigationCard
@@ -125,11 +125,15 @@ const styles = StyleSheet.create({
   calendarTitleText: {
     fontSize: 17,
   },
-  todayContainer: {},
+  todayContainer: {
+    flex: 1,
+    paddingBottom: 20,
+  },
   drugGroupItem: {
-    marginVertical: 5,
+    marginBottom: 10,
   },
   drugItem: {
-    marginVertical: 5,
+    marginBottom: 10,
+    maxHeight: 150,
   },
 });

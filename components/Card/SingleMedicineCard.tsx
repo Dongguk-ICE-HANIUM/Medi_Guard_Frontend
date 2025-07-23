@@ -40,7 +40,7 @@ const SingleMedicineCard = ({ drugItem }: SingleMedicineCardProps) => {
         <ProgressBar drugItem={drugItem} />
       </View>
       <View style={styles.toggle}>
-        <Toggle />
+        <Toggle drugItem={drugItem} />
       </View>
     </View>
   );
@@ -52,10 +52,10 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.WHITE,
     width: "100%",
-    height: 130,
     borderRadius: 15,
     alignItems: "center",
     padding: 15,
+    minHeight: 100,
   },
   header: {
     flexDirection: "row",
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   },
   title: {
     flexDirection: "column",
-    gap: 7,
+    gap: 5,
     paddingLeft: 10,
   },
   name: { fontWeight: "bold", fontSize: 19 },
