@@ -1,6 +1,7 @@
 import Calendar from "@/components/Calendar";
 import GroupMedicineCard from "@/components/Card/GroupMedicineCard";
 import NavigationCard from "@/components/Card/NavigationCard";
+import SingleMedicineCard from "@/components/Card/SingleMedicineCard";
 import { useCalendar } from "@/hooks/useCalendar";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { router } from "expo-router";
@@ -19,10 +20,34 @@ export default function MedicineScreen() {
       name: "봄 진료 처방약",
     },
     {
-      id: "UUID",
+      id: "UGID",
       name: "겨울 진료 처방약",
     },
   ];
+
+  const drugList = [
+    {
+      id: "UUID",
+      calendarDrugId: "UUID",
+      name: "우루사정",
+      startDate: new Date("2025-03-10"),
+      endDate: new Date("2025-03-30"),
+      timeSlot: 12,
+      takenDaysCount: 8,
+      missedDaysCount: 5,
+    },
+    {
+      id: "UGID",
+      calendarDrugId: "UGID",
+      name: "타이레놀",
+      startDate: new Date("2025-03-3"),
+      endDate: new Date("2025-03-18"),
+      timeSlot: 12,
+      takenDaysCount: 7,
+      missedDaysCount: 2,
+    },
+  ];
+
   const DrugGroupList = () => {
     return (
       <View>
@@ -32,6 +57,17 @@ export default function MedicineScreen() {
           </View>
         ))}
       </View>
+    );
+  };
+  const DrugList = () => {
+    return (
+      <>
+        {drugList.map((drugItem) => (
+          <View key={drugItem.id} style={styles.drugItem}>
+            <SingleMedicineCard drugItem={drugItem} />
+          </View>
+        ))}
+      </>
     );
   };
 
@@ -63,7 +99,10 @@ export default function MedicineScreen() {
           </View>
           <Calendar />
         </View>
-        <View style={styles.todayContainer}>{DrugGroupList()}</View>
+        <View style={styles.todayContainer}>
+          {DrugGroupList()}
+          {DrugList()}
+        </View>
       </View>
     </ScrollView>
   );
@@ -88,6 +127,9 @@ const styles = StyleSheet.create({
   },
   todayContainer: {},
   drugGroupItem: {
+    marginVertical: 5,
+  },
+  drugItem: {
     marginVertical: 5,
   },
 });
