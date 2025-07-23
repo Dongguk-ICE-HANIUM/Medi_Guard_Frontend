@@ -9,50 +9,54 @@ interface CheckBoxProps {
 }
 const CheckBox = ({ drugItem }: CheckBoxProps) => {
   const { timeSlot } = drugItem;
-
-  console.log("drugItem:", drugItem);
-  console.log("timeSlot:", timeSlot);
-  console.log("timeSlot type:", typeof timeSlot);
-
   const [currentTimeSlot, setCurrentTimeSlot] = useState(timeSlot);
 
-  const toBinaryArray = (timeSlot: number): number[] => {
-    return timeSlot.toString(2).split("").map(Number);
+  const originalLength = timeSlot.toString(2).length;
+
+  const fixedIndexArray = Array.from({ length: originalLength }, (_, i) => i);
+
+  const getCurrentBit = (position: number): number => {
+    const currentBinary = currentTimeSlot
+      .toString(2)
+      .padStart(originalLength, "0");
+    return parseInt(currentBinary[position]);
   };
+
   const toggleBit = (timeSlot: number, position: number): number => {
-    const bitPosition = timeSlot.toString(2).length - 1 - position;
+    const bitPosition = originalLength - 1 - position;
     return timeSlot ^ (1 << bitPosition);
   };
 
   return (
     <View style={styles.container}>
-      {toBinaryArray(currentTimeSlot).map((bit, index) => (
-        <TouchableOpacity
-          key={index}
-          onPress={() => {
-            const newTimeSlot = toggleBit(currentTimeSlot, index);
-            setCurrentTimeSlot(newTimeSlot);
-          }}
-        >
-          <View
-            style={
-              toBinaryArray(currentTimeSlot).length > 7
-                ? styles.box
-                : styles.overbox
-            }
+      {fixedIndexArray.map((_, index) => {
+        const currentBit = getCurrentBit(index);
+        return (
+          <TouchableOpacity
+            key={index}
+            onPress={() => {
+              const newTimeSlot = toggleBit(currentTimeSlot, index);
+              setCurrentTimeSlot(newTimeSlot);
+            }}
           >
-            {bit === 1 ? (
-              <Ionicons name="checkbox-outline" size={25} color={colors.PINK} />
-            ) : (
-              <Ionicons
-                name="square-outline"
-                size={25}
-                color={colors.TEXT_GRAY}
-              />
-            )}
-          </View>
-        </TouchableOpacity>
-      ))}
+            <View style={styles.box}>
+              {currentBit === 1 ? (
+                <Ionicons
+                  name="checkbox-outline"
+                  size={25}
+                  color={colors.PINK}
+                />
+              ) : (
+                <Ionicons
+                  name="square-outline"
+                  size={25}
+                  color={colors.TEXT_GRAY}
+                />
+              )}
+            </View>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 };

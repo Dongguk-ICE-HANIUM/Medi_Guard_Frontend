@@ -37,6 +37,16 @@ export default function MedicineScreen() {
       missedDaysCount: 5,
     },
     {
+      id: "EUID",
+      calendarDrugId: "UUID",
+      name: "탁센",
+      startDate: new Date("2025-03-10"),
+      endDate: new Date("2025-03-30"),
+      timeSlot: 12,
+      takenDaysCount: 8,
+      missedDaysCount: 5,
+    },
+    {
       id: "UGID",
       calendarDrugId: "UGID",
       name: "타이레놀",
@@ -72,7 +82,11 @@ export default function MedicineScreen() {
   };
 
   return (
-    <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={{ flex: 1 }}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 10 }}
+    >
       <View>
         <View style={styles.navCardContainer}>
           <NavigationCard
@@ -121,6 +135,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 15,
+    gap: 5,
   },
   calendarTitleText: {
     fontSize: 17,
