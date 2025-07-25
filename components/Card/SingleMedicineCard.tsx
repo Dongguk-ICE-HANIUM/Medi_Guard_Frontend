@@ -1,4 +1,5 @@
 import { colors } from "@/constants";
+import { Drug } from "@/types/calendar";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "../Button";
@@ -6,20 +7,12 @@ import ProgressBar from "./ProgressBar";
 import Toggle from "./Toggle";
 
 export interface SingleMedicineCardProps {
-  drugItem: {
-    id: string;
-    calendarDrugId: string;
-    name: string;
-    startDate: Date;
-    endDate: Date;
-    timeSlot: number;
-    takenDaysCount: number;
-    missedDaysCount: number;
-  };
+  drugItem: Drug;
 }
 
 const SingleMedicineCard = ({ drugItem }: SingleMedicineCardProps) => {
-  const formatDate = (date: Date) => {
+  const formatDate = (datestring: string) => {
+    const date = new Date(datestring);
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDate();

@@ -14,6 +14,10 @@ export interface useCalendarReturn {
   getTagsForDay: (dayIndex: number) => TagInfo[];
   refreshData: () => void;
   setCurrentDate: (date: Date) => void;
+
+  selectedDate: Date | null;
+  setSelectedDate: (date: Date) => void;
+  getSelectedDate: () => string | null;
 }
 
 //
@@ -93,6 +97,9 @@ export const generateDummyData = (year: number, month: number): DayData[] => {
   return mockData;
 };
 
+//
+//컴포넌트 시작
+//
 export const useCalendar = (initialDate?: Date): useCalendarReturn => {
   const [calendarData, setCalendarData] = useState<DayData[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -100,6 +107,7 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
   const [currentDate, setCurrentDate] = useState<Date>(
     initialDate || new Date()
   );
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const USE_DUMMY_DATA = __DEV__ || true;
 
@@ -226,15 +234,27 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
     fetchCalendarData(currentDate);
   }, [currentDate, fetchCalendarData]);
 
+  const getSelectedDate = useCallback((): string | null => {
+    if (!selectedDate) return null;
+
+    const year = selectedDate.getFullYear();
+    const month = (selectedDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = selectedDate.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }, [selectedDate]);
+
   return {
     calendarData,
     loading,
     error,
     currentDate,
+    selectedDate,
     changeMonth,
     getDayStatus,
     getTagsForDay,
     refreshData,
     setCurrentDate,
+    setSelectedDate,
+    getSelectedDate,
   };
 };

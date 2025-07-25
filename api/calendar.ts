@@ -28,7 +28,7 @@ class CalendarApi {
       if (response.data.errorCode) {
         throw new Error(response.data.message);
       }
-      return response.data.result?.dataList ?? [];
+      return response.data.result?.dateList ?? [];
     } catch (error: any) {
       throw new Error(
         error?.response?.data?.message || error.message || "API error"

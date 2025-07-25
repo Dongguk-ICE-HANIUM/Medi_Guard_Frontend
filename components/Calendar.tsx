@@ -3,7 +3,6 @@ import { useCalendar } from "@/hooks/useCalendar";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
   ActivityIndicator,
-  Alert,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -22,6 +21,9 @@ export default function Calendar() {
     getTagsForDay,
     refreshData,
     setCurrentDate,
+
+    selectedDate,
+    setSelectedDate,
   } = useCalendar();
 
   const getDaysInMonth = (date: Date): number => {
@@ -56,19 +58,18 @@ export default function Calendar() {
       day
     );
     const isToday = today.toDateString() === cellDate.toDateString();
+    const isSelectd = selectedDate?.toDateString() === cellDate.toDateString();
 
     return (
       <TouchableOpacity
         key={day}
-        style={[styles.dayContainer, isToday && styles.todayContainer]}
+        style={[
+          styles.dayContainer,
+          isToday && styles.todayContainer,
+          isSelectd && styles.selectedContainer,
+        ]}
         onPress={() => {
-          if (tags.length > 0) {
-            Alert.alert(
-              `${day}일 정보`,
-              tags.map((tag) => tag.label).join(","),
-              [{ text: "확인", style: "default" }]
-            );
-          }
+          setSelectedDate(cellDate);
         }}
       >
         {isToday ? (
@@ -134,6 +135,19 @@ export default function Calendar() {
     );
   }
 
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>
+          {" "}
+          캘린더를 불러오는 중 오류가 발생했습니다.{" "}
+        </Text>
+        <TouchableOpacity onPress={refreshData} style={styles.retryButton}>
+          <Text style={styles.retryText}>다시 시도</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
   return (
     <>
       <View style={styles.container}>
@@ -179,8 +193,6 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
 
-  loadingContainer: {},
-
   calendarGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -220,6 +232,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     opacity: 0.8,
   },
+  selectedContainer: {},
   prevDayContainer: {
     width: "14.28%",
     alignItems: "center",
@@ -242,5 +255,30 @@ const styles = StyleSheet.create({
   nextDay: {
     fontSize: 17,
     color: colors.TEXT_GRAY,
+  },
+  //추후 수정
+  loadingContainer: {},
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: 200,
+  },
+
+  errorText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 10,
+  },
+
+  retryButton: {
+    backgroundColor: colors.PINK,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  retryText: {
+    color: "white",
+    fontSize: 14,
   },
 });
