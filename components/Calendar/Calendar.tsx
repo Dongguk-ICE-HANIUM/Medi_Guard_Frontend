@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import TagsContainer from "./tag/TagsContainer";
+import TagsContainer from "../tag/TagsContainer";
 
 export default function Calendar() {
   const {
