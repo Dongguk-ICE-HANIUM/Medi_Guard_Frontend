@@ -10,6 +10,6 @@ export type SignupFormValues = {
   pregnant: number;
   feeding: boolean;
   dueDate: string;
-  allergy: object;
-  disease: object;
+  allergy: string[] | null;
+  disease: string[] | null;
 };

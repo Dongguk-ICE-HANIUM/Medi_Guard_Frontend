@@ -3,13 +3,16 @@ import React, { createContext, ReactNode, useContext, useState } from "react";
 type SignupContextType = {
   signupData: Partial<SignupFormValues>;
   updateSignupData: (data: Partial<SignupFormValues>) => void;
+  isEmailVerified: boolean;
   resetSignupData: () => void;
+  setEmailVerified: (verified: boolean) => void;
 };
 
 const SignupContext = createContext<SignupContextType | undefined>(undefined);
 
 export function SignupProvider({ children }: { children: ReactNode }) {
   const [signupData, setSignupData] = useState<Partial<SignupFormValues>>({});
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   const updateSignupData = (data: Partial<SignupFormValues>) => {
     setSignupData((prev) => ({ ...prev, ...data }));
@@ -19,9 +22,19 @@ export function SignupProvider({ children }: { children: ReactNode }) {
     setSignupData({});
   };
 
+  const setEmailVerified = (verified: boolean) => {
+    setIsEmailVerified(verified);
+  };
+
   return (
     <SignupContext.Provider
-      value={{ signupData, updateSignupData, resetSignupData }}
+      value={{
+        signupData,
+        updateSignupData,
+        resetSignupData,
+        isEmailVerified,
+        setEmailVerified,
+      }}
     >
       {children}
     </SignupContext.Provider>
