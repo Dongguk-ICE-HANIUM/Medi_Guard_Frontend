@@ -15,6 +15,7 @@ interface InputFieldProps extends TextInputProps {
   variant?: "icon" | "basic";
   size?: "small" | "full";
   iconName?: keyof typeof Ionicons.glyphMap;
+  iconColor?: string;
   error?: string;
   onIconPress?: () => void;
 }
@@ -23,6 +24,7 @@ function Input({
   label,
   variant = "basic",
   iconName,
+  iconColor,
   error,
   size,
   onIconPress,
@@ -51,7 +53,11 @@ function Input({
           />
           {variant === "icon" && iconName && (
             <TouchableOpacity style={styles.iconButton} onPress={onIconPress}>
-              <Ionicons name={iconName} size={20} color={colors.BLACK} />
+              <Ionicons
+                name={iconName}
+                size={20}
+                color={iconColor ? iconColor : colors.BLACK}
+              />
             </TouchableOpacity>
           )}
         </View>

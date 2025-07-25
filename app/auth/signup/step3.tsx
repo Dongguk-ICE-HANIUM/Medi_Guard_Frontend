@@ -40,7 +40,11 @@ const items: AgreementItem[] = [
 
 export default function Step3Screen() {
   // Record는 key-value
-  const [agreements, setAgreements] = useState<Record<number, boolean>>({});
+  const [agreements, setAgreements] = useState<Record<number, boolean>>({
+    1: true,
+    2: true,
+    3: true,
+  });
   const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>(
     {}
   );

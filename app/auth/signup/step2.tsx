@@ -1,5 +1,4 @@
 import Button from "@/components/Button";
-import AgeInput from "@/components/Input/AgeInput";
 import BirthdayInput from "@/components/Input/BirthdayInput";
 import DueDateInput from "@/components/Input/DueDateInput";
 import FeedingInput from "@/components/Input/FeedingInput";
@@ -14,31 +13,26 @@ import { FormProvider, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 
 export default function Step2Screen() {
-  const { updateSignupData } = useSignupContext();
+  const { updateSignupData, signupData } = useSignupContext();
 
   const signupForm = useForm<SignupFormValues>({
     defaultValues: {
+      email: signupData.email,
+      password: signupData.password,
       name: "송민교", //"",
-      age: 22,
       birthday: "2004-12-16", //"",
-      height: undefined,
-      weight: undefined,
-      feeding: undefined,
+      height: signupData.height,
+      weight: signupData.weight,
+      feeding: signupData.feeding,
       pregnant: 7, //undefined,
       dueDate: "2025-08-29", //"",
+      allergy: signupData.allergy,
+      disease: signupData.disease,
     },
   });
 
   const onSubmit = (formValues: SignupFormValues) => {
-    updateSignupData({
-      name: formValues.name,
-      age: formValues.age,
-      birthday: formValues.birthday,
-      height: formValues.height,
-      weight: formValues.weight,
-      feeding: formValues.feeding,
-      dueDate: formValues.dueDate,
-    });
+    updateSignupData(formValues);
 
     router.push("/auth/signup/step3");
   };
@@ -47,8 +41,8 @@ export default function Step2Screen() {
       <View>
         <NameInput />
         <View style={styles.input1}>
-          <AgeInput />
           <BirthdayInput />
+          <DueDateInput />
         </View>
         <View style={styles.input2}>
           <HeightInput />
@@ -58,12 +52,11 @@ export default function Step2Screen() {
           <PregnantInput />
           <FeedingInput />
         </View>
-        <DueDateInput />
       </View>
       <View style={styles.button}>
         <Button
           text="계속하기"
-          color="gray"
+          color="pink"
           onPress={signupForm.handleSubmit(onSubmit)}
         />
       </View>
@@ -82,7 +75,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   button: {
-    marginTop: 25,
+    marginTop: 55,
     marginHorizontal: 15,
   },
 });
