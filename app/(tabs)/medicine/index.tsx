@@ -43,7 +43,7 @@ export default function MedicineScreen() {
             text="약물 등록하기"
             icon="plus"
             onPress={() => {
-              router.push("/medicine/register/registerIndex");
+              router.push("/medicine/register");
             }}
           />
         </View>

@@ -7,16 +7,16 @@ export default function RegisterLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
         contentStyle: { backgroundColor: colors.WHITE },
       }}
     >
       <Stack.Screen
-        name="registerIndex"
+        name="index"
         options={{
           headerShown: true,
           title: "약물 등록",
-          contentStyle: { marginHorizontal: 13 },
+          contentStyle: { marginHorizontal: 13, backgroundColor: colors.WHITE },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()}>
               <Ionicons name="chevron-back" size={24} color={"black"} />
