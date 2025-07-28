@@ -40,7 +40,7 @@ export default function AuthLayout() {
       <Stack.Screen
         name="login"
         options={{
-          headerShown: true,
+          headerShown: false,
           title: "로그인",
         }}
       />
