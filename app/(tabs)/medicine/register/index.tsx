@@ -16,42 +16,44 @@ const Register = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>약물을 등록할 방법을 {"\n"}선택해주세요</Text>
-
-      <View style={styles.optionsContainer}>
-        <Pressable
-          onPress={() => setSelectedMethod("direct")}
-          style={[
-            styles.registerCard,
-            selectedMethod === "direct" && styles.selectedCard,
-          ]}
-        >
-          <Text
+      <View style={styles.content}>
+        <Text style={styles.title}>
+          약물을 등록할 방법을 {"\n"}선택해주세요
+        </Text>
+        <View style={styles.optionsContainer}>
+          <Pressable
+            onPress={() => setSelectedMethod("direct")}
             style={[
-              styles.text,
-              selectedMethod === "direct" && styles.selectedText,
+              styles.registerCard,
+              selectedMethod === "direct" && styles.selectedCard,
             ]}
           >
-            직접 등록하기
-          </Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => setSelectedMethod("ai")}
-          style={[
-            styles.registerCard,
-            selectedMethod === "ai" && styles.selectedCard,
-          ]}
-        >
-          <Text
+            <Text
+              style={[
+                styles.text,
+                selectedMethod === "direct" && styles.selectedText,
+              ]}
+            >
+              직접 등록하기
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setSelectedMethod("ai")}
             style={[
-              styles.text,
-              selectedMethod === "ai" && styles.selectedText,
+              styles.registerCard,
+              selectedMethod === "ai" && styles.selectedCard,
             ]}
           >
-            AI 이미지 검색으로 등록하기
-          </Text>
-        </Pressable>
+            <Text
+              style={[
+                styles.text,
+                selectedMethod === "ai" && styles.selectedText,
+              ]}
+            >
+              AI 이미지 검색으로 등록하기
+            </Text>
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.bottomContainer}>
@@ -78,10 +80,14 @@ export default Register;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 40,
+    paddingVertical: 30,
+    justifyContent: "space-between",
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    justifyContent: "center",
   },
   title: {
     fontWeight: "bold",
@@ -90,7 +96,6 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   optionsContainer: {
-    flex: 1,
     gap: 15,
   },
   registerCard: {
@@ -101,7 +106,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.WHITE,
     borderWidth: 1,
-    borderColor: colors.LIGHT_GRAY || "#E0E0E0",
+    borderColor: colors.LIGHT_GRAY,
 
     shadowColor: colors.TEXT_GRAY,
     shadowOffset: {
@@ -110,20 +115,19 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.1,
     shadowRadius: 3.82,
-    elevation: 3,
   },
   selectedCard: {
-    backgroundColor: colors.PINK || "#FFB6C1",
-    borderColor: colors.PINK || "#FFB6C1",
+    backgroundColor: colors.PINK,
+    borderColor: colors.PINK,
     borderWidth: 2,
   },
   text: {
     fontSize: 18,
-    color: colors.TEXT_GRAY || "#666",
+    color: colors.TEXT_GRAY,
     fontWeight: "500",
   },
   selectedText: {
-    color: colors.WHITE || "#FFF",
+    color: colors.BLACK,
     fontWeight: "600",
   },
   bottomContainer: {
@@ -135,14 +139,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.PINK || "#FFB6C1",
+    backgroundColor: colors.PINK,
   },
   disabledButton: {
-    backgroundColor: colors.LIGHT_GRAY || "#E0E0E0",
+    backgroundColor: colors.LIGHT_GRAY,
   },
   nextButtonText: {
     fontSize: 18,
-    color: colors.WHITE || "#FFF",
+    color: colors.BLACK,
     fontWeight: "600",
   },
   disabledButtonText: {
