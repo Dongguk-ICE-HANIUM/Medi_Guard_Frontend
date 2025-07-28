@@ -1,4 +1,4 @@
-import { signup } from "@/api/auth";
+import { signup } from "@/api/signup";
 import AllergyList from "@/components/AllergyList";
 import Button from "@/components/Button";
 import DiseaseList from "@/components/DiseaseList";

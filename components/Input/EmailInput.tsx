@@ -1,4 +1,4 @@
-import { checkEmailDuplicate } from "@/api/auth";
+import { checkEmailDuplicate } from "@/api/signup";
 import { colors } from "@/constants";
 import { useSignupContext } from "@/context/SignupContext";
 import React, { useState } from "react";

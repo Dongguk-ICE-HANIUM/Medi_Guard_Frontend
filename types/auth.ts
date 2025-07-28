@@ -13,3 +13,8 @@ export type SignupFormValues = {
   allergy: string[] | null;
   disease: string[] | null;
 };
+
+export type LoginFormValues = {
+  email: string;
+  password: string;
+};
