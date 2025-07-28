@@ -40,7 +40,7 @@ const getAllMedicineData = () => {
       calendarDrugId: "UUID",
       name: "탁센",
       startDate: "2025-07-10",
-      endDate: "2025-03-35",
+      endDate: "2025-08-03",
       timeSlot: 12,
       takenDaysCount: 8,
       missedDaysCount: 5,

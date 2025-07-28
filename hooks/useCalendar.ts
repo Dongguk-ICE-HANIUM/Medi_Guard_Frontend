@@ -2,6 +2,7 @@ import calendarApi from "@/api/calendar";
 import { colors } from "@/constants";
 import { DayData } from "@/types/calendar";
 import { TagInfo } from "@/types/tags";
+import { formatDateSlash } from "@/utils/dateUtils";
 import { useCallback, useEffect, useState } from "react";
 
 export interface useCalendarReturn {
@@ -111,13 +112,6 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
 
   const USE_DUMMY_DATA = __DEV__ || true;
 
-  const formatDate = useCallback((date: Date): string => {
-    const year = date.getFullYear().toString().slice(-2);
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const day = date.getDate().toString().padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }, []);
-
   const fetchCalendarData = useCallback(
     async (date: Date): Promise<void> => {
       setLoading(true);
@@ -140,7 +134,7 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
           setCalendarData(mockData);
           return;
         }
-        const formattedDate = formatDate(date);
+        const formattedDate = formatDateSlash(date);
         const data = await calendarApi.getCalendarData(formattedDate);
         setCalendarData(data);
       } catch (err: any) {
@@ -152,7 +146,7 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
         setLoading(false);
       }
     },
-    [formatDate, USE_DUMMY_DATA]
+    [USE_DUMMY_DATA, USE_DUMMY_DATA]
   );
 
   const changeMonth = useCallback((direction: number) => {
