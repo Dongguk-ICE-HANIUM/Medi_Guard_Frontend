@@ -59,5 +59,4 @@ export const login = async (loginData: LoginFormValues) => {
 
 export const logout = async () => {
   await deleteSecureStore("accessToken");
-  await deleteSecureStore("refreshToken");
 };
