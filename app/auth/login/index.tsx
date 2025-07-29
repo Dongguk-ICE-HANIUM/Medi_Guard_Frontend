@@ -19,23 +19,23 @@ export default function LoginScreen() {
     const autoFaceIdLogin = async () => {
       try {
         const enabled = await getSecureStore("biometricEnabled");
-        const hasToken = await getSecureStore("accessToken");
-
+        const hasLoggedIn = await getSecureStore("hasLoggedInBefore");
         setBiometricEnabled(enabled === "true");
 
-        if (enabled === "true" && hasToken) {
+        if (enabled === "true" && hasLoggedIn === "true") {
           console.log("자동 Face ID 로그인 시도");
           const result = await LocalAuthentication.authenticateAsync({
             promptMessage: "Face ID로 로그인",
             cancelLabel: "취소",
-            fallbackLabel: "비밀번호 사용",
+            // disableDeviceFallback: true,
           });
 
           console.log("face ID 결과: ", result);
+
           if (result.success) {
             // Face ID 성공 시 저장된 토큰으로 바로 홈으로 이동
-            const savedToken = await getSecureStore("accessToken");
-            if (savedToken) router.replace("/");
+            console.log("Face ID 로그인 성공");
+            router.replace("/");
           }
         }
       } catch (error) {
@@ -54,6 +54,10 @@ export default function LoginScreen() {
 
   const askFaceId = async () => {
     try {
+      const enabled = await getSecureStore("biometricEnabled");
+
+      if (enabled !== null) return;
+
       const hasHardware = await LocalAuthentication.hasHardwareAsync();
       console.log("hasHardware: ", hasHardware);
 
@@ -70,6 +74,9 @@ export default function LoginScreen() {
           {
             text: "취소하기",
             style: "cancel",
+            onPress: async () => {
+              await saveSecureStore("biometricEnabled", "false");
+            },
           },
           {
             text: "설정하기",
@@ -92,10 +99,10 @@ export default function LoginScreen() {
         // 토큰 저장
         await saveSecureStore("accessToken", result?.accessToken);
         await saveSecureStore("refreshToken", result.refreshToken);
+        await saveSecureStore("hasLoggedInBefore", "true");
 
         // Face ID 설정 제안
         await askFaceId();
-
         router.replace("/");
       }
     } catch (error: any) {
