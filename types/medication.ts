@@ -1,8 +1,8 @@
 export enum TakingType {
   DAILY = "DAILY",
   SPECIFIC_INTERVAL = "SPECIFIC_INTERVAL",
-  SPECIFIC_DAY = "SPECIPIC_DAY",
-  SPECIFIC_DATE = "SPECIPIC_DATE",
+  SPECIFIC_DAY = "SPECIFIC_DAY",
+  SPECIFIC_DATE = "SPECIFIC_DATE",
   NEED = "NEED",
 }
 export interface Medication {
@@ -14,7 +14,7 @@ export interface Medication {
   interval: number;
   particularDate: string[];
   perDay: number;
-  amout: number;
+  amount: number;
   isActive: boolean;
   groupName: string;
 }
@@ -36,4 +36,10 @@ export interface NotifiTakingResponse {
   result: {
     NotifiTakingList: NotifiTaking[];
   };
+}
+
+//이전 페이지에서 받아오는 약물 정보
+export interface SelectedMedicineInfo {
+  id: string;
+  name: string;
 }

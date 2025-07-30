@@ -8,7 +8,7 @@ const Register = () => {
 
   const handleNext = () => {
     if (selectedMethod === "direct") {
-      router.push("/medicine/register/selfRegister");
+      router.push("/medicine/register/registerForm");
     } else if (selectedMethod === "ai") {
       router.push("/medicine/register/aiRegister");
     }
