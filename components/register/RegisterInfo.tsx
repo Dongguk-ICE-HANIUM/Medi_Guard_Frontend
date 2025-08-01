@@ -8,6 +8,7 @@ import {
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import DateRange from "./DateRange";
+import PerAOnce from "./PerAOnce";
 import TakingCycle from "./TakingCycle";
 import TakingCycleDetails from "./TakingCycleDetails";
 
@@ -62,6 +63,7 @@ const RegisterInfo = ({ selected, onSubmit }: RegisterInfoProps) => {
           onIntervalChange={handleIntervalChange}
           onParticularDateChange={handleParticularDateChange}
         />
+        <PerAOnce />
       </View>
     </ScrollView>
   );

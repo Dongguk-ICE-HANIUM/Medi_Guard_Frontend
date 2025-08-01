@@ -2,6 +2,7 @@ import { colors } from "@/constants";
 import { TakingType } from "@/types/medication";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import NumberInput from "./NumberInput";
 
 interface TakingCycleDetailsProps {
   takingType: TakingType;
@@ -23,21 +24,17 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
   const renderSpecificInterval = () => (
     <View style={styles.detailContainer}>
       <Text style={styles.detailTitle}>첫 복용일부터</Text>
-      <View style={styles.intervalContainer}>
-        <TouchableOpacity
-          style={styles.intervalButton}
-          onPress={() => onIntervalChange?.(Math.max(1, interval - 1))}
-        >
-          <Text style={styles.intervalButtonText}>-</Text>
-        </TouchableOpacity>
-        <Text style={styles.intervalText}>{interval}일</Text>
-        <TouchableOpacity
-          style={styles.intervalButton}
-          onPress={() => onIntervalChange?.(Math.min(365, interval + 1))}
-        >
-          <Text style={styles.intervalButtonText}>+</Text>
-        </TouchableOpacity>
-      </View>
+      <NumberInput
+        title=""
+        description=""
+        value={interval}
+        unit="일"
+        min={1}
+        max={365}
+        step={1}
+        onValueChange={(value) => onIntervalChange?.(value)}
+        compact={true}
+      />
       <Text style={styles.detailTitle}>간격으로 복용</Text>
     </View>
   );
@@ -112,10 +109,7 @@ export default TakingCycleDetails;
 
 const styles = StyleSheet.create({
   detailContainer: {
-    marginTop: 10,
     padding: 15,
-    backgroundColor: colors.LIGHT_GRAY,
-    borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -142,12 +136,11 @@ const styles = StyleSheet.create({
   },
   intervalButtonText: {
     fontSize: 16,
-    fontWeight: "bold",
     color: colors.BLACK,
   },
   intervalText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "500",
     color: colors.BLACK,
     minWidth: 60,
     textAlign: "center",
@@ -165,9 +158,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   weekdayButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 35,
+    height: 35,
+    borderRadius: 17.5,
     backgroundColor: colors.WHITE,
     justifyContent: "center",
     alignItems: "center",
@@ -175,16 +168,13 @@ const styles = StyleSheet.create({
     borderColor: colors.TEXT_GRAY,
   },
   selectedWeekday: {
-    backgroundColor: colors.PINK,
-    borderColor: colors.RED,
+    backgroundColor: colors.PINK + "60",
+    borderColor: colors.BLACK,
   },
   weekdayText: {
     fontSize: 14,
     fontWeight: "500",
     color: colors.BLACK,
   },
-  selectedWeekdayText: {
-    color: colors.RED,
-    fontWeight: "600",
-  },
+  selectedWeekdayText: {},
 });
