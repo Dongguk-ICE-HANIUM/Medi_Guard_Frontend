@@ -1,8 +1,15 @@
 import { colors } from "@/constants";
 import { useMedicationForm } from "@/hooks/useMedicationForm";
-import { Medication, SelectedMedicineInfo } from "@/types/medication";
+import {
+  Medication,
+  SelectedMedicineInfo,
+  TakingType,
+} from "@/types/medication";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import DateRange from "./DateRange";
+import TakingCycle from "./TakingCycle";
+import TakingCycleDetails from "./TakingCycleDetails";
 
 export interface RegisterInfoProps {
   selected: SelectedMedicineInfo;
@@ -18,10 +25,43 @@ const RegisterInfo = ({ selected, onSubmit }: RegisterInfoProps) => {
       onSubmit(medication);
     }
   };
+
+  const handleTakingTypeChange = (takingType: TakingType) => {
+    updateField("takingType", takingType);
+  };
+
+  const handleIntervalChange = (interval: number) => {
+    updateField("interval", interval);
+  };
+
+  const handleParticularDateChange = (dates: string[]) => {
+    updateField("particularDate", dates);
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.nameContainer}>
         <Text style={styles.name}>{selected.name}</Text>
+      </View>
+      <View>
+        <DateRange
+          startAt={medication.startAt}
+          endAt={medication.endAt}
+          onStartChange={(date) => updateField("startAt", date)}
+          onEndChange={(date) => updateField("endAt", date)}
+          errors={[...(errors.startAt || []), ...(errors.endAt || [])]}
+        />
+        <TakingCycle
+          selectedType={medication.takingType}
+          onTypeChange={handleTakingTypeChange}
+        />
+        <TakingCycleDetails
+          takingType={medication.takingType}
+          interval={medication.interval}
+          particularDate={medication.particularDate}
+          onIntervalChange={handleIntervalChange}
+          onParticularDateChange={handleParticularDateChange}
+        />
       </View>
     </ScrollView>
   );

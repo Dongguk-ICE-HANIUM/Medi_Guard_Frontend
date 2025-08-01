@@ -5,7 +5,11 @@ import {
 } from "@/types/medication";
 import { useState } from "react";
 
-//기본값
+// 상수 정의
+const VALID_DAYS = ["월", "화", "수", "목", "금", "토", "일"] as const;
+const MAX_INTERVAL = 365;
+
+// 기본값
 const MEDICATION_DEFAULTS: Omit<Medication, "id" | "name"> = {
   startAt: "",
   endAt: "",
@@ -18,7 +22,27 @@ const MEDICATION_DEFAULTS: Omit<Medication, "id" | "name"> = {
   groupName: "",
 };
 
-//초기 약물 데이터 생성
+// 날짜 비교 유틸리티 함수
+const isDateRangeValid = (startAt: string, endAt: string): boolean => {
+  if (!startAt || !endAt) return true;
+  const startDate = new Date(startAt);
+  const endDate = new Date(endAt);
+  return startDate <= endDate;
+};
+
+const isDateInRange = (
+  dateStr: string,
+  startAt: string,
+  endAt: string
+): boolean => {
+  if (!startAt || !endAt) return true;
+  const date = new Date(dateStr);
+  const startDate = new Date(startAt);
+  const endDate = new Date(endAt);
+  return date >= startDate && date <= endDate;
+};
+
+// 초기 약물 데이터 생성
 export const createInitialMedication = (
   medicineInfo: SelectedMedicineInfo
 ): Medication => ({
@@ -27,7 +51,7 @@ export const createInitialMedication = (
   name: medicineInfo.name,
 });
 
-//약물데이터 유효성 검사
+// 약물데이터 유효성 검사
 export const validateField = (
   med: Medication,
   field: keyof Medication
@@ -44,12 +68,8 @@ export const validateField = (
       if (!med.endAt) {
         errors.push("복용 종료일이 필요합니다.");
       }
-      if (med.startAt && med.endAt) {
-        const startDate = new Date(med.startAt);
-        const endDate = new Date(med.endAt);
-        if (startDate > endDate) {
-          errors.push("종료일은 시작일 이후여야 합니다.");
-        }
+      if (!isDateRangeValid(med.startAt, med.endAt)) {
+        errors.push("종료일은 시작일 이후여야 합니다.");
       }
       break;
     case "takingType":
@@ -65,19 +85,18 @@ export const validateField = (
                 "특정 날짜 간격으로 복용할 경우, 간격(일 수)을 입력해주세요."
               );
             }
-            if (med.interval > 365) {
-              errors.push("간격은 365일을 초과할 수 없습니다.");
+            if (med.interval > MAX_INTERVAL) {
+              errors.push(`간격은 ${MAX_INTERVAL}일을 초과할 수 없습니다.`);
             }
             break;
           case TakingType.SPECIFIC_DAY:
             if (!med.particularDate || med.particularDate.length === 0) {
               errors.push("복용할 요일을 선택해주세요.");
             }
-            const vaildDays = ["월", "화", "수", "목", "금", "토", "일"];
-            const invaildDays = med.particularDate?.filter(
-              (day) => !vaildDays.includes(day)
+            const invalidDays = med.particularDate?.filter(
+              (day) => !VALID_DAYS.includes(day as (typeof VALID_DAYS)[number])
             );
-            if (invaildDays && invaildDays.length > 0) {
+            if (invalidDays && invalidDays.length > 0) {
               errors.push("올바르지 않은 요일이 선택되었습니다.");
             }
             break;
@@ -87,33 +106,27 @@ export const validateField = (
                 "특정 날짜 복용 시 최소 하나 이상의 날짜를 선택해주세요."
               );
             }
-            if (med.particularDate) {
-              if (med.startAt && med.endAt) {
-                const startDate = new Date(med.startAt);
-                const endDate = new Date(med.endAt);
-                const outOfRange = med.particularDate.filter((dateStr) => {
-                  const date = new Date(dateStr);
-                  return date < startDate || date > endDate;
-                });
-                if (outOfRange.length > 0) {
-                  errors.push("복용 기간 내에서 날짜를 선택해주세요.");
-                }
+            if (med.particularDate && med.startAt && med.endAt) {
+              const outOfRange = med.particularDate.filter(
+                (dateStr) => !isDateInRange(dateStr, med.startAt, med.endAt)
+              );
+              if (outOfRange.length > 0) {
+                errors.push("복용 기간 내에서 날짜를 선택해주세요.");
               }
             }
             break;
-
           case TakingType.NEED:
             break;
-
           default:
-            errors.push("복약 주기를 선택해주세요.");
+            errors.push("복용 주기를 선택해주세요.");
         }
       }
+      break;
   }
   return errors;
 };
 
-export const vaildateMedication = (med: Medication): string[] => {
+export const validateMedication = (med: Medication): string[] => {
   return (Object.keys(med) as (keyof Medication)[]).flatMap((field) =>
     validateField(med, field)
   );
@@ -141,14 +154,14 @@ export const useMedicationForm = (selected: SelectedMedicineInfo) => {
     let isValid = true;
 
     (Object.keys(medication) as (keyof Medication)[]).forEach((field) => {
-      const errs = validateField(medication, field);
-      if (errs.length > 0) {
+      const fieldErrors = validateField(medication, field);
+      if (fieldErrors.length > 0) {
         isValid = false;
-        allErrors[field] = errs;
+        allErrors[field] = fieldErrors;
       }
     });
     setErrors(allErrors);
-    return { isValid, erros: allErrors };
+    return { isValid, errors: allErrors };
   };
 
   return {
@@ -157,6 +170,6 @@ export const useMedicationForm = (selected: SelectedMedicineInfo) => {
     updateField,
     validateField,
     validateForm,
-    isVaild: Object.values(errors).every((e) => e.length === 0),
+    isValid: Object.values(errors).every((e) => e.length === 0),
   };
 };
