@@ -41,7 +41,7 @@ export const loginApiReal = async (
   }
 };
 
-export const login = async (loginData: LoginFormValues) => {
+export const generalLogin = async (loginData: LoginFormValues) => {
   try {
     const response: LoginResponse = await loginApi(loginData);
 

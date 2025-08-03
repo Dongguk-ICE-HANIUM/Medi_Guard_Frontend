@@ -25,6 +25,18 @@ export default function LoginLayout() {
             title: "로그인",
           }}
         />
+        <Stack.Screen
+          name="socialInfo"
+          options={{
+            headerShown: true,
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="chevron-back" size={24} color={"black"} />
+              </TouchableOpacity>
+            ),
+            title: "로그인",
+          }}
+        />
       </Stack>
     </SignupProvider>
   );

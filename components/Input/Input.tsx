@@ -35,7 +35,7 @@ function Input({
 
     switch (size) {
       case "small":
-        return [baseStyle, { width: 186, marginRight: 8 }];
+        return [baseStyle, { width: 173, marginRight: 8 }];
       default:
         return baseStyle;
     }

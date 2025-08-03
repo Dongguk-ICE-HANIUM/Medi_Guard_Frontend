@@ -1,4 +1,4 @@
-import { login } from "@/api/login";
+import { generalLogin } from "@/api/login";
 import Button from "@/components/Button";
 import LoginEmailInput from "@/components/Input/LoginEmailInput";
 import PasswordInput from "@/components/Input/PasswordInput";
@@ -34,6 +34,7 @@ export default function LoginScreen() {
 
           if (result.success) {
             // Face ID 성공 시 저장된 토큰으로 바로 홈으로 이동
+
             console.log("Face ID 로그인 성공");
             router.replace("/");
           }
@@ -93,7 +94,7 @@ export default function LoginScreen() {
   };
   const onLogin = async (data: LoginFormValues) => {
     try {
-      const result = await login(data);
+      const result = await generalLogin(data);
 
       if (result?.accessToken && result?.refreshToken) {
         // 토큰 저장
@@ -112,15 +113,17 @@ export default function LoginScreen() {
 
   return (
     // FormProvider로 하위컴포넌트에 폼상태 전달
-    <FormProvider {...loginForm}>
-      <View>
-        <LoginEmailInput />
-        <PasswordInput />
-        <View style={styles.Button}>
-          <Button text="로그인" onPress={loginForm.handleSubmit(onLogin)} />
+    <View>
+      <FormProvider {...loginForm}>
+        <View>
+          <LoginEmailInput />
+          <PasswordInput />
+          <View style={styles.Button}>
+            <Button text="로그인" onPress={loginForm.handleSubmit(onLogin)} />
+          </View>
         </View>
-      </View>
-    </FormProvider>
+      </FormProvider>
+    </View>
   );
 }
 

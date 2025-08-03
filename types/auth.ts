@@ -3,7 +3,6 @@ export type SignupFormValues = {
   password: string;
   passwordConfirm: string;
   name: string;
-  age: number;
   birthday: string;
   height?: number;
   weight?: number;
