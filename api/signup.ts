@@ -5,7 +5,7 @@ import {
   SignupResponse,
 } from "@/types/api";
 import { SignupFormValues } from "@/types/auth";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 
 const transformSignupData = (signupData: SignupFormValues): SignupRequest => {
   return {
@@ -63,7 +63,7 @@ export const signupApiReal = async (
 
     return data;
   } catch (error: any) {
-    if (axios.isAxiosError(error)) {
+    if (isAxiosError(error)) {
       if (error.response) {
         // 서버에서 응답은 받았지만 에러상태 (400, 500)
         const errorData = error.response.data;

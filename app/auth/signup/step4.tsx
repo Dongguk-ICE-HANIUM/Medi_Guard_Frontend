@@ -1,10 +1,13 @@
 import { signup } from "@/api/signup";
+import { submitSocialLogin } from "@/api/socialLogin";
 import AllergyList from "@/components/AllergyList";
 import Button from "@/components/Button";
 import DiseaseList from "@/components/DiseaseList";
 import { useSignupContext } from "@/context/SignupContext";
 import { SignupFormValues } from "@/types/auth";
-import { router } from "expo-router";
+import { SocialLoginRequest } from "@/types/social";
+import { saveSecureStore } from "@/utils/secureStore";
+import { router, useLocalSearchParams } from "expo-router";
 import { FormProvider, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import Toast from "react-native-toast-message";
@@ -28,28 +31,54 @@ export default function Step4Screen() {
     },
   });
 
+  const { isSocialSignup, bearerToken, userId } = useLocalSearchParams();
   const onSubmit = async (formValues: SignupFormValues) => {
     try {
       updateSignupData({
         allergy: formValues.allergy,
         disease: formValues.disease,
       });
+
       const completeSignupData = {
-        ...signupData, // Step 1~3 데이터
-        allergy: formValues.allergy, // Step 4 알레르기 데이터
-        disease: formValues.disease, // Step 4 질병 데이터
+        ...signupData,
+        allergy: formValues.allergy,
+        disease: formValues.disease,
       } as SignupFormValues;
-      console.log(completeSignupData);
 
-      // 회원가입 API호출
-      const response = await signup(completeSignupData);
-      console.log("회원가입 성공:", response);
+      if (isSocialSignup === "true") {
+        const socialData: SocialLoginRequest = {
+          name: completeSignupData.name,
+          birthday: completeSignupData.birthday,
+          height: completeSignupData.height,
+          weight: completeSignupData.weight,
+          feeding: completeSignupData.feeding,
+          pregnant: completeSignupData.pregnant,
+          dueDate: completeSignupData.dueDate,
+          allergy: completeSignupData.allergy,
+          disease: completeSignupData.disease,
+        };
 
-      // 토큰저장
+        const response = await submitSocialLogin(
+          userId as string,
+          socialData,
+          bearerToken as string
+        );
 
-      // 홈 이동
-      alert("회원가입이 완료되었습니다!");
-      router.push("/?signup=success");
+        if (response.errorCode === null) {
+          await saveSecureStore("accessToken", response.result!.accessToken);
+          await saveSecureStore("refreshToken", response.result!.refreshToken);
+          alert("가입이 완료되었습니다!");
+          router.replace("/");
+        }
+      } else {
+        // 회원가입 API호출
+        const response = await signup(completeSignupData);
+        console.log("회원가입 성공:", response);
+
+        // 홈 이동
+        alert("회원가입이 완료되었습니다!");
+        router.push("/?signup=success");
+      }
     } catch (error: any) {
       console.error("회원가입 실패: ", error);
     }
@@ -66,7 +95,6 @@ export default function Step4Screen() {
           />
         </View>
       </FormProvider>
-
       <Toast />
     </View>
   );

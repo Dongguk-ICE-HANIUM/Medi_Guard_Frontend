@@ -13,7 +13,7 @@ export interface SignupRequest {
   diseaseList: string[] | null;
 }
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   errorCode: string | null;
   message: string;
   result: T | null;
