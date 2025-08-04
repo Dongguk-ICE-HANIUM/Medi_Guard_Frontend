@@ -29,7 +29,7 @@ function Button({
     >
       {icon && (
         <AntDesign
-          name={icon == "right" ? "right" : "down"}
+          name={icon === "right" ? "right" : "down"}
           size={20}
           color="black"
         />

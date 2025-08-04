@@ -23,7 +23,7 @@ function BirthdayInput() {
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <Input
           label="생년월일"
-          placeholder="년도 - 월 - 일"
+          placeholder="YYYY - MM - DD"
           inputMode="numeric"
           value={value}
           onChangeText={(text) => {

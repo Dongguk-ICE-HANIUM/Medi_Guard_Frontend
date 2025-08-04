@@ -9,8 +9,10 @@ function PregnantInput() {
       name="pregnant"
       control={control}
       rules={{
+        required: "필수 입력 항목",
         validate: (data: number) => {
-          if (data === undefined || 0) return "필수 입력 항목";
+          const num = Number(data);
+          if (isNaN(num) || num <= 0) return "잘못된 임신주차";
         },
       }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
@@ -23,9 +25,9 @@ function PregnantInput() {
           onFocus={() => {
             onChange(""); // 포커스 시 입력 필드 지우기
           }}
-          onBlur={() => {
-            if (value) onChange(value + "주차");
-          }}
+          // onBlur={() => {
+          //   if (value) onChange(value + "주차");
+          // }}
           error={error?.message}
           size="small"
         />
