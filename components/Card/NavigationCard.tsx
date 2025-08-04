@@ -24,7 +24,6 @@ function NavigationCard({
     <Pressable
       style={({ pressed }) => [
         NavigationCardStyles.container,
-        NavigationCardStyles[icon],
         pressed && ButtonStyles.pressed,
       ]}
       {...props}
@@ -59,8 +58,6 @@ const NavigationCardStyles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 15,
   },
-  next: {},
-  plus: {},
   iconBox: {
     backgroundColor: colors.PINK,
     width: 25,

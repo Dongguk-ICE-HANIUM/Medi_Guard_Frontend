@@ -2,7 +2,11 @@ const colors = {
   WHITE: "#FFF",
   BLACK: "#000",
   RED: "#FF4747",
+  BLUE: "#4791FF",
+  YELLOW: "#FFEA47",
+  PURPLE: "#A047FF",
   GREEN: "#09AC00",
+
 
   PINK: "#FFB6B9",
   BACK_GRAY: "#EFF1F5",
