@@ -2,7 +2,8 @@ import { colors } from "@/constants";
 import { TakingType } from "@/types/medication";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import NumberInput from "./NumberInput";
+import NumberInput from "../NumberInput";
+import SpecificDate from "./SpecificDate";
 
 interface TakingCycleDetailsProps {
   takingType: TakingType;
@@ -74,10 +75,11 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
   );
 
   const renderSpecificDate = () => (
-    <View style={styles.detailContainer}>
-      <Text style={styles.detailTitle}>
-        특정 날짜 선택 기능은 캘린더에서 설정할 수 있습니다.
-      </Text>
+    <View>
+      <SpecificDate
+        dates={particularDate}
+        onChange={(dates) => onParticularDateChange?.(dates)}
+      />
     </View>
   );
 

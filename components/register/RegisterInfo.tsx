@@ -9,8 +9,8 @@ import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import DateRange from "./DateRange";
 import PerAOnce from "./PerAOnce";
-import TakingCycle from "./TakingCycle";
-import TakingCycleDetails from "./TakingCycleDetails";
+import TakingCycle from "./TakingCycle/TakingCycle";
+import TakingCycleDetails from "./TakingCycle/TakingCycleDetails";
 
 export interface RegisterInfoProps {
   selected: SelectedMedicineInfo;
@@ -40,7 +40,7 @@ const RegisterInfo = ({ selected, onSubmit }: RegisterInfoProps) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.nameContainer}>
         <Text style={styles.name}>{selected.name}</Text>
       </View>

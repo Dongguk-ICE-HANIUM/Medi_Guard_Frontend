@@ -3,57 +3,96 @@ import React, { useEffect, useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Calendar } from "react-native-calendars";
 
+export enum CalendarMode {
+  RANGE = "range",
+  SPECIFIC = "specific",
+}
+
 interface CalendarModalProps {
   visible: boolean;
+  selectionMode?: CalendarMode;
+
   onClose: () => void;
-  onConfirm: (startDate: string, endDate: string) => void;
+  onConfirm?: (startDate: string, endDate: string) => void;
   initialStartDate?: string;
   initialEndDate?: string;
+  onSpecificConfirm?: (dates: string[]) => void;
+  initialSpecificDates?: string[];
 }
 
 const CalendarModal: React.FC<CalendarModalProps> = ({
   visible,
+  selectionMode,
   onClose,
   onConfirm,
   initialStartDate = "",
   initialEndDate = "",
+  onSpecificConfirm,
+  initialSpecificDates = [],
 }) => {
+  //for Range
   const [startDate, setStartDate] = useState(initialStartDate);
   const [endDate, setEndDate] = useState(initialEndDate);
   const [isSelectingEnd, setIsSelectingEnd] = useState(false);
 
+  //for Specific
+  const [specificDates, setSpecificDates] =
+    useState<string[]>(initialSpecificDates);
+
   useEffect(() => {
     if (visible) {
-      setStartDate(initialStartDate);
-      setEndDate(initialEndDate);
-      setIsSelectingEnd(false);
+      if (selectionMode === CalendarMode.RANGE) {
+        setStartDate(initialStartDate);
+        setEndDate(initialEndDate);
+        setIsSelectingEnd(false);
+      } else {
+        setSpecificDates(initialSpecificDates);
+      }
     }
-  }, [visible, initialStartDate, initialEndDate]);
+  }, [visible, initialStartDate, initialEndDate, initialSpecificDates]);
 
   const handleDayPress = (day: { dateString: string }) => {
     const selectedDate = day.dateString;
-    console.log("선택된 날짜:", selectedDate);
-    console.log("현재 isSelectingEnd:", isSelectingEnd);
+    if (selectionMode === CalendarMode.SPECIFIC) {
+      setSpecificDates((prev) => {
+        if (prev.includes(selectedDate)) {
+          return prev.filter((date) => date !== selectedDate);
+        } else {
+          return [...prev, selectedDate].sort();
+        }
+      });
+    } else {
+      if (!isSelectingEnd) {
+        console.log("시작일 설정:", selectedDate);
+        setStartDate(selectedDate);
+        setEndDate("");
+        setIsSelectingEnd(true);
+        return;
+      }
 
-    if (!isSelectingEnd) {
-      console.log("시작일 설정:", selectedDate);
-      setStartDate(selectedDate);
-      setEndDate("");
-      setIsSelectingEnd(true);
-      return;
+      if (new Date(selectedDate) < new Date(startDate)) {
+        console.log("시작일보다 이전 날짜 선택, 시작일 변경:", selectedDate);
+        setStartDate(selectedDate);
+        setEndDate("");
+        return;
+      }
+      console.log("종료일 설정:", selectedDate);
+      setEndDate(selectedDate);
     }
-
-    if (new Date(selectedDate) < new Date(startDate)) {
-      console.log("시작일보다 이전 날짜 선택, 시작일 변경:", selectedDate);
-      setStartDate(selectedDate);
-      setEndDate("");
-      return;
-    }
-    console.log("종료일 설정:", selectedDate);
-    setEndDate(selectedDate);
   };
 
   const getMarked = () => {
+    if (selectionMode === CalendarMode.SPECIFIC) {
+      const specificMarked: Record<string, any> = {};
+      specificDates.forEach((date) => {
+        specificMarked[date] = {
+          selected: true,
+          selectedColor: colors.PINK,
+          textColor: colors.WHITE,
+        };
+      });
+      return specificMarked;
+    }
     if (!startDate) return {};
 
     if (!endDate) {
@@ -98,12 +137,28 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
   };
 
   const handleConfirm = () => {
-    if (startDate && endDate) {
-      onConfirm(startDate, endDate);
+    if (selectionMode === CalendarMode.SPECIFIC) {
+      if (specificDates.length > 0 && onSpecificConfirm) {
+        onSpecificConfirm(specificDates);
+      }
+    } else {
+      if (startDate && endDate && onConfirm) {
+        onConfirm(startDate, endDate);
+      }
     }
+    onClose();
   };
 
-  const isConfirmDisabled = !startDate || !endDate;
+  const isConfirmDisabled = () => {
+    if (selectionMode === CalendarMode.SPECIFIC) {
+      return specificDates.length === 0;
+    }
+    !startDate || !endDate;
+  };
+
+  const getMarkingType = () => {
+    return selectionMode === CalendarMode.SPECIFIC ? undefined : "period";
+  };
 
   return (
     <Modal visible={visible} transparent={true} animationType="fade">
@@ -112,7 +167,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
           <Calendar
             onDayPress={handleDayPress}
             markedDates={getMarked()}
-            markingType="period"
+            markingType={getMarkingType()}
             theme={{
               selectedDayBackgroundColor: colors.PINK + "30",
               arrowColor: colors.PINK,
@@ -136,15 +191,15 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
             <TouchableOpacity
               style={[
                 styles.confirmButton,
-                isConfirmDisabled && styles.disabledButton,
+                isConfirmDisabled() && styles.disabledButton,
               ]}
               onPress={handleConfirm}
-              disabled={isConfirmDisabled}
+              disabled={isConfirmDisabled()}
             >
               <Text
                 style={[
                   styles.confirmText,
-                  isConfirmDisabled && styles.disabledText,
+                  isConfirmDisabled() && styles.disabledText,
                 ]}
               >
                 확인
