@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   selected: {
     backgroundColor: colors.PINK + "40", // 40은 16진수로 25% 투명도
-    borderColor: colors.BLACK,
+    borderColor: colors.PINK,
   },
   text: {
     textAlign: "center",

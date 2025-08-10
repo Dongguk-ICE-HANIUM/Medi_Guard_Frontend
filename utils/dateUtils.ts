@@ -6,7 +6,7 @@ export const formatDateDot = (date: Date): string => {
   return `${year}.${month}.${day}`;
 };
 
-export const formateDateStringDot = (dateString: string): string => {
+export const formatDateStringDot = (dateString: string): string => {
   const date = new Date(dateString);
   return formatDateDot(date);
 };

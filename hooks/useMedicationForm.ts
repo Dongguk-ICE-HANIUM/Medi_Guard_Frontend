@@ -142,11 +142,13 @@ export const useMedicationForm = (selected: SelectedMedicineInfo) => {
     field: K,
     value: Medication[K]
   ) => {
-    const newMedication = { ...medication, [field]: value };
-    setMedication(newMedication);
+    setMedication((prevMedication) => {
+      const newMedication = { ...prevMedication, [field]: value };
+      const fieldErrors = validateField(newMedication, field);
+      setErrors((prevErrors) => ({ ...prevErrors, [field]: fieldErrors }));
 
-    const fieldErrors = validateField(newMedication, field);
-    setErrors((prev) => ({ ...prev, [field]: fieldErrors }));
+      return newMedication;
+    });
   };
 
   const validateForm = () => {

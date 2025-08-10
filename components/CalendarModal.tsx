@@ -20,31 +20,36 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
 }) => {
   const [startDate, setStartDate] = useState(initialStartDate);
   const [endDate, setEndDate] = useState(initialEndDate);
-  const [isSelectingEnd, setIsSelecteingEnd] = useState(false);
+  const [isSelectingEnd, setIsSelectingEnd] = useState(false);
 
   useEffect(() => {
     if (visible) {
       setStartDate(initialStartDate);
       setEndDate(initialEndDate);
-      setIsSelecteingEnd(false);
+      setIsSelectingEnd(false);
     }
   }, [visible, initialStartDate, initialEndDate]);
 
   const handleDayPress = (day: { dateString: string }) => {
     const selectedDate = day.dateString;
+    console.log("선택된 날짜:", selectedDate);
+    console.log("현재 isSelectingEnd:", isSelectingEnd);
 
     if (!isSelectingEnd) {
+      console.log("시작일 설정:", selectedDate);
       setStartDate(selectedDate);
       setEndDate("");
-      setIsSelecteingEnd(true);
+      setIsSelectingEnd(true);
       return;
     }
 
     if (new Date(selectedDate) < new Date(startDate)) {
+      console.log("시작일보다 이전 날짜 선택, 시작일 변경:", selectedDate);
       setStartDate(selectedDate);
       setEndDate("");
       return;
     }
+    console.log("종료일 설정:", selectedDate);
     setEndDate(selectedDate);
   };
 
@@ -84,7 +89,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
       } else {
         markedDates[dateStr] = {
           color: colors.PINK + "30",
-          textColor: colors.WHITE,
+          textColor: colors.BLACK,
         };
       }
       current.setDate(current.getDate() + 1);
@@ -101,31 +106,51 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
   const isConfirmDisabled = !startDate || !endDate;
 
   return (
-    <Modal visible={visible} transparent={true} animationType="slide">
+    <Modal visible={visible} transparent={true} animationType="fade">
       <View style={styles.overlay}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose}>
-            <Text style={styles.closeButton}>X</Text>
-          </TouchableOpacity>
-        </View>
+        <View style={styles.calendarContainer}>
+          <Calendar
+            onDayPress={handleDayPress}
+            markedDates={getMarked()}
+            markingType="period"
+            theme={{
+              selectedDayBackgroundColor: colors.PINK + "30",
+              arrowColor: colors.PINK,
+              calendarBackground: colors.WHITE,
+              textSectionTitleColor: colors.BLACK,
+              selectedDayTextColor: colors.WHITE,
+              todayTextColor: colors.PINK,
+              dayTextColor: colors.BLACK,
+              textDisabledColor: colors.TEXT_GRAY,
+              dotColor: colors.PURPLE,
+              selectedDotColor: colors.WHITE,
+              monthTextColor: colors.BLACK,
+              indicatorColor: colors.PINK,
+            }}
+          />
 
-        <Calendar
-          onDayPress={handleDayPress}
-          markedDates={getMarked()}
-          markingType="period"
-          theme={{
-            selectedDayBackgroundColor: colors.PINK + 30,
-            arrowColor: colors.PURPLE,
-          }}
-        />
-
-        <View style={styles.footer}>
-          <TouchableOpacity style={styles.cancel} onPress={onClose}>
-            <Text>취소</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cancel} onPress={onClose}>
-            <Text>확인</Text>
-          </TouchableOpacity>
+          <View style={styles.footer}>
+            <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+              <Text style={styles.cancelText}>취소</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.confirmButton,
+                isConfirmDisabled && styles.disabledButton,
+              ]}
+              onPress={handleConfirm}
+              disabled={isConfirmDisabled}
+            >
+              <Text
+                style={[
+                  styles.confirmText,
+                  isConfirmDisabled && styles.disabledText,
+                ]}
+              >
+                확인
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -135,9 +160,78 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
 export default CalendarModal;
 
 const styles = StyleSheet.create({
-  overlay: {},
-  header: {},
-  closeButton: {},
-  footer: {},
-  cancel: {},
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  calendarContainer: {
+    backgroundColor: colors.WHITE,
+    borderRadius: 15,
+    padding: 20,
+    width: "90%",
+    maxWidth: 400,
+    shadowColor: colors.BLACK,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: colors.BLACK,
+  },
+  closeButton: {
+    fontSize: 20,
+    color: colors.TEXT_GRAY,
+    padding: 5,
+  },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
+    gap: 10,
+  },
+  cancelButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.TEXT_GRAY + 90,
+    alignItems: "center",
+  },
+  cancelText: {
+    color: colors.TEXT_GRAY,
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  confirmButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: colors.PINK,
+    alignItems: "center",
+  },
+  confirmText: {
+    color: colors.WHITE,
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  disabledButton: {
+    backgroundColor: colors.PINK + 90,
+  },
+  disabledText: {
+    color: colors.WHITE,
+  },
 });

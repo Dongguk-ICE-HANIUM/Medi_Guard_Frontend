@@ -81,12 +81,6 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
     </View>
   );
 
-  const renderNeed = () => (
-    <View style={styles.detailContainer}>
-      <Text style={styles.detailTitle}>필요할 때마다 복용하시면 됩니다.</Text>
-    </View>
-  );
-
   const renderDetails = () => {
     switch (takingType) {
       case TakingType.SPECIFIC_INTERVAL:
@@ -96,7 +90,7 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
       case TakingType.SPECIFIC_DATE:
         return renderSpecificDate();
       case TakingType.NEED:
-        return renderNeed();
+        return null;
       default:
         return null;
     }
@@ -169,7 +163,7 @@ const styles = StyleSheet.create({
   },
   selectedWeekday: {
     backgroundColor: colors.PINK + "60",
-    borderColor: colors.BLACK,
+    borderColor: colors.PINK,
   },
   weekdayText: {
     fontSize: 14,

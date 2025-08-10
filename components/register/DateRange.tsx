@@ -1,4 +1,5 @@
 import { colors } from "@/constants";
+import { formatDateStringDot } from "@/utils/dateUtils";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import React, { useState } from "react";
@@ -29,6 +30,11 @@ const DateRange: React.FC<DateRangeProps> = ({
     setIsModal(false); // 모달 닫기
   };
 
+  // 디버깅 로그 추가
+  console.log("DateRange 렌더링:", { startAt, endAt });
+  console.log("startAt truthy:", !!startAt);
+  console.log("endAt truthy:", !!endAt);
+
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
@@ -43,11 +49,15 @@ const DateRange: React.FC<DateRangeProps> = ({
       <View style={styles.dateContainer}>
         <View style={styles.startContainer}>
           <Text style={styles.start}>Start</Text>
-          <Text style={styles.startDate}>2025.04.15</Text>
+          <Text style={[styles.startDate, !startAt && styles.placeholderText]}>
+            {startAt ? formatDateStringDot(startAt) : "시작일을 선택해주세요"}
+          </Text>
         </View>
         <View style={styles.endContainer}>
           <Text style={styles.end}>End</Text>
-          <Text style={styles.endDate}>2025.04.30</Text>
+          <Text style={[styles.endDate, !endAt && styles.placeholderText]}>
+            {endAt ? formatDateStringDot(endAt) : "종료일 선택해주세요"}
+          </Text>
         </View>
 
         <View style={styles.calendar}>
@@ -60,7 +70,6 @@ const DateRange: React.FC<DateRangeProps> = ({
         </View>
       </View>
 
-      {/* ✅ CalendarModal 연결 */}
       <CalendarModal
         visible={isModal}
         onClose={() => setIsModal(false)}
@@ -108,6 +117,10 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     fontSize: 19,
     fontWeight: "500",
+  },
+  placeholderText: {
+    color: colors.TEXT_GRAY,
+    fontSize: 15,
   },
   endContainer: {
     flex: 4,

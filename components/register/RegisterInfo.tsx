@@ -48,8 +48,12 @@ const RegisterInfo = ({ selected, onSubmit }: RegisterInfoProps) => {
         <DateRange
           startAt={medication.startAt}
           endAt={medication.endAt}
-          onStartChange={(date) => updateField("startAt", date)}
-          onEndChange={(date) => updateField("endAt", date)}
+          onStartChange={(date) => {
+            updateField("startAt", date);
+          }}
+          onEndChange={(date) => {
+            updateField("endAt", date);
+          }}
           errors={[...(errors.startAt || []), ...(errors.endAt || [])]}
         />
         <TakingCycle
