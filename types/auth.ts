@@ -3,13 +3,17 @@ export type SignupFormValues = {
   password: string;
   passwordConfirm: string;
   name: string;
-  age: number;
   birthday: string;
   height?: number;
   weight?: number;
   pregnant: number;
   feeding: boolean;
   dueDate: string;
-  allergy: object;
-  disease: object;
+  allergy: string[] | null;
+  disease: string[] | null;
+};
+
+export type LoginFormValues = {
+  email: string;
+  password: string;
 };

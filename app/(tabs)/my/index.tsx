@@ -9,6 +9,7 @@ export default function MyScreen() {
   useFocusEffect(() => {
     router.replace("/auth");
   });
+
   return (
     <SafeAreaView>
       <Text>내페이지 스크린</Text>

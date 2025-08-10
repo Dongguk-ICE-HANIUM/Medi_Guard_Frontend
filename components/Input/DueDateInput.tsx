@@ -23,7 +23,7 @@ function DueDateInput() {
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <Input
           label="출산예정일"
-          placeholder="년도 - 월 - 일"
+          placeholder="YYYY - MM - DD"
           inputMode="numeric"
           value={value}
           onChangeText={(text) => {

@@ -5,6 +5,8 @@ const colors = {
   BLUE: "#4791FF",
   YELLOW: "#FFEA47",
   PURPLE: "#A047FF",
+  GREEN: "#09AC00",
+
 
   PINK: "#FFB6B9",
   BACK_GRAY: "#EFF1F5",

@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 
-interface AllergyItemProps {
+interface DiseaseItemProps {
   id: number;
   data: {
     name: string;
@@ -15,27 +15,28 @@ interface AllergyItemProps {
   isSelected: boolean;
   onSelect: () => void;
   onUpdate: (data: any) => void;
-  onRemove: () => void;
+  onRemove?: () => void;
 }
 
-export default function AllergyItem({
+export default function DiseaseItem({
+  id,
   data,
   isSelected,
   onSelect,
   onUpdate,
   onRemove,
-}: AllergyItemProps) {
+}: DiseaseItemProps) {
   const handleFieldUpdate = (field: string, value: string) => {
     onUpdate({ [field]: value });
   };
   return (
-    <View style={[styles.allergyItem, isSelected && styles.selectedItem]}>
+    <View style={[styles.diseaseItem, isSelected && styles.selectedItem]}>
       <TextInput
         onPress={onSelect}
         style={styles.input}
         value={data.name}
         onChangeText={(value) => handleFieldUpdate("name", value)}
-        placeholder="알레르기를 입력해주세요"
+        placeholder="질병을 입력해주세요"
       />
       <TouchableOpacity onPress={onRemove}>
         <Text style={styles.deleteText}>x</Text>
@@ -45,7 +46,7 @@ export default function AllergyItem({
 }
 
 const styles = StyleSheet.create({
-  allergyItem: {
+  diseaseItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     borderColor: "transparent",

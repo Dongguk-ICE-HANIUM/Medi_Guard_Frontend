@@ -4,7 +4,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, Stack } from "expo-router";
 import { TouchableOpacity } from "react-native";
 
-export default function SignupLayout() {
+export default function LoginLayout() {
   return (
     <SignupProvider>
       <Stack
@@ -22,34 +22,19 @@ export default function SignupLayout() {
                 <Ionicons name="chevron-back" size={24} color={"black"} />
               </TouchableOpacity>
             ),
-            title: "회원가입",
+            title: "로그인",
           }}
         />
         <Stack.Screen
-          name="step2"
+          name="socialInfo"
           options={{
             headerShown: true,
-            title: "회원가입",
-            headerBackTitle: "이전",
-          }}
-        />
-        <Stack.Screen
-          name="step3"
-          options={{
-            headerShown: true,
-            title: "회원가입",
-            headerBackTitle: "이전",
-            contentStyle: {
-              backgroundColor: colors.BACK_GRAY,
-            },
-          }}
-        />
-        <Stack.Screen
-          name="step4"
-          options={{
-            headerShown: true,
-            title: "회원가입",
-            headerBackTitle: "이전",
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="chevron-back" size={24} color={"black"} />
+              </TouchableOpacity>
+            ),
+            title: "로그인",
           }}
         />
       </Stack>

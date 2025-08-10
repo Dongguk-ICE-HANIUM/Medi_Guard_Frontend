@@ -7,11 +7,13 @@ import {
 } from "@/types/medication";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import Button from "../Button";
 import Alarm from "./Alarm/Alarm";
 import DateRange from "./DateRange";
 import PerAOnce from "./PerAOnce";
 import TakingCycle from "./TakingCycle/TakingCycle";
 import TakingCycleDetails from "./TakingCycle/TakingCycleDetails";
+import Group from "./group/Group";
 
 export interface RegisterInfoProps {
   selected: SelectedMedicineInfo;
@@ -70,6 +72,8 @@ const RegisterInfo = ({ selected, onSubmit }: RegisterInfoProps) => {
         />
         <PerAOnce />
         <Alarm />
+        <Group />
+        <Button text="다음" />
       </View>
     </ScrollView>
   );
