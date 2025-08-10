@@ -7,6 +7,7 @@ import {
 } from "@/types/medication";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import Alarm from "./Alarm/Alarm";
 import DateRange from "./DateRange";
 import PerAOnce from "./PerAOnce";
 import TakingCycle from "./TakingCycle/TakingCycle";
@@ -68,6 +69,7 @@ const RegisterInfo = ({ selected, onSubmit }: RegisterInfoProps) => {
           onParticularDateChange={handleParticularDateChange}
         />
         <PerAOnce />
+        <Alarm />
       </View>
     </ScrollView>
   );
