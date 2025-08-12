@@ -53,7 +53,10 @@ const Group = ({ groupName, onGroupChange }: GroupProps) => {
       {isGroupEnabled && (
         <View style={styles.content}>
           <TextInput
-            style={styles.inputContainer}
+            style={[
+              styles.inputContainer,
+              groupName ? { color: colors.BLACK } : { color: colors.TEXT_GRAY },
+            ]}
             placeholder="그룹을 찾아보세요"
             value={groupName}
             editable={false}

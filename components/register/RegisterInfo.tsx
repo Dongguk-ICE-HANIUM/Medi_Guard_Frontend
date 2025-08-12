@@ -72,7 +72,10 @@ const RegisterInfo = ({ selected, onSubmit }: RegisterInfoProps) => {
         />
         <PerAOnce />
         <Alarm />
-        <Group />
+        <Group
+          groupName={medication.groupName}
+          onGroupChange={(name) => updateField("groupName", name)}
+        />
         <Button text="다음" />
       </View>
     </ScrollView>
