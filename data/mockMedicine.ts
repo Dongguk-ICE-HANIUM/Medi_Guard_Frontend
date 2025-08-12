@@ -7,7 +7,7 @@ import {
 // 개발용 선택된 약물 정보
 export const DEV_SELECTED_MEDICINE: SelectedMedicineInfo = {
   id: "550e8400-e29b-41d4-a716-446655440001",
-  name: "우루사데옥시콜산 (Ursodeoxycholic acid)",
+  name: "우루사데옥시콜산",
 };
 
 // 개발용 완성된 약물 데이터 예시들

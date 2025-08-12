@@ -162,7 +162,11 @@ export const useMedicationForm = (selected: SelectedMedicineInfo) => {
         allErrors[field] = fieldErrors;
       }
     });
-    setErrors(allErrors);
+    if (isValid) {
+      setErrors({});
+    } else {
+      setErrors(allErrors);
+    }
     return { isValid, errors: allErrors };
   };
 

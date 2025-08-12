@@ -49,7 +49,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
         setSpecificDates(initialSpecificDates);
       }
     }
-  }, [visible, initialStartDate, initialEndDate, initialSpecificDates]);
+  }, [visible]);
 
   const handleDayPress = (day: { dateString: string }) => {
     const selectedDate = day.dateString;
@@ -62,7 +62,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
         }
       });
     } else {
-      if (!isSelectingEnd) {
+      if (!isSelectingEnd || (startDate && endDate)) {
         console.log("시작일 설정:", selectedDate);
         setStartDate(selectedDate);
         setEndDate("");
@@ -101,6 +101,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
           selected: true,
           selectedColor: colors.PINK,
           textColor: colors.WHITE,
+          style: { backgroundColor: colors.PINK + "30" },
         },
       };
     }
