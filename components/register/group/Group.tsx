@@ -8,19 +8,35 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import GroupModal from "./GroupModal";
 
-const Group = () => {
+interface GroupProps {
+  groupName: string;
+  onGroupChange: (groupName: string) => void;
+}
+
+const Group = ({ groupName, onGroupChange }: GroupProps) => {
   const [isGroupEnabled, setIsGroupEnabled] = useState(false);
-  const [searchText, setSearchText] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
-  const handleGroupToggle = (value: boolean) => {
-    setIsGroupEnabled(value);
-    if (!value) {
-      setSearchText("");
-    }
+  const openModal = () => {
+    setShowModal(true);
   };
-  const handleSearchPress = () => {
-    console.log("찾아보기 버튼 클릭");
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const handleGroupSelect = (selectedGroup: string) => {
+    onGroupChange(selectedGroup);
+    setShowModal(false);
+  };
+
+  const toggleGroup = () => {
+    setIsGroupEnabled((prev) => !prev);
+    if (!isGroupEnabled) {
+      onGroupChange("");
+      setShowModal(false);
+    }
   };
 
   return (
@@ -29,7 +45,7 @@ const Group = () => {
         <Text style={styles.title}>그룹</Text>
         <Switch
           value={isGroupEnabled}
-          onValueChange={handleGroupToggle}
+          onValueChange={toggleGroup}
           trackColor={{ false: colors.TEXT_GRAY, true: colors.PINK }}
         />
       </View>
@@ -39,18 +55,20 @@ const Group = () => {
           <TextInput
             style={styles.inputContainer}
             placeholder="그룹을 찾아보세요"
-            value={searchText}
-            onChangeText={setSearchText}
+            value={groupName}
             editable={false}
           />
-          <TouchableOpacity
-            style={styles.searchButton}
-            onPress={handleSearchPress}
-          >
+          <TouchableOpacity style={styles.searchButton} onPress={openModal}>
             <Text style={{ color: colors.BLACK }}>찾아보기</Text>
           </TouchableOpacity>
         </View>
       )}
+
+      <GroupModal
+        visible={showModal}
+        onClose={closeModal}
+        onGroupSelect={handleGroupSelect}
+      />
     </View>
   );
 };
@@ -60,6 +78,7 @@ export default Group;
 const styles = StyleSheet.create({
   container: {
     marginTop: 10,
+    marginBottom: 20,
   },
   textContainer: {
     flexDirection: "row",
