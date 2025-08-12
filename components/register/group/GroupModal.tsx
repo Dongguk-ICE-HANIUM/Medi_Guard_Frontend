@@ -1,5 +1,5 @@
 import { colors } from "@/constants";
-import { Fontisto, Ionicons } from "@expo/vector-icons";
+import { Fontisto, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -30,6 +30,7 @@ const GroupModal = ({ visible, onClose, onGroupSelect }: GroupModalProps) => {
   const [searchText, setSearchText] = useState("");
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
+  const [nameError, setNameError] = useState<string | null>(null);
 
   //mock 데이터 관리
   const [groups, setGroups] = useState(MOCK_GROUPS);
@@ -57,6 +58,14 @@ const GroupModal = ({ visible, onClose, onGroupSelect }: GroupModalProps) => {
   };
 
   const handleCreateGroup = () => {
+    const trimmedName = newGroupName.trim();
+    const isDuplicate = groups.some(
+      (group) => group.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+    if (isDuplicate) {
+      setNameError("이미 존재하는 그룹 이름입니다.");
+      return;
+    }
     if (newGroupName.trim()) {
       const newGroup = {
         id: Date.now().toString(), //임의로 설정
@@ -66,6 +75,7 @@ const GroupModal = ({ visible, onClose, onGroupSelect }: GroupModalProps) => {
       setGroups((prevGroups) => [...prevGroups, newGroup]);
       setShowCreateGroup(false);
       setNewGroupName("");
+      setNameError(null);
       handleBackToSearch();
     }
   };
@@ -113,6 +123,25 @@ const GroupModal = ({ visible, onClose, onGroupSelect }: GroupModalProps) => {
                     onChangeText={setNewGroupName}
                     autoFocus
                   />
+                  {nameError && (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 5,
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name="information-outline"
+                        size={18}
+                        color="red"
+                        style={{ marginLeft: 3 }}
+                      />
+                      <Text style={{ color: "red", fontSize: 13 }}>
+                        {nameError}
+                      </Text>
+                    </View>
+                  )}
                 </View>
               </>
             ) : (
