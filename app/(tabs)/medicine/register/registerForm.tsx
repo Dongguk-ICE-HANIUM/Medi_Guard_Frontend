@@ -25,11 +25,26 @@ const registerForm = ({
   selected = DEV_SELECTED_MEDICINE,
   onSubmit,
 }: registerFormProps) => {
-  const { medication, errors, updateField, validateForm } =
+  const { medication, errors, submitted, updateField, validateForm } =
     useMedicationForm(selected);
 
+  // 필드 업데이트 시 디버그
+  const debugUpdateField = <K extends keyof Medication>(
+    field: K,
+    value: Medication[K]
+  ) => {
+    console.log("[updateField]", field, "=>", value);
+    updateField(field, value);
+  };
+
   const handleSubmit = () => {
-    const { isValid } = validateForm();
+    const { isValid, errors: all } = validateForm();
+
+    // 현재 상태 스냅샷
+    console.log("[validateForm] isValid:", isValid);
+    console.log("[validateForm] errors:", all);
+    console.log("[validateForm] medication:", medication);
+
     if (isValid && onSubmit) {
       onSubmit(medication);
       useRouter().push("/medicine/register/interactionCheck");
@@ -63,11 +78,14 @@ const registerForm = ({
           onEndChange={(date) => {
             updateField("endAt", date);
           }}
-          errors={[...(errors.startAt || []), ...(errors.endAt || [])]}
+          errors={errors.dateRange ?? []}
+          showError={submitted}
         />
         <TakingCycle
           selectedType={medication.takingType}
           onTypeChange={handleTakingTypeChange}
+          errors={errors.takingTypeRequired ?? []}
+          showError={submitted}
         />
         <TakingCycleDetails
           takingType={medication.takingType}

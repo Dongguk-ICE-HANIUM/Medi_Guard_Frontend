@@ -1,4 +1,5 @@
 export enum TakingType {
+  UNSELECTED = "UNSELECTED", //null 허용안하기 위해서 추가
   DAILY = "DAILY",
   SPECIFIC_INTERVAL = "SPECIFIC_INTERVAL",
   SPECIFIC_DAY = "SPECIFIC_DAY",

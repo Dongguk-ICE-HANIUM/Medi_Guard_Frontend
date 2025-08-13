@@ -12,6 +12,7 @@ export interface DateRangeProps {
   onStartChange: (date: string) => void;
   onEndChange: (date: string) => void;
   errors?: string[];
+  showError?: boolean;
 }
 
 const DateRange: React.FC<DateRangeProps> = ({
@@ -20,8 +21,10 @@ const DateRange: React.FC<DateRangeProps> = ({
   onStartChange,
   onEndChange,
   errors = [],
+  showError = false,
 }) => {
   const [isModal, setIsModal] = useState(false);
+  const hasError = showError && errors.length > 0;
 
   // 캘린더 모달에서 날짜 선택 후 호출
   const handleConfirm = (startDate: string, endDate: string) => {
@@ -29,11 +32,6 @@ const DateRange: React.FC<DateRangeProps> = ({
     onEndChange(endDate);
     setIsModal(false); // 모달 닫기
   };
-
-  // 디버깅 로그 추가
-  console.log("DateRange 렌더링:", { startAt, endAt });
-  console.log("startAt truthy:", !!startAt);
-  console.log("endAt truthy:", !!endAt);
 
   return (
     <View style={styles.container}>
@@ -45,6 +43,17 @@ const DateRange: React.FC<DateRangeProps> = ({
           color="red"
           style={{ marginLeft: 3 }}
         />
+        {hasError && (
+          <Text
+            style={{
+              color: colors.RED,
+              marginLeft: 5,
+              top: -1,
+            }}
+          >
+            {errors.join(", ")}
+          </Text>
+        )}
       </View>
       <View style={styles.dateContainer}>
         <View style={styles.startContainer}>
