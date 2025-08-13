@@ -25,8 +25,15 @@ const registerForm = ({
   selected = DEV_SELECTED_MEDICINE,
   onSubmit,
 }: registerFormProps) => {
-  const { medication, errors, submitted, updateField, validateForm } =
-    useMedicationForm(selected);
+  const {
+    medication,
+    errors,
+    submitted,
+    updateField,
+    validateForm,
+    getSelectedDays,
+    updateSelectedDays,
+  } = useMedicationForm(selected);
 
   // 필드 업데이트 시 디버그
   const debugUpdateField = <K extends keyof Medication>(
@@ -93,6 +100,14 @@ const registerForm = ({
           particularDate={medication.particularDate}
           onIntervalChange={handleIntervalChange}
           onParticularDateChange={handleParticularDateChange}
+          selectedDays={getSelectedDays()}
+          onSelectedDaysChange={updateSelectedDays}
+          errors={[
+            ...(errors.takingType ?? []),
+            ...(errors.interval ?? []),
+            ...(errors.particularDate ?? []),
+          ]}
+          showError={submitted}
         />
         <PerAOnce />
         <Alarm />

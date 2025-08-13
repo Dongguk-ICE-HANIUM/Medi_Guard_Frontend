@@ -9,18 +9,32 @@ interface TakingCycleDetailsProps {
   takingType: TakingType;
   interval?: number;
   particularDate?: string[];
+  selectedDays?: string[];
   onIntervalChange?: (interval: number) => void;
   onParticularDateChange?: (dates: string[]) => void;
+  onSelectedDaysChange?: (days: string[]) => void;
+  errors?: string[];
+  showError?: boolean;
 }
 
 const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
   takingType,
   interval = 1,
   particularDate = [],
+  selectedDays = [],
   onIntervalChange,
   onParticularDateChange,
+  onSelectedDaysChange,
+  errors = [],
+  showError = false,
 }) => {
   const WEEKDAYS = ["월", "화", "수", "목", "금", "토", "일"];
+  const hasError = showError && errors.length > 0;
+
+  // TakingCycleDetails 컴포넌트 상단에 추가
+  console.log("TakingCycleDetails - errors:", errors);
+  console.log("TakingCycleDetails - showError:", showError);
+  console.log("TakingCycleDetails - hasError:", hasError);
 
   const renderSpecificInterval = () => (
     <View style={styles.detailContainer}>
@@ -37,6 +51,18 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
         compact={true}
       />
       <Text style={styles.detailTitle}>간격으로 복용</Text>
+      {hasError && (
+        <Text
+          style={{
+            color: colors.RED,
+            marginLeft: 15,
+            marginTop: -10,
+            marginBottom: 10,
+          }}
+        >
+          {errors.join(", ")}
+        </Text>
+      )}
     </View>
   );
 
@@ -44,7 +70,7 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
     <View style={styles.detailContainer}>
       <View style={styles.weekdayContainer}>
         {WEEKDAYS.map((day) => {
-          const isSelected = particularDate.includes(day);
+          const isSelected = selectedDays.includes(day);
           return (
             <TouchableOpacity
               key={day}
@@ -53,10 +79,10 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
                 isSelected && styles.selectedWeekday,
               ]}
               onPress={() => {
-                const newDates = isSelected
-                  ? particularDate.filter((d) => d !== day)
-                  : [...particularDate, day];
-                onParticularDateChange?.(newDates);
+                const newDays = isSelected
+                  ? selectedDays.filter((d) => d !== day)
+                  : [...selectedDays, day];
+                onSelectedDaysChange?.(newDays);
               }}
             >
               <Text
@@ -71,6 +97,17 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
           );
         })}
       </View>
+      {hasError && (
+        <Text
+          style={{
+            color: colors.RED,
+            marginLeft: 5,
+            top: -1,
+          }}
+        >
+          {errors.join(", ")}
+        </Text>
+      )}
     </View>
   );
 
@@ -80,6 +117,18 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
         dates={particularDate}
         onChange={(dates) => onParticularDateChange?.(dates)}
       />
+      {hasError && (
+        <Text
+          style={{
+            color: colors.RED,
+            marginLeft: 15,
+            marginTop: -10,
+            marginBottom: 10,
+          }}
+        >
+          {errors.join(", ")}
+        </Text>
+      )}
     </View>
   );
 

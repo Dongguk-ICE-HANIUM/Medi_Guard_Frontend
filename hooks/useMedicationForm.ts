@@ -3,6 +3,7 @@ import {
   SelectedMedicineInfo,
   TakingType,
 } from "@/types/medication";
+import { convertBinaryToDays, convertDaysToBinary } from "@/utils/dateUtils";
 import { useState } from "react";
 
 // 상수 정의
@@ -14,7 +15,7 @@ const MEDICATION_DEFAULTS: Omit<Medication, "id" | "name"> = {
   startAt: "",
   endAt: "",
   takingType: TakingType.UNSELECTED,
-  interval: 1,
+  interval: 0,
   particularDate: [],
   perDay: 1,
   amount: 1.0,
@@ -84,24 +85,16 @@ export const validateField = (med: Medication, field: FieldKey): string[] => {
         case TakingType.DAILY:
           break;
         case TakingType.SPECIFIC_INTERVAL:
-          if (!med.interval || med.interval < 1) {
-            errors.push(
-              "특정 날짜 간격으로 복용할 경우, 간격(일 수)을 입력해주세요."
-            );
+          if (med.interval < 1) {
+            errors.push("복용 간격을 1일 이상으로 설정해주세요.");
           }
           if (med.interval > MAX_INTERVAL) {
             errors.push(`간격은 ${MAX_INTERVAL}일을 초과할 수 없습니다.`);
           }
           break;
         case TakingType.SPECIFIC_DAY:
-          if (!med.particularDate || med.particularDate.length === 0) {
+          if (med.interval === 0) {
             errors.push("복용할 요일을 선택해주세요.");
-          }
-          const invalidDays = med.particularDate?.filter(
-            (day) => !VALID_DAYS.includes(day as (typeof VALID_DAYS)[number])
-          );
-          if (invalidDays && invalidDays.length > 0) {
-            errors.push("올바르지 않은 요일이 선택되었습니다.");
           }
           break;
         case TakingType.SPECIFIC_DATE:
@@ -121,8 +114,6 @@ export const validateField = (med: Medication, field: FieldKey): string[] => {
           break;
         case TakingType.NEED:
           break;
-        default:
-          errors.push("복용 주기를 선택해주세요.");
       }
 
       break;
@@ -149,12 +140,32 @@ export const useMedicationForm = (selected: SelectedMedicineInfo) => {
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [submitted, setSubmitted] = useState(false);
 
+  const getSelectedDays = (): string[] => {
+    if (medication.takingType === TakingType.SPECIFIC_DAY) {
+      return convertBinaryToDays(medication.interval);
+    }
+    return [];
+  };
+
+  const updateSelectedDays = (days: string[]) => {
+    const binaryValue = convertDaysToBinary(days);
+    updateField("interval", binaryValue);
+  };
+
   const updateField = <K extends keyof Medication>(
     field: K,
     value: Medication[K]
   ) => {
     setMedication((prevMedication) => {
       const next = { ...prevMedication, [field]: value };
+
+      if (field === "takingType") {
+        if (value === TakingType.SPECIFIC_DAY) {
+          next.interval = 0;
+        } else if (value === TakingType.SPECIFIC_INTERVAL) {
+          next.interval = 1;
+        }
+      }
 
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -208,6 +219,7 @@ export const useMedicationForm = (selected: SelectedMedicineInfo) => {
       isValid = false;
       allErrors.takingTypeRequired = takingTypeErr;
     }
+
     setErrors(allErrors);
     return { isValid, errors: allErrors };
   };
@@ -216,6 +228,8 @@ export const useMedicationForm = (selected: SelectedMedicineInfo) => {
     medication,
     errors,
     submitted,
+    getSelectedDays,
+    updateSelectedDays,
     updateField,
     validateField,
     validateForm,

@@ -31,7 +31,7 @@ const TakingCycle: React.FC<TakingCycleProps> = ({
           style={{ marginLeft: 3 }}
         />
         {hasError && (
-          <Text style={{ color: colors.RED, marginLeft: 5 }}>
+          <Text style={{ color: colors.RED, marginLeft: 5, top: -1 }}>
             {errors.join(", ")}
           </Text>
         )}
