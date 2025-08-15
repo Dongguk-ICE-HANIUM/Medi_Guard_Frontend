@@ -47,7 +47,6 @@ const registerForm = ({
   };
 
   const handleSubmit = () => {
-    console.log("[handleSubmit] 시작");
     console.log("[handleSubmit] medication:", medication);
     const { isValid, errors: all } = validateForm();
 
@@ -55,22 +54,13 @@ const registerForm = ({
     console.log("[handleSubmit] errors:", errors);
 
     if (isValid) {
-      console.log("[handleSubmit] 유효성 검사 통과");
-
       if (onSubmit) {
-        console.log("[handleSubmit] onSubmit 호출");
         onSubmit(medication);
       }
-
-      console.log("[handleSubmit] 라우터 네비게이션 시도");
       router.push("/medicine/register/interactionCheck");
     } else {
-      console.log("[handleSubmit] 유효성 검사 실패:", errors);
+      console.log("[handleSubmit] 유효성 검사 실패 - 페이지 이동 불가");
     }
-    // if (isValid && onSubmit) {
-    //   onSubmit(medication);
-    //   router.push("/medicine/register/interactionCheck");
-    // }
   };
 
   const handleTakingTypeChange = (takingType: TakingType) => {

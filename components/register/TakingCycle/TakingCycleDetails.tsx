@@ -43,19 +43,21 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
   const renderSpecificInterval = () => (
     <View>
       <View style={styles.detailContainer}>
-        <Text style={styles.detailTitle}>첫 복용일부터</Text>
-        <NumberInput
-          title=""
-          description=""
-          value={interval}
-          unit="일"
-          min={1}
-          max={365}
-          step={1}
-          onValueChange={(value) => onIntervalChange?.(value)}
-          compact={true}
-        />
-        <Text style={styles.detailTitle}>간격으로 복용</Text>
+        <View style={styles.intervalContainer}>
+          <Text style={styles.detailTitle}>첫 복용일부터</Text>
+          <NumberInput
+            title=""
+            description=""
+            value={interval}
+            unit="일"
+            min={1}
+            max={365}
+            step={1}
+            onValueChange={(value) => onIntervalChange?.(value)}
+            compact={true}
+          />
+          <Text style={styles.detailTitle}>간격으로 복용</Text>
+        </View>
       </View>
       {hasError && (
         <Text
