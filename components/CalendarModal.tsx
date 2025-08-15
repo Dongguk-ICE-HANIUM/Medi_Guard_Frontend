@@ -26,9 +26,8 @@ interface CalendarModalProps {
   onSpecificConfirm?: (dates: string[]) => void;
   initialSpecificDates?: string[];
 
-  // 복용 기간 제한 props
-  minDate?: string; // 복용 시작일
-  maxDate?: string; // 복용 종료일
+  minDate?: string;
+  maxDate?: string;
 }
 
 const CalendarModal: React.FC<CalendarModalProps> = ({
@@ -64,7 +63,6 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
     }
   }, [visible]);
 
-  // 날짜가 복용 기간 내에 있는지 확인
   const isDateInRange = (dateString: string): boolean => {
     if (!minDate || !maxDate) return true;
 
@@ -75,7 +73,6 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
     return date >= min && date <= max;
   };
 
-  // 복용 기간 밖 날짜 선택 시 경고
   const showOutOfRangeWarning = () => {
     Alert.alert("날짜 선택 안내", "복용 기간 내에서 날짜를 선택해주세요.", [
       { text: "확인", style: "default" },
@@ -86,7 +83,6 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
     const selectedDate = day.dateString;
 
     if (selectionMode === CalendarMode.SPECIFIC) {
-      // 복용 기간 밖 날짜 선택 시 경고 표시
       if (!isDateInRange(selectedDate)) {
         showOutOfRangeWarning();
         return;
@@ -101,7 +97,6 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
       });
     } else {
       if (!isSelectingEnd || (startDate && endDate)) {
-        console.log("시작일 설정:", selectedDate);
         setStartDate(selectedDate);
         setEndDate("");
         setIsSelectingEnd(true);
@@ -109,12 +104,10 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
       }
 
       if (new Date(selectedDate) < new Date(startDate)) {
-        console.log("시작일보다 이전 날짜 선택, 시작일 변경:", selectedDate);
         setStartDate(selectedDate);
         setEndDate("");
         return;
       }
-      console.log("종료일 설정:", selectedDate);
       setEndDate(selectedDate);
     }
   };
@@ -123,65 +116,51 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
     if (selectionMode === CalendarMode.SPECIFIC) {
       const specificMarked: Record<string, any> = {};
 
-      // 복용 기간을 일정한 색상으로 연결된 배경 표시
       if (minDate && maxDate) {
         const current = new Date(minDate);
         const end = new Date(maxDate);
 
-        // 하루짜리인 경우
         if (minDate === maxDate) {
           specificMarked[minDate] = {
-            color: colors.PINK + "40",
-            textColor: colors.BLACK,
+            customStyles: {
+              container: {
+                backgroundColor: colors.PINK + "25",
+              },
+              text: {
+                color: colors.BLACK,
+              },
+            },
           };
         } else {
-          // 여러 날짜인 경우
           while (current <= end) {
             const dateStr = current.toISOString().split("T")[0];
-
-            if (dateStr === minDate) {
-              // 시작일
-              specificMarked[dateStr] = {
-                startingDay: true,
-                color: colors.PINK + "40",
-                textColor: colors.BLACK,
-              };
-            } else if (dateStr === maxDate) {
-              // 종료일
-              specificMarked[dateStr] = {
-                endingDay: true,
-                color: colors.PINK + "40",
-                textColor: colors.BLACK,
-              };
-            } else {
-              // 중간 날짜들
-              specificMarked[dateStr] = {
-                color: colors.PINK + "40",
-                textColor: colors.BLACK,
-              };
-            }
+            specificMarked[dateStr] = {
+              customStyles: {
+                container: {
+                  backgroundColor: colors.PINK + "25",
+                },
+                text: {
+                  color: colors.BLACK,
+                },
+              },
+            };
             current.setDate(current.getDate() + 1);
           }
         }
       }
 
-      // 선택된 날짜들을 더 진한 색으로 명확하게 표시
       specificDates.forEach((date) => {
-        if (specificMarked[date]) {
-          // 복용 기간 내의 선택된 날짜 - 기존 배경 위에 덮어씀
-          specificMarked[date] = {
-            ...specificMarked[date], // 기존 period 배경 유지
-            selected: true,
-            selectedColor: colors.PINK,
-            selectedTextColor: colors.WHITE,
-          };
-        }
+        specificMarked[date] = {
+          selected: true,
+          selectedColor: colors.PINK,
+          selectedTextColor: colors.WHITE,
+        };
       });
 
       return specificMarked;
     }
 
-    // Range 모드 (기존 코드 유지)
+    // RANGE 모드
     if (!startDate) return {};
 
     if (!endDate) {
@@ -189,13 +168,11 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
         [startDate]: {
           selected: true,
           selectedColor: colors.PINK,
-          textColor: colors.WHITE,
-          style: { backgroundColor: colors.PINK + "30" },
+          selectedTextColor: colors.WHITE,
         },
       };
     }
 
-    //시작, 종료, 범위 모두 표시
     const markedDates: Record<string, any> = {};
     const current = new Date(startDate);
     const end = new Date(endDate);
@@ -251,6 +228,9 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
     | "multi-period"
     | "custom"
     | undefined => {
+    if (selectionMode === CalendarMode.SPECIFIC) {
+      return "custom";
+    }
     return "period";
   };
 
@@ -263,7 +243,7 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
             markedDates={getMarked()}
             markingType={getMarkingType()}
             theme={{
-              selectedDayBackgroundColor: colors.PINK + "30",
+              selectedDayBackgroundColor: colors.PINK,
               arrowColor: colors.PINK,
               calendarBackground: colors.WHITE,
               textSectionTitleColor: colors.BLACK,
