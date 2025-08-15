@@ -19,12 +19,12 @@ export default function MedicineScreen() {
     useMedicine();
 
   useEffect(() => {
-    if (selectedDate) {
-      const datestring = formatDateSlash(selectedDate);
-      filterByDate(datestring);
-      console.log(`MedicineScreen: ${datestring} 약물 데이터 필터링`);
-    }
-  }, [selectedDate, filterByDate]);
+    const targetDate = selectedDate || currentDate;
+    const datestring = formatDateSlash(targetDate);
+
+    filterByDate(datestring);
+    console.log(`MedicineScreen: ${datestring} 약물 데이터 필터링`);
+  }, [selectedDate]);
 
   useEffect(() => {
     if (!selectedDate) {

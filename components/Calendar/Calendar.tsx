@@ -1,5 +1,5 @@
 import { colors } from "@/constants";
-import { useCalendar } from "@/hooks/useCalendar";
+import { useCalendarContext } from "@/context/CalendarContext";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
   ActivityIndicator,
@@ -23,7 +23,7 @@ export default function Calendar() {
 
     selectedDate,
     setSelectedDate,
-  } = useCalendar();
+  } = useCalendarContext();
 
   const getDaysInMonth = (date: Date): number => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();

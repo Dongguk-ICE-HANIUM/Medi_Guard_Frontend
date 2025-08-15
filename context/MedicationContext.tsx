@@ -78,7 +78,7 @@ const MOCK_ALL_DRUGS: Drug[] = [
     calendarDrugId: "group-3",
     name: "오메가3",
     startDate: "2025-06-15",
-    endDate: "2025-8-15",
+    endDate: "2025-08-15",
     timeSlot: 1900,
     takenDaysCount: 120,
     missedDaysCount: 10,
