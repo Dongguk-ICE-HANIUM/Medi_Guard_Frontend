@@ -47,11 +47,6 @@ const registerForm = ({
   const handleSubmit = () => {
     const { isValid, errors: all } = validateForm();
 
-    // 현재 상태 스냅샷
-    console.log("[validateForm] isValid:", isValid);
-    console.log("[validateForm] errors:", all);
-    console.log("[validateForm] medication:", medication);
-
     if (isValid && onSubmit) {
       onSubmit(medication);
       useRouter().push("/medicine/register/interactionCheck");
@@ -108,6 +103,8 @@ const registerForm = ({
             ...(errors.particularDate ?? []),
           ]}
           showError={submitted}
+          startAt={medication.startAt}
+          endAt={medication.endAt}
         />
         <PerAOnce />
         <Alarm />

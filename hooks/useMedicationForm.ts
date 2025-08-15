@@ -163,7 +163,7 @@ export const useMedicationForm = (selected: SelectedMedicineInfo) => {
         if (value === TakingType.SPECIFIC_DAY) {
           next.interval = 0;
         } else if (value === TakingType.SPECIFIC_INTERVAL) {
-          next.interval = 1;
+          next.interval = 0;
         }
       }
 

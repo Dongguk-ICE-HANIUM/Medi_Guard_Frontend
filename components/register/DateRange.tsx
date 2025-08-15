@@ -4,7 +4,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import CalendarModal from "../CalendarModal";
+import CalendarModal, { CalendarMode } from "../CalendarModal"; // **수정: CalendarMode import 추가**
 
 export interface DateRangeProps {
   startAt: string;
@@ -81,6 +81,7 @@ const DateRange: React.FC<DateRangeProps> = ({
 
       <CalendarModal
         visible={isModal}
+        selectionMode={CalendarMode.RANGE} // **추가: RANGE 모드 명시**
         onClose={() => setIsModal(false)}
         onConfirm={handleConfirm}
         initialStartDate={startAt}

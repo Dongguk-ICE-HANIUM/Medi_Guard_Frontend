@@ -15,6 +15,8 @@ interface TakingCycleDetailsProps {
   onSelectedDaysChange?: (days: string[]) => void;
   errors?: string[];
   showError?: boolean;
+  startAt?: string;
+  endAt?: string;
 }
 
 const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
@@ -27,37 +29,40 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
   onSelectedDaysChange,
   errors = [],
   showError = false,
+  startAt,
+  endAt,
 }) => {
   const WEEKDAYS = ["월", "화", "수", "목", "금", "토", "일"];
   const hasError = showError && errors.length > 0;
 
-  // TakingCycleDetails 컴포넌트 상단에 추가
+  // TakingCycleDetails 디버깅 코드
   console.log("TakingCycleDetails - errors:", errors);
   console.log("TakingCycleDetails - showError:", showError);
   console.log("TakingCycleDetails - hasError:", hasError);
 
   const renderSpecificInterval = () => (
-    <View style={styles.detailContainer}>
-      <Text style={styles.detailTitle}>첫 복용일부터</Text>
-      <NumberInput
-        title=""
-        description=""
-        value={interval}
-        unit="일"
-        min={1}
-        max={365}
-        step={1}
-        onValueChange={(value) => onIntervalChange?.(value)}
-        compact={true}
-      />
-      <Text style={styles.detailTitle}>간격으로 복용</Text>
+    <View>
+      <View style={styles.detailContainer}>
+        <Text style={styles.detailTitle}>첫 복용일부터</Text>
+        <NumberInput
+          title=""
+          description=""
+          value={interval}
+          unit="일"
+          min={1}
+          max={365}
+          step={1}
+          onValueChange={(value) => onIntervalChange?.(value)}
+          compact={true}
+        />
+        <Text style={styles.detailTitle}>간격으로 복용</Text>
+      </View>
       {hasError && (
         <Text
           style={{
             color: colors.RED,
-            marginLeft: 15,
-            marginTop: -10,
-            marginBottom: 10,
+            textAlign: "center",
+            padding: 2,
           }}
         >
           {errors.join(", ")}
@@ -101,8 +106,7 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
         <Text
           style={{
             color: colors.RED,
-            marginLeft: 5,
-            top: -1,
+            marginTop: 15,
           }}
         >
           {errors.join(", ")}
@@ -112,23 +116,25 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
   );
 
   const renderSpecificDate = () => (
-    <View>
-      <SpecificDate
-        dates={particularDate}
-        onChange={(dates) => onParticularDateChange?.(dates)}
-      />
+    <View style={styles.dateContainer}>
       {hasError && (
         <Text
           style={{
             color: colors.RED,
-            marginLeft: 15,
-            marginTop: -10,
-            marginBottom: 10,
+            textAlign: "center",
+            paddingTop: 10,
+            paddingBottom: 5,
           }}
         >
           {errors.join(", ")}
         </Text>
       )}
+      <SpecificDate
+        dates={particularDate}
+        onChange={(dates) => onParticularDateChange?.(dates)}
+        startAt={startAt}
+        endAt={endAt}
+      />
     </View>
   );
 
@@ -155,7 +161,7 @@ export default TakingCycleDetails;
 const styles = StyleSheet.create({
   detailContainer: {
     padding: 15,
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "space-between",
   },
@@ -222,4 +228,5 @@ const styles = StyleSheet.create({
     color: colors.BLACK,
   },
   selectedWeekdayText: {},
+  dateContainer: {},
 });

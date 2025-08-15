@@ -1,6 +1,13 @@
 import { colors } from "@/constants";
 import React, { useEffect, useState } from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Calendar } from "react-native-calendars";
 
 export enum CalendarMode {
@@ -18,6 +25,10 @@ interface CalendarModalProps {
   initialEndDate?: string;
   onSpecificConfirm?: (dates: string[]) => void;
   initialSpecificDates?: string[];
+
+  // 복용 기간 제한 props
+  minDate?: string; // 복용 시작일
+  maxDate?: string; // 복용 종료일
 }
 
 const CalendarModal: React.FC<CalendarModalProps> = ({
@@ -29,6 +40,8 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
   initialEndDate = "",
   onSpecificConfirm,
   initialSpecificDates = [],
+  minDate,
+  maxDate,
 }) => {
   //for Range
   const [startDate, setStartDate] = useState(initialStartDate);
@@ -51,9 +64,34 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
     }
   }, [visible]);
 
+  // 날짜가 복용 기간 내에 있는지 확인
+  const isDateInRange = (dateString: string): boolean => {
+    if (!minDate || !maxDate) return true;
+
+    const date = new Date(dateString);
+    const min = new Date(minDate);
+    const max = new Date(maxDate);
+
+    return date >= min && date <= max;
+  };
+
+  // 복용 기간 밖 날짜 선택 시 경고
+  const showOutOfRangeWarning = () => {
+    Alert.alert("날짜 선택 안내", "복용 기간 내에서 날짜를 선택해주세요.", [
+      { text: "확인", style: "default" },
+    ]);
+  };
+
   const handleDayPress = (day: { dateString: string }) => {
     const selectedDate = day.dateString;
+
     if (selectionMode === CalendarMode.SPECIFIC) {
+      // 복용 기간 밖 날짜 선택 시 경고 표시
+      if (!isDateInRange(selectedDate)) {
+        showOutOfRangeWarning();
+        return;
+      }
+
       setSpecificDates((prev) => {
         if (prev.includes(selectedDate)) {
           return prev.filter((date) => date !== selectedDate);
@@ -84,15 +122,66 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
   const getMarked = () => {
     if (selectionMode === CalendarMode.SPECIFIC) {
       const specificMarked: Record<string, any> = {};
+
+      // 복용 기간을 일정한 색상으로 연결된 배경 표시
+      if (minDate && maxDate) {
+        const current = new Date(minDate);
+        const end = new Date(maxDate);
+
+        // 하루짜리인 경우
+        if (minDate === maxDate) {
+          specificMarked[minDate] = {
+            color: colors.PINK + "40",
+            textColor: colors.BLACK,
+          };
+        } else {
+          // 여러 날짜인 경우
+          while (current <= end) {
+            const dateStr = current.toISOString().split("T")[0];
+
+            if (dateStr === minDate) {
+              // 시작일
+              specificMarked[dateStr] = {
+                startingDay: true,
+                color: colors.PINK + "40",
+                textColor: colors.BLACK,
+              };
+            } else if (dateStr === maxDate) {
+              // 종료일
+              specificMarked[dateStr] = {
+                endingDay: true,
+                color: colors.PINK + "40",
+                textColor: colors.BLACK,
+              };
+            } else {
+              // 중간 날짜들
+              specificMarked[dateStr] = {
+                color: colors.PINK + "40",
+                textColor: colors.BLACK,
+              };
+            }
+            current.setDate(current.getDate() + 1);
+          }
+        }
+      }
+
+      // 선택된 날짜들을 더 진한 색으로 명확하게 표시
       specificDates.forEach((date) => {
-        specificMarked[date] = {
-          selected: true,
-          selectedColor: colors.PINK,
-          textColor: colors.WHITE,
-        };
+        if (specificMarked[date]) {
+          // 복용 기간 내의 선택된 날짜 - 기존 배경 위에 덮어씀
+          specificMarked[date] = {
+            ...specificMarked[date], // 기존 period 배경 유지
+            selected: true,
+            selectedColor: colors.PINK,
+            selectedTextColor: colors.WHITE,
+          };
+        }
       });
+
       return specificMarked;
     }
+
+    // Range 모드 (기존 코드 유지)
     if (!startDate) return {};
 
     if (!endDate) {
@@ -154,11 +243,15 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
     if (selectionMode === CalendarMode.SPECIFIC) {
       return specificDates.length === 0;
     }
-    !startDate || !endDate;
+    return !startDate || !endDate;
   };
 
-  const getMarkingType = () => {
-    return selectionMode === CalendarMode.SPECIFIC ? undefined : "period";
+  const getMarkingType = ():
+    | "period"
+    | "multi-period"
+    | "custom"
+    | undefined => {
+    return "period";
   };
 
   return (
@@ -236,22 +329,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: colors.BLACK,
-  },
-  closeButton: {
-    fontSize: 20,
-    color: colors.TEXT_GRAY,
-    padding: 5,
   },
   footer: {
     flexDirection: "row",
