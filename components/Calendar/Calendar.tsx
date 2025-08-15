@@ -13,14 +13,13 @@ import TagsContainer from "../tag/TagsContainer";
 export default function Calendar() {
   const {
     calendarData,
-    loading,
-    error,
+    loading: calendarLoading,
+    error: calendarError,
     currentDate,
     changeMonth,
     getDayStatus,
     getTagsForDay,
     refreshData,
-    setCurrentDate,
 
     selectedDate,
     setSelectedDate,
@@ -51,12 +50,14 @@ export default function Calendar() {
   ): React.ReactNode => {
     const tags = getTagsForDay(dayIndex);
 
+    const cellDate = new Date();
+    cellDate.setFullYear(currentDate.getFullYear());
+    cellDate.setMonth(currentDate.getMonth());
+    cellDate.setDate(day);
+    cellDate.setHours(12, 0, 0, 0);
+
     const today = new Date();
-    const cellDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day
-    );
+    today.setHours(12, 0, 0, 0);
     const isToday = today.toDateString() === cellDate.toDateString();
     const isSelectd = selectedDate?.toDateString() === cellDate.toDateString();
 
@@ -70,6 +71,10 @@ export default function Calendar() {
         ]}
         onPress={() => {
           setSelectedDate(cellDate);
+
+          const dateString = cellDate.toISOString().split("T")[0];
+
+          console.log(`날짜 선택 : ${dateString}`);
         }}
       >
         {isToday ? (
@@ -127,7 +132,7 @@ export default function Calendar() {
     return days;
   };
 
-  if (loading) {
+  if (calendarLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="colors.PINK" />
@@ -135,7 +140,7 @@ export default function Calendar() {
     );
   }
 
-  if (error) {
+  if (calendarError) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>

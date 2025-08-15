@@ -3,6 +3,7 @@ import NavigationCard from "@/components/Card/NavigationCard";
 import TodayAllMedicineCard from "@/components/Card/TodayAllMedicineCard";
 import { useCalendarContext } from "@/context/CalendarContext";
 import useMedicine from "@/hooks/useMedicine";
+import { formatDateSlash } from "@/utils/dateUtils";
 import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
@@ -13,16 +14,30 @@ export default function MedicineScreen() {
   const currentMonth = currentDate.getMonth() + 1;
   const currentDay = currentDate.getDate();
 
-  const { getSelectedDate } = useCalendarContext();
+  const { selectedDate } = useCalendarContext();
   const { drugGroups, individualDrugs, loading, error, filterByDate } =
     useMedicine();
 
   useEffect(() => {
-    const datestring = getSelectedDate();
-    if (datestring) {
+    if (selectedDate) {
+      const datestring = formatDateSlash(selectedDate);
       filterByDate(datestring);
+      console.log(`MedicineScreen: ${datestring} 약물 데이터 필터링`);
     }
-  }, [getSelectedDate, filterByDate]);
+  }, [selectedDate, filterByDate]);
+
+  useEffect(() => {
+    if (!selectedDate) {
+      const today = new Date();
+      const todayString = formatDateSlash(today);
+      filterByDate(todayString);
+      console.log("초기 로드 : 오늘의 약물");
+    }
+  }, [selectedDate, filterByDate]);
+
+  const displayDate = selectedDate || currentDate;
+  const displayMonth = displayDate.getMonth() + 1;
+  const displayDay = displayDate.getDate();
 
   return (
     <ScrollView
@@ -50,7 +65,7 @@ export default function MedicineScreen() {
         <View style={styles.calendarConatainer}>
           <View style={styles.calendarTitleTextContainer}>
             <Text style={styles.calendarTitleText}>
-              {currentMonth}월 {currentDay}일
+              {displayMonth}월 {displayDay}일
             </Text>
             <AntDesign name="downcircleo" size={17} color="black" />
           </View>
@@ -62,7 +77,7 @@ export default function MedicineScreen() {
               <TodayAllMedicineCard
                 drugGroups={drugGroups}
                 individualDrugs={individualDrugs}
-                selectedDate={getSelectedDate() || undefined}
+                selectedDate={formatDateSlash(displayDate)}
                 loading={loading}
               />
               {error && <Text style={styles.errorText}>{error}</Text>}

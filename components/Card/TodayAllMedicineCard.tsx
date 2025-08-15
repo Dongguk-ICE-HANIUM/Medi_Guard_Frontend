@@ -1,5 +1,5 @@
 import { colors } from "@/constants";
-import { Drug, DrugGroup } from "@/types/calendar";
+import { Drug, DrugGroup } from "@/types/medication";
 import React from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import GroupMedicineCard from "./GroupMedicineCard";

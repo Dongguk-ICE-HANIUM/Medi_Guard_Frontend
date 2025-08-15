@@ -26,14 +26,6 @@ const MEDICATION_DEFAULTS: Omit<Medication, "id" | "name"> = {
 type ExtraErrorKeys = "dateRange" | "takingTypeRequired";
 export type FieldKey = keyof Medication | ExtraErrorKeys;
 
-// 날짜 비교 유틸리티 함수
-const isDateRangeValid = (startAt: string, endAt: string): boolean => {
-  if (!startAt || !endAt) return true;
-  const startDate = new Date(startAt);
-  const endDate = new Date(endAt);
-  return startDate <= endDate;
-};
-
 const isDateInRange = (
   dateStr: string,
   startAt: string,
