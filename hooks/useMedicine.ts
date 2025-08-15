@@ -1,4 +1,4 @@
-import { Drug, DrugGroup } from "@/types/calendar";
+import { Drug, DrugGroup } from "@/types/medication";
 import { useCallback, useState } from "react";
 
 export interface useMedicineReturn {

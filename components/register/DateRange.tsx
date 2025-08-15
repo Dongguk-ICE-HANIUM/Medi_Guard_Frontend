@@ -4,7 +4,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import CalendarModal, { CalendarMode } from "../CalendarModal"; // **수정: CalendarMode import 추가**
+import CalendarModal, { CalendarMode } from "../CalendarModal";
 
 export interface DateRangeProps {
   startAt: string;

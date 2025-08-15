@@ -1,4 +1,3 @@
-
 import Calendar from "@/components/Calendar/Calendar";
 import NavigationCard from "@/components/Card/NavigationCard";
 import TodayAllMedicineCard from "@/components/Card/TodayAllMedicineCard";
@@ -8,7 +7,6 @@ import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-
 
 export default function MedicineScreen() {
   const currentDate = new Date();
@@ -27,7 +25,6 @@ export default function MedicineScreen() {
   }, [getSelectedDate, fetchMedicineForDate]);
 
   return (
-
     <ScrollView
       style={{ flex: 1 }}
       showsVerticalScrollIndicator={false}
@@ -39,7 +36,7 @@ export default function MedicineScreen() {
             text="전체 복용약 보기"
             icon="next"
             onPress={() => {
-              router.push("/medicine/MedicineList");
+              router.push("/medicine/medicineList");
             }}
           />
           <NavigationCard
@@ -101,4 +98,3 @@ const styles = StyleSheet.create({
   todayContainer: {},
   errorText: {},
 });
-
