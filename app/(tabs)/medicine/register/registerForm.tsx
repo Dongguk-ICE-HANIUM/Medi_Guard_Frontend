@@ -25,6 +25,8 @@ const registerForm = ({
   selected = DEV_SELECTED_MEDICINE,
   onSubmit,
 }: registerFormProps) => {
+  const router = useRouter();
+
   const {
     medication,
     errors,
@@ -45,12 +47,30 @@ const registerForm = ({
   };
 
   const handleSubmit = () => {
+    console.log("[handleSubmit] 시작");
+    console.log("[handleSubmit] medication:", medication);
     const { isValid, errors: all } = validateForm();
 
-    if (isValid && onSubmit) {
-      onSubmit(medication);
-      useRouter().push("/medicine/register/interactionCheck");
+    console.log("[handleSubmit] isValid:", isValid);
+    console.log("[handleSubmit] errors:", errors);
+
+    if (isValid) {
+      console.log("[handleSubmit] 유효성 검사 통과");
+
+      if (onSubmit) {
+        console.log("[handleSubmit] onSubmit 호출");
+        onSubmit(medication);
+      }
+
+      console.log("[handleSubmit] 라우터 네비게이션 시도");
+      router.push("/medicine/register/interactionCheck");
+    } else {
+      console.log("[handleSubmit] 유효성 검사 실패:", errors);
     }
+    // if (isValid && onSubmit) {
+    //   onSubmit(medication);
+    //   router.push("/medicine/register/interactionCheck");
+    // }
   };
 
   const handleTakingTypeChange = (takingType: TakingType) => {
