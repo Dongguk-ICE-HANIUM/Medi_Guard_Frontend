@@ -1,63 +1,24 @@
+import { useMedicationContext } from "@/context/MedicationContext";
 import { Drug, DrugGroup } from "@/types/medication";
-import { useCallback, useState } from "react";
+import { formatDateSlash } from "@/utils/dateUtils";
+import { useCallback, useMemo, useState } from "react";
 
 export interface useMedicineReturn {
   drugGroups: DrugGroup[];
   individualDrugs: Drug[];
+
   loading: boolean;
   error: string | null;
-  fetchMedicineForDate: (date: string) => Promise<void>;
+  selectedDate: string | null;
+
+  filterByDate: (date: string) => void;
+  //추후 다시 확인
+  clearFilter: () => void;
+  refetch: () => Promise<void>;
+
+  getDrugsForCalendarDate: (date: Date) => Drug[];
+  hasDrugsOnDate: (date: string) => boolean;
 }
-
-//
-//dummydata
-//
-const getAllMedicineData = () => {
-  const drugGroupList = [
-    {
-      id: "UUID",
-      name: "봄 진료 처방약",
-    },
-    {
-      id: "UGID",
-      name: "겨울 진료 처방약",
-    },
-  ];
-
-  const drugList = [
-    {
-      id: "UUID",
-      calendarDrugId: "UUID",
-      name: "우루사정",
-      startDate: "2025-07-25",
-      endDate: "2025-07-30",
-      timeSlot: 12,
-      takenDaysCount: 8,
-      missedDaysCount: 5,
-    },
-    {
-      id: "EUID",
-      calendarDrugId: "UUID",
-      name: "탁센",
-      startDate: "2025-07-10",
-      endDate: "2025-08-03",
-      timeSlot: 12,
-      takenDaysCount: 8,
-      missedDaysCount: 5,
-    },
-    {
-      id: "UGID",
-      calendarDrugId: "UGID",
-      name: "타이레놀",
-      startDate: "2025-06-30",
-      endDate: "2025-07-2",
-      timeSlot: 1005,
-      takenDaysCount: 7,
-      missedDaysCount: 2,
-    },
-  ];
-  return { drugGroupList, drugList };
-};
 
 const isDateInRange = (
   selectedDate: string,
@@ -72,48 +33,97 @@ const isDateInRange = (
 };
 
 const useMedicine = (): useMedicineReturn => {
-  const [drugGroups, setDrugGroups] = useState<DrugGroup[]>([]);
-  const [individualDrugs, setIndividualDrugs] = useState<Drug[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    drugGroups: allDrugGroups,
+    allDrugs,
+    loading: contextLoading,
+    error: contextError,
+    fetchAllDrugs,
+    fetchDrugGroups,
+  } = useMedicationContext();
 
-  const fetchMedicineForDate = useCallback(async (selectedDate: string) => {
-    setLoading(true);
-    setError(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-    try {
-      await new Promise((resolve) => {
-        setTimeout(resolve, 300);
-      }); //로딩 상태 확인 위해서 넣음
-
-      const { drugGroupList, drugList } = getAllMedicineData();
-
-      const filteredDrugs = drugList.filter((drug) => {
-        return isDateInRange(selectedDate, drug.startDate, drug.endDate);
-      });
-
-      const getSelectedGroupIds = filteredDrugs
-        .map((drug) => drug.calendarDrugId)
-        .filter((id) => id);
-
-      const filteredDrugGroups = drugGroupList.filter((group) =>
-        getSelectedGroupIds.includes(group.id)
-      );
-
-      setDrugGroups(filteredDrugGroups);
-      setIndividualDrugs(filteredDrugs);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+  //선택된 날짜에 해당하는 약물,그룹 필터링
+  const filteredDrugs = useMemo(() => {
+    if (!selectedDate || allDrugs.length === 0) {
+      return allDrugs;
     }
+    const filtered = allDrugs.filter((drug) => {
+      return isDateInRange(selectedDate, drug.startDate, drug.endDate);
+    });
+
+    console.log(`${selectedDate} 필터링 결과: ${filtered.length}개 약물`);
+    return filtered;
+  }, [selectedDate, allDrugs]);
+
+  const filteredDrugGroups = useMemo(() => {
+    if (filteredDrugs.length === 0) {
+      return [];
+    }
+    const selectedGroupIds = [
+      ...new Set(filteredDrugs.map((drug) => drug.calendarDrugId)),
+    ];
+
+    const filtered = allDrugGroups.filter((group) =>
+      selectedGroupIds.includes(group.id)
+    );
+    return filtered;
+  }, [filteredDrugs, allDrugGroups]);
+
+  //날짜 필터링
+  const filterByDate = useCallback((date: string) => {
+    setSelectedDate(date);
+    console.log(`날짜 필터 적용 : ${date}`);
   }, []);
+
+  // 필터 초기화 (전체 보기)
+  const clearFilter = useCallback(() => {
+    setSelectedDate(null);
+    console.log("날짜 필터 초기화 - 전체 약물 표시");
+  }, []);
+
+  // 데이터 새로고침
+  const refetch = useCallback(async () => {
+    console.log("약물 데이터 새로고침");
+    await Promise.all([fetchDrugGroups(), fetchAllDrugs()]);
+  }, [fetchDrugGroups, fetchAllDrugs]);
+
+  // Date 객체로 약물 조회
+  const getDrugsForCalendarDate = useCallback(
+    (date: Date): Drug[] => {
+      const dateString = formatDateSlash(date);
+      return allDrugs.filter((drug) => {
+        return isDateInRange(dateString, drug.startDate, drug.endDate);
+      });
+    },
+    [allDrugs]
+  );
+
+  // 특정 날짜에 약물이 있는지 확인
+  const hasDrugsOnDate = useCallback(
+    (date: string): boolean => {
+      return allDrugs.some((drug) => {
+        return isDateInRange(date, drug.startDate, drug.endDate);
+      });
+    },
+    [allDrugs]
+  );
+
   return {
-    drugGroups,
-    individualDrugs,
-    loading,
-    error,
-    fetchMedicineForDate,
+    drugGroups: filteredDrugGroups,
+    individualDrugs: filteredDrugs,
+
+    loading: contextLoading,
+    error: contextError,
+    selectedDate,
+
+    filterByDate,
+    clearFilter,
+    refetch,
+
+    getDrugsForCalendarDate,
+    hasDrugsOnDate,
   };
 };
 

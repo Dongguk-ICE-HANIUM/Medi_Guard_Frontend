@@ -14,15 +14,15 @@ export default function MedicineScreen() {
   const currentDay = currentDate.getDate();
 
   const { getSelectedDate } = useCalendarContext();
-  const { drugGroups, individualDrugs, loading, error, fetchMedicineForDate } =
+  const { drugGroups, individualDrugs, loading, error, filterByDate } =
     useMedicine();
 
   useEffect(() => {
     const datestring = getSelectedDate();
     if (datestring) {
-      fetchMedicineForDate(datestring);
+      filterByDate(datestring);
     }
-  }, [getSelectedDate, fetchMedicineForDate]);
+  }, [getSelectedDate, filterByDate]);
 
   return (
     <ScrollView

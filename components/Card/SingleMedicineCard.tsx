@@ -1,6 +1,6 @@
 import { colors } from "@/constants";
-import { Drug } from "@/types/calendar";
-import { formateDateStringDot } from "@/utils/dateUtils";
+import { Drug } from "@/types/medication";
+import { formatDateStringDot } from "@/utils/dateUtils";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "../Button";
@@ -18,8 +18,8 @@ const SingleMedicineCard = ({ drugItem }: SingleMedicineCardProps) => {
         <View style={styles.title}>
           <Text style={styles.name}>{drugItem.name}</Text>
           <Text style={styles.date}>
-            {formateDateStringDot(drugItem.startDate)}~
-            {formateDateStringDot(drugItem.endDate)}
+            {formatDateStringDot(drugItem.startDate)}~
+            {formatDateStringDot(drugItem.endDate)}
           </Text>
         </View>
         <Button size="small" icon="right" />

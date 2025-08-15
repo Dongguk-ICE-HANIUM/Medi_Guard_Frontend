@@ -27,7 +27,7 @@ interface MedicationContextType {
   error: string | null;
 
   fetchDrugGroups: () => Promise<void>;
-  fetchAllDrugs: (date: string) => Promise<void>;
+  fetchAllDrugs: () => Promise<void>;
 }
 
 const MedicationContext = createContext<MedicationContextType | null>(null);
@@ -106,7 +106,7 @@ const mockFetchAllDrugs = async (): Promise<DrugResponse> => {
   };
 };
 
-export const MedicaitonProvider: React.FC<{ children: React.ReactNode }> = ({
+export const MedicationProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   //사용자 등록
@@ -259,7 +259,7 @@ export const MedicaitonProvider: React.FC<{ children: React.ReactNode }> = ({
 
 export default MedicationContext;
 
-export const useMedication = () => {
+export const useMedicationContext = () => {
   const context = useContext(MedicationContext);
   if (!context) {
     throw new Error("useMedication must be used within MedicationProvider");
