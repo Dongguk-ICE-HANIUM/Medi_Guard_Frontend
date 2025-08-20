@@ -16,32 +16,55 @@ const TodayAllMedicineCard = ({
   selectedDate,
   loading = false,
 }: TodayAllMedicineCardProps) => {
-  // 그룹별로 약물 분류
+  // 디버깅용 로그
+  console.log("TodayAllMedicineCard - 전체 약물:", medications.length, "개");
+  medications.forEach((med, index) => {
+    console.log(
+      `약물 ${index + 1}:`,
+      med.medicineInfo.name,
+      "그룹:",
+      med.groupName
+    );
+  });
+
   const groupMedications = medications.reduce((groups, medication) => {
     const groupName = medication.groupName;
-    if (!groups[groupName]) {
-      groups[groupName] = [];
+    if (groupName && groupName.trim() !== "") {
+      if (!groups[groupName]) {
+        groups[groupName] = [];
+      }
+      groups[groupName].push(medication);
     }
-    groups[groupName].push(medication);
     return groups;
   }, {} as Record<string, Medication[]>);
+
+  const individualMedications = medications.filter(
+    (medication) => !medication.groupName || medication.groupName.trim() === ""
+  );
+
+  console.log("그룹 약물:", Object.keys(groupMedications));
+  console.log(
+    "개별 약물:",
+    individualMedications.map((m) => m.medicineInfo.name)
+  );
 
   const GroupedMedicationList = () => {
     return (
       <>
+        {/* 그룹 약물 */}
         {Object.entries(groupMedications).map(([groupName, groupMeds]) => (
           <View key={groupName} style={styles.groupContainer}>
-            {/* 그룹 카드 */}
             <View style={styles.groupCard}>
               <Text style={styles.groupCardTitle}>{groupName}</Text>
               <Button size="small" icon="right" />
             </View>
-            {/* 개별 약물 카드들 */}
-            {groupMeds.map((medication) => (
-              <View key={medication.id} style={styles.medicationItem}>
-                <SingleMedicineCard medication={medication} />
-              </View>
-            ))}
+          </View>
+        ))}
+
+        {/* 개별 약물 */}
+        {individualMedications.map((medication) => (
+          <View key={medication.id} style={styles.medicationItem}>
+            <SingleMedicineCard medication={medication} />
           </View>
         ))}
       </>
@@ -75,7 +98,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   groupContainer: {
-    marginBottom: 20,
+    marginBottom: 5,
   },
   groupCard: {
     backgroundColor: colors.WHITE,

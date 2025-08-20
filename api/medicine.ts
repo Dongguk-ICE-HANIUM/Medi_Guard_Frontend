@@ -134,13 +134,13 @@ const MOCK_DRUG_DETAILS = {
       "오메가3는 항응고제(와파린)나 항혈소판제(아스피린)와 함께 복용 시 출혈 위험을 크게 높일 수 있습니다. 혈압을 낮추는 약물과 병용하면 저혈압이 심해져 어지럼증이나 피로가 나타날 수 있습니다. 따라서 다른 약을 복용 중이라면 반드시 의사나 약사와 상담 후 섭취하는 것이 안전합니다.",
     deposit_method: "식후 1정 복용",
     startAt: "2025-06-15",
-    endAt: "2025-08-15",
+    endAt: "2025-08-25",
     takingType: TakingType.DAILY,
     perDay: 1,
     amount: 1,
     notifiTakingList: [{ id: "notif-7", time: "19:00" }],
     isActive: true,
-    groupName: "만성질환 처방약",
+    groupName: "",
   },
 };
 

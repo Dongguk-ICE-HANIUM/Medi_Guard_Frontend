@@ -143,14 +143,14 @@ const MOCK_MEDICATIONS: Medication[] = [
     id: "med-4",
     medicineInfo: MOCK_MEDICINE_INFO[3], // 오메가3
     startAt: "2025-06-15",
-    endAt: "2025-08-15",
+    endAt: "2025-08-25",
     takingType: TakingType.DAILY,
     interval: 1,
     particularDate: [],
     perDay: 1,
     amount: 1,
     isActive: true,
-    groupName: "만성질환 처방약",
+    groupName: "",
     notifiTakingList: [{ id: "notif-7", time: "19:00" }],
   },
 ];
@@ -192,7 +192,7 @@ const MOCK_ALL_DRUGS: Drug[] = [
     calendarDrugId: "group-3",
     name: "오메가3",
     startDate: "2025-06-15",
-    endDate: "2025-08-15",
+    endDate: "2025-08-30",
     timeSlot: 1900,
     takenDaysCount: 120,
     missedDaysCount: 10,
@@ -212,6 +212,17 @@ export const MedicationProvider: React.FC<{ children: React.ReactNode }> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // 로컬 스토리지 초기화 (디버깅용)
+    const resetLocalStorage = async () => {
+      try {
+        await AsyncStorage.removeItem(STORAGE_KEY);
+        console.log("로컬 스토리지 초기화 완료");
+      } catch (error) {
+        console.warn("로컬 스토리지 초기화 실패:", error);
+      }
+    };
+
+    resetLocalStorage(); // 로컬 스토리지 초기화
     loadLocalMedicaitions();
     fetchDrugGroups();
     fetchAllDrugs();
