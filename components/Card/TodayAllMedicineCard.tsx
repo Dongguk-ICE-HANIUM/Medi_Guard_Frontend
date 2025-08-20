@@ -73,7 +73,7 @@ const TodayAllMedicineCard = ({
   const EmptyState = () => {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>복용 약물이 없습니다.</Text>
+        <Text style={styles.emptyText}>복용 약물이 없습니다</Text>
       </View>
     );
   };
@@ -120,6 +120,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     maxHeight: 200,
   },
-  emptyContainer: {},
+  emptyContainer: {
+    alignItems: "center",
+    marginTop: 10,
+  },
   emptyText: {},
 });

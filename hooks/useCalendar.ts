@@ -1,8 +1,7 @@
-import calendarApi from "@/api/calendar";
 import { colors } from "@/constants";
+import { useMedicationContext } from "@/context/MedicationContext";
 import { DayData } from "@/types/calendar";
 import { TagInfo } from "@/types/tags";
-import { formatDateSlash } from "@/utils/dateUtils";
 import { useCallback, useEffect, useState } from "react";
 
 export interface useCalendarReturn {
@@ -21,81 +20,37 @@ export interface useCalendarReturn {
   getSelectedDate: () => string | null;
 }
 
-//
-// 더미 데이터 생성 함수
-//
-export const generateDummyData = (year: number, month: number): DayData[] => {
+// 실제 약물 데이터 기반 달력 데이터 생성
+export const generateCalendarDataFromMedications = (
+  year: number,
+  month: number,
+  medications: any[]
+): DayData[] => {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const mockData: DayData[] = [];
+  const calendarData: DayData[] = [];
 
   for (let day = 1; day <= daysInMonth; day++) {
-    // 특별한 날짜들에 미리 정의된 태그 조합
-    if (day === 1) {
-      // 1일 - 모든 태그 표시
-      mockData.push({
-        didTakePill: true,
-        hasSideEffect: true,
-        isTakeScheduled: true,
-        isScheduled: true,
-      });
-    } else if (day === 5) {
-      // 5일 - 복용 + 부작용
-      mockData.push({
-        didTakePill: true,
-        hasSideEffect: true,
-        isTakeScheduled: false,
-        isScheduled: false,
-      });
-    } else if (day === 10) {
-      // 10일 - 복용예정 + 진료
-      mockData.push({
-        didTakePill: false,
-        hasSideEffect: false,
-        isTakeScheduled: true,
-        isScheduled: true,
-      });
-    } else if (day === 15) {
-      // 15일 - 복용만
-      mockData.push({
-        didTakePill: true,
-        hasSideEffect: false,
-        isTakeScheduled: false,
-        isScheduled: false,
-      });
-    } else if (day === 20) {
-      // 20일 - 부작용만
-      mockData.push({
-        didTakePill: false,
-        hasSideEffect: true,
-        isTakeScheduled: false,
-        isScheduled: false,
-      });
-    } else if (day === 28) {
-      // 28일 - 진료만
-      mockData.push({
-        didTakePill: false,
-        hasSideEffect: false,
-        isTakeScheduled: false,
-        isScheduled: true,
-      });
-    } else {
-      // 나머지 날짜들은 랜덤하게 (일관성을 위해 day를 시드로 사용)
-      const seed = day * 137;
-      const random1 = (Math.sin(seed) + 1) / 2;
-      const random2 = (Math.sin(seed * 2) + 1) / 2;
-      const random3 = (Math.sin(seed * 3) + 1) / 2;
-      const random4 = (Math.sin(seed * 4) + 1) / 2;
+    const currentDate = new Date(year, month, day);
+    const dateString = currentDate.toISOString().split("T")[0];
 
-      mockData.push({
-        didTakePill: random1 > 0.6, // 60% 확률로 복용
-        hasSideEffect: random2 > 0.95, // 10% 확률로 부작용
-        isTakeScheduled: random3 > 0.98, // 20% 확률로 복용 예정
-        isScheduled: random4 > 0.95, // 5% 확률로 진료 예정
-      });
-    }
+    // 해당 날짜에 복용해야 하는 약물이 있는지 확인
+    const hasScheduledMedication = medications.some((medication) => {
+      const startDate = new Date(medication.startAt);
+      const endDate = new Date(medication.endAt);
+      const currentDateObj = new Date(dateString);
+
+      return currentDateObj >= startDate && currentDateObj <= endDate;
+    });
+
+    calendarData.push({
+      didTakePill: false,
+      hasSideEffect: false,
+      isTakeScheduled: hasScheduledMedication,
+      isScheduled: false,
+    });
   }
 
-  return mockData;
+  return calendarData;
 };
 
 //
@@ -110,33 +65,32 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
   );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  const USE_DUMMY_DATA = __DEV__ || true;
+  const { medications } = useMedicationContext();
 
   const fetchCalendarData = useCallback(
     async (date: Date): Promise<void> => {
       setLoading(true);
       setError(null);
       try {
-        if (USE_DUMMY_DATA) {
-          //더미 데이터 출력
-          console.log(
-            "더미 데이터 : ",
-            date.getFullYear(),
-            date.getMonth() + 1
-          );
+        console.log(
+          "달력 데이터 생성 : ",
+          date.getFullYear(),
+          date.getMonth() + 1,
+          "약물 개수:",
+          medications.length
+        );
 
-          await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
-          const year = date.getFullYear();
-          const month = date.getMonth();
-          const mockData = generateDummyData(year, month);
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const calendarData = generateCalendarDataFromMedications(
+          year,
+          month,
+          medications
+        );
 
-          setCalendarData(mockData);
-          return;
-        }
-        const formattedDate = formatDateSlash(date);
-        const data = await calendarApi.getCalendarData(formattedDate);
-        setCalendarData(data);
+        setCalendarData(calendarData);
       } catch (err: any) {
         const errorMessage =
           err instanceof Error ? err.message : "Unknown error";
@@ -146,7 +100,7 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
         setLoading(false);
       }
     },
-    [USE_DUMMY_DATA, USE_DUMMY_DATA]
+    [medications]
   );
 
   const changeMonth = useCallback((direction: number) => {

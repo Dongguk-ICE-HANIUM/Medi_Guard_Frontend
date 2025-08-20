@@ -17,9 +17,30 @@ export default function MedicineScreen() {
   const { selectedDate } = useCalendarContext();
   const { medications, loading, error } = useMedicationContext();
 
+  // 선택된 날짜에 복용해야 하는 약물 필터링
+  const getMedicationsForSelectedDate = (date: Date) => {
+    if (!date) return medications;
+
+    const selectedDateString = date.toISOString().split("T")[0];
+
+    return medications.filter((medication) => {
+      const startDate = new Date(medication.startAt);
+      const endDate = new Date(medication.endAt);
+      const currentDateObj = new Date(selectedDateString);
+
+      return currentDateObj >= startDate && currentDateObj <= endDate;
+    });
+  };
+
+  const filteredMedications = getMedicationsForSelectedDate(
+    selectedDate || currentDate
+  );
+
   useEffect(() => {
     console.log("현재 약물 데이터:", medications);
-  }, [medications]);
+    console.log("선택된 날짜:", selectedDate?.toISOString().split("T")[0]);
+    console.log("필터링된 약물:", filteredMedications.length, "개");
+  }, [medications, selectedDate, filteredMedications]);
 
   const displayDate = selectedDate || currentDate;
   const displayMonth = displayDate.getMonth() + 1;
@@ -61,7 +82,7 @@ export default function MedicineScreen() {
             </View>
             <View style={styles.todayContainer}>
               <TodayAllMedicineCard
-                medications={medications}
+                medications={filteredMedications}
                 selectedDate={formatDateSlash(displayDate)}
                 loading={loading}
               />

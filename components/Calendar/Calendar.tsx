@@ -237,7 +237,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     opacity: 0.8,
   },
-  selectedContainer: {},
+  selectedContainer: {
+    backgroundColor: colors.PINK + "40",
+    borderRadius: 8,
+  },
   prevDayContainer: {
     width: "14.28%",
     alignItems: "center",
