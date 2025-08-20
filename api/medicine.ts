@@ -1,11 +1,12 @@
 import {
+  DrugDetail,
   DrugDetailResponse,
   DrugGroupResponse,
   DrugResponse,
   TakingType,
 } from "@/types/medication";
 
-// 🎭 Mock 데이터 (서버 API 시뮬레이션)
+//  Mock 데이터 (서버 API 시뮬레이션)
 
 // 약물 그룹 데이터
 const MOCK_DRUG_GROUPS = [
@@ -14,7 +15,7 @@ const MOCK_DRUG_GROUPS = [
   { id: "group-3", name: "만성질환 처방약" },
 ];
 
-// 전체 약물 목록 데이터 (기존 Drug 타입)
+// 전체 약물 목록 데이터  (CalendarDrug 타입)
 const MOCK_ALL_DRUGS = [
   {
     id: "drug-1",
@@ -202,8 +203,58 @@ export const updateDrugActiveStatus = async (
   await mockDelay();
   console.log(`약물 활성화 상태 변경: ${id} -> ${isActive}`);
 
+  // Mock 데이터 업데이트
+  const drugDetail = MOCK_DRUG_DETAILS[id as keyof typeof MOCK_DRUG_DETAILS];
+  if (drugDetail) {
+    drugDetail.isActive = isActive;
+    console.log("약물 활성화 상태 업데이트 완료:", drugDetail.isActive);
+  }
+
   return {
     errorCode: null,
     message: "OK",
+  };
+};
+
+// 약물 정보 업데이트
+export const updateDrugDetail = async (
+  id: string,
+  updatedData: Partial<DrugDetail>
+): Promise<{ errorCode: string | null; message: string }> => {
+  await mockDelay();
+  console.log(`약물 정보 업데이트 요청: ${id}`, updatedData);
+
+  // Mock 데이터에서 업데이트
+  const drugDetail = MOCK_DRUG_DETAILS[id as keyof typeof MOCK_DRUG_DETAILS];
+  if (drugDetail) {
+    Object.assign(drugDetail, updatedData);
+    console.log("약물 정보 업데이트 완료:", drugDetail);
+  }
+
+  return {
+    errorCode: null,
+    message: "OK",
+  };
+};
+
+// 그룹에서 약물 해제
+export const removeDrugFromGroup = async (
+  drugId: string
+): Promise<{ errorCode: string | null; message: string; result: {} }> => {
+  await mockDelay();
+  console.log(`그룹에서 약물 해제 요청: ${drugId}`);
+
+  // Mock 데이터에서 해당 약물 찾아서 그룹명 제거
+  const drugDetail =
+    MOCK_DRUG_DETAILS[drugId as keyof typeof MOCK_DRUG_DETAILS];
+  if (drugDetail) {
+    drugDetail.groupName = "";
+    console.log("그룹에서 약물 해제 완료:", drugDetail);
+  }
+
+  return {
+    errorCode: null,
+    message: "OK",
+    result: {},
   };
 };

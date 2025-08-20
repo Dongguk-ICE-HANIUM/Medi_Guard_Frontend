@@ -1,4 +1,5 @@
 import { colors } from "@/constants";
+import Feather from "@expo/vector-icons/Feather";
 import React, { useState } from "react";
 import {
   StyleSheet,
@@ -13,10 +14,17 @@ import GroupModal from "./GroupModal";
 interface GroupProps {
   groupName: string;
   onGroupChange: (groupName: string) => void;
+  onRemoveFromGroup?: () => void;
+  showRemoveButton?: boolean;
 }
 
-const Group = ({ groupName, onGroupChange }: GroupProps) => {
-  const [isGroupEnabled, setIsGroupEnabled] = useState(false);
+const Group = ({
+  groupName,
+  onGroupChange,
+  onRemoveFromGroup,
+  showRemoveButton = false,
+}: GroupProps) => {
+  const [isGroupEnabled, setIsGroupEnabled] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
   const openModal = () => {
@@ -33,16 +41,23 @@ const Group = ({ groupName, onGroupChange }: GroupProps) => {
 
   const toggleGroup = () => {
     setIsGroupEnabled((prev) => !prev);
-    if (!isGroupEnabled) {
-      onGroupChange("");
-      setShowModal(false);
-    }
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.textContainer}>
-        <Text style={styles.title}>그룹</Text>
+      <View style={styles.headerContainer}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>그룹</Text>
+          {/* 현재 속한 그룹 태그 */}
+          {groupName && (
+            <View style={styles.groupTag}>
+              <Text style={styles.groupTagText}>{groupName}</Text>
+              <TouchableOpacity onPress={onRemoveFromGroup}>
+                <Feather name="x-circle" size={17} color="black" />
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
         <Switch
           value={isGroupEnabled}
           onValueChange={toggleGroup}
@@ -61,9 +76,11 @@ const Group = ({ groupName, onGroupChange }: GroupProps) => {
             value={groupName}
             editable={false}
           />
-          <TouchableOpacity style={styles.searchButton} onPress={openModal}>
-            <Text style={{ color: colors.BLACK }}>찾아보기</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.searchButton} onPress={openModal}>
+              <Text style={{ color: colors.BLACK }}>찾아보기</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
 
@@ -83,15 +100,34 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
   },
-  textContainer: {
+  headerContainer: {
     flexDirection: "row",
-    alignItems: "baseline",
+    alignItems: "center",
     justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   title: {
     fontSize: 18,
     fontWeight: "600",
-    paddingBottom: 8,
+  },
+  groupTag: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.PINK + "40",
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    gap: 6,
+  },
+  groupTagText: {
+    fontSize: 14,
+    color: colors.BLACK,
+    fontWeight: "500",
   },
   content: {
     flexDirection: "row",
@@ -109,6 +145,10 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     width: "78%",
     fontSize: 16,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    gap: 8,
   },
   searchButton: {
     height: 40,

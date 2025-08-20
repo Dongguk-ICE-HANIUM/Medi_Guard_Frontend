@@ -1,10 +1,9 @@
-import { fetchDrugDetail } from "@/api/medicine";
-import Button from "@/components/Button";
+import { fetchDrugDetail, updateDrugActiveStatus } from "@/api/medicine";
 import BasicInfo from "@/components/Detail/BasicInfo";
 import MedicationInfo from "@/components/Detail/MedicationInfo";
 import { colors } from "@/constants";
 import { DrugDetail } from "@/types/medication";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
@@ -44,9 +43,36 @@ const MedicationDetailPage = () => {
     fetchData();
   }, [id]);
 
-  const handleToggleActive = (value: boolean) => {
-    setIsActive(value);
-    console.log("약물 활성화 상태 변경:", value);
+  const handleToggleActive = async (value: boolean) => {
+    if (drugDetail) {
+      try {
+        await updateDrugActiveStatus(drugDetail.id, value);
+        setIsActive(value);
+        console.log("약물 활성화 상태 변경 완료:", value);
+      } catch (error) {
+        console.error("활성화 상태 변경 중 오류:", error);
+      }
+    }
+  };
+
+  const handleEdit = () => {
+    if (drugDetail) {
+      router.push({
+        pathname: "/medicine/register/registerForm",
+        params: {
+          mode: "edit",
+          drugId: drugDetail.id,
+          drugName: drugDetail.name,
+          startAt: drugDetail.startAt,
+          endAt: drugDetail.endAt,
+          takingType: drugDetail.takingType,
+          perDay: drugDetail.perDay.toString(),
+          amount: drugDetail.amount.toString(),
+          groupName: drugDetail.groupName,
+          isActive: drugDetail.isActive.toString(),
+        },
+      });
+    }
   };
 
   if (loading) {
@@ -83,7 +109,6 @@ const MedicationDetailPage = () => {
         />
       </View>
 
-      {/* 🔥 수정된 부분: 탭 헤더와 편집 버튼 */}
       <View style={styles.tabContainer}>
         <View style={styles.tabGroup}>
           <TouchableOpacity
@@ -114,15 +139,13 @@ const MedicationDetailPage = () => {
           </TouchableOpacity>
         </View>
 
-        {/* 🔥 수정: 복약 탭일 때만 편집 버튼 표시 */}
         {activeTab === "medication" && (
-          <TouchableOpacity style={styles.editButton}>
+          <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
             <Text style={styles.editText}>편집</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {/* 🔥 수정된 부분: 탭 아래 구분선 */}
       <View style={styles.tabBorder} />
 
       {activeTab === "basic" ? (
@@ -130,8 +153,6 @@ const MedicationDetailPage = () => {
       ) : (
         <MedicationInfo drugDetail={drugDetail} />
       )}
-
-      <Button text="다음" />
     </ScrollView>
   );
 };
@@ -170,30 +191,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.TEXT_GRAY,
   },
-  // 🔥 수정된 부분: 탭 컨테이너 스타일
+
   tabContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-end", // 하단 정렬로 변경
-    marginBottom: 0, // marginBottom 제거
-    paddingBottom: 0, // paddingBottom 제거
+    alignItems: "flex-end",
+    marginBottom: 0,
+    paddingBottom: 0,
     position: "relative",
   },
-  // 🔥 수정된 부분: 탭 그룹 스타일
+
   tabGroup: {
     flexDirection: "row",
-    justifyContent: "flex-start", // 왼쪽 정렬로 되돌림
+    justifyContent: "flex-start",
     flex: 1,
-    marginLeft: 15, // 약물명과 같은 위치에서 시작
+    marginLeft: 15,
   },
-  // 🔥 수정된 부분: 탭 스타일
+
   tab: {
     paddingVertical: 15,
-    paddingHorizontal: 0, // 패딩 제거
-    alignItems: "flex-start", // 왼쪽 정렬
-    marginRight: 20, // 탭 간 간격
+    paddingHorizontal: 0,
+    alignItems: "flex-start",
+    marginRight: 20,
   },
-  // 🔥 수정된 부분: 활성 탭 스타일
+
   activeTab: {
     borderBottomWidth: 2.5,
     borderBottomColor: colors.BLACK,
@@ -206,10 +227,10 @@ const styles = StyleSheet.create({
     color: colors.BLACK,
     fontWeight: "bold",
   },
-  // 🔥 수정: 편집 버튼을 토글과 같은 라인에 맞춤
+
   editButton: {
     position: "absolute",
-    right: 0, // 토글 버튼과 같은 오른쪽 끝 라인
+    right: 0,
     bottom: 12,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -218,13 +239,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.TEXT_GRAY,
   },
-  // 🔥 새로 추가: 편집 텍스트 스타일
+
   editText: {
     fontSize: 14,
     color: colors.TEXT_GRAY,
     fontWeight: "500",
   },
-  // 🔥 새로 추가된 부분: 탭 아래 구분선
+
   tabBorder: {
     height: 1,
     backgroundColor: colors.LIGHT_GRAY,

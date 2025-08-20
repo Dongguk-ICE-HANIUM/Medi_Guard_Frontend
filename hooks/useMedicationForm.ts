@@ -1,8 +1,4 @@
-import {
-  Medication,
-  SelectedMedicineInfo,
-  TakingType,
-} from "@/types/medication";
+import { Medication, MedicineInfo, TakingType } from "@/types/medication";
 import { convertBinaryToDays, convertDaysToBinary } from "@/utils/dateUtils";
 import { useState } from "react";
 
@@ -11,7 +7,7 @@ const VALID_DAYS = ["월", "화", "수", "목", "금", "토", "일"] as const;
 const MAX_INTERVAL = 365;
 
 // 기본값
-const MEDICATION_DEFAULTS: Omit<Medication, "id" | "name"> = {
+const MEDICATION_DEFAULTS: Omit<Medication, "id" | "medicineInfo"> = {
   startAt: "",
   endAt: "",
   takingType: TakingType.UNSELECTED,
@@ -21,6 +17,7 @@ const MEDICATION_DEFAULTS: Omit<Medication, "id" | "name"> = {
   amount: 1.0,
   isActive: true,
   groupName: "",
+  notifiTakingList: [],
 };
 
 type ExtraErrorKeys = "dateRange" | "takingTypeRequired";
@@ -55,11 +52,11 @@ const requireTakingType = (med: Medication): string[] => {
 
 // 초기 약물 데이터 생성
 export const createInitialMedication = (
-  medicineInfo: SelectedMedicineInfo
+  medicineInfo: MedicineInfo
 ): Medication => ({
   ...MEDICATION_DEFAULTS,
   id: medicineInfo.id,
-  name: medicineInfo.name,
+  medicineInfo: medicineInfo,
 });
 
 // 약물데이터 유효성 검사
@@ -107,7 +104,15 @@ export const validateField = (med: Medication, field: FieldKey): string[] => {
         case TakingType.NEED:
           break;
       }
+      break;
 
+    case "medicineInfo":
+    case "notifiTakingList":
+      // 이 필드들은 유효성 검사가 필요하지 않음
+      break;
+
+    default:
+      // 다른 필드들에 대한 기본 검사
       break;
   }
   return errors;
@@ -125,7 +130,7 @@ export const validateMedication = (med: Medication): string[] => {
   return [...byField, ...cross];
 };
 
-export const useMedicationForm = (selected: SelectedMedicineInfo) => {
+export const useMedicationForm = (selected: MedicineInfo) => {
   const [medication, setMedication] = useState<Medication>(
     createInitialMedication(selected)
   );
