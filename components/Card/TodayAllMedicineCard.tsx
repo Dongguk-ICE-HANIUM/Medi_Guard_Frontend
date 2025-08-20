@@ -64,7 +64,10 @@ const TodayAllMedicineCard = ({
         {/* 개별 약물 */}
         {individualMedications.map((medication) => (
           <View key={medication.id} style={styles.medicationItem}>
-            <SingleMedicineCard medication={medication} />
+            <SingleMedicineCard
+              medication={medication}
+              selectedDate={selectedDate}
+            />
           </View>
         ))}
       </>

@@ -10,9 +10,13 @@ import Toggle from "./Toggle";
 
 export interface SingleMedicineCardProps {
   medication: Medication;
+  selectedDate?: string;
 }
 
-const SingleMedicineCard = ({ medication }: SingleMedicineCardProps) => {
+const SingleMedicineCard = ({
+  medication,
+  selectedDate,
+}: SingleMedicineCardProps) => {
   const handleToDetail = () => {
     console.log(
       "약물 상세 페이지로 이동:",
@@ -38,7 +42,7 @@ const SingleMedicineCard = ({ medication }: SingleMedicineCardProps) => {
         <Button size="small" icon="right" onPress={handleToDetail} />
       </View>
       <View style={styles.progressBar}>
-        <ProgressBar medication={medication} />
+        <ProgressBar medication={medication} selectedDate={selectedDate} />
       </View>
       <View style={styles.toggle}>
         <Toggle medication={medication} />
@@ -77,5 +81,14 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     marginTop: 15,
   },
-  toggle: { width: "100%", paddingLeft: 10 },
+  checkboxContainer: {
+    width: "100%",
+    paddingLeft: 10,
+    marginTop: 10,
+  },
+  toggle: {
+    width: "100%",
+    paddingLeft: 10,
+    marginTop: 10,
+  },
 });

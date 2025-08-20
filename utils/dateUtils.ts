@@ -58,3 +58,29 @@ export const convertBinaryToDays = (binary: number): string[] => {
   });
   return days;
 };
+
+// 복용 시간대 배열을 이진법으로 변환 (예: [0, 2] -> 5)
+export const convertTimeSlotsToBinary = (timeSlots: number[]): number => {
+  let binary = 0;
+  timeSlots.forEach((slot) => {
+    binary |= 1 << slot;
+  });
+  return binary;
+};
+
+// 이진법을 복용 시간대 배열로 변환 (예: 5 -> [0, 2])
+export const convertBinaryToTimeSlots = (binary: number): number[] => {
+  const timeSlots: number[] = [];
+  let temp = binary;
+  let position = 0;
+
+  while (temp > 0) {
+    if (temp & 1) {
+      timeSlots.push(position);
+    }
+    temp >>= 1;
+    position++;
+  }
+
+  return timeSlots;
+};

@@ -258,3 +258,69 @@ export const removeDrugFromGroup = async (
     result: {},
   };
 };
+
+// 복용 완료 API
+export const completeMedication = async (
+  drugId: string,
+  timeSlot: number
+): Promise<{
+  errorCode: string | null;
+  message: string;
+  result: { timeSlot: number };
+}> => {
+  await mockDelay();
+  console.log(`복용 완료 요청: ${drugId}, timeSlot: ${timeSlot}`);
+
+  // Mock 데이터에서 복용 상태 업데이트
+  const drugDetail =
+    MOCK_DRUG_DETAILS[drugId as keyof typeof MOCK_DRUG_DETAILS];
+  if (drugDetail) {
+    // timeSlot을 이진수로 변환하여 복용 상태 업데이트
+    const binaryTimeSlot = timeSlot
+      .toString(2)
+      .padStart(drugDetail.perDay, "0");
+    console.log("복용 완료 상태 업데이트:", binaryTimeSlot);
+  }
+
+  return {
+    errorCode: null,
+    message: "OK",
+    result: { timeSlot },
+  };
+};
+
+// 특정 날짜의 복용 상태 조회 API
+export const getMedicationStatus = async (
+  drugId: string,
+  date: string
+): Promise<{
+  errorCode: string | null;
+  message: string;
+  result: { timeSlot: number };
+}> => {
+  await mockDelay();
+  console.log(`복용 상태 조회: ${drugId}, 날짜: ${date}`);
+
+  // Mock 데이터에서 해당 날짜의 복용 상태 반환
+  const drugDetail =
+    MOCK_DRUG_DETAILS[drugId as keyof typeof MOCK_DRUG_DETAILS];
+  if (drugDetail) {
+    // 임시로 랜덤한 timeSlot 반환 (서버에서 해당 날짜 데이터 조회하는 걸로 변경해야 함)
+    const randomTimeSlot = Math.floor(
+      Math.random() * Math.pow(2, drugDetail.perDay)
+    );
+    console.log("복용 상태 조회 결과:", randomTimeSlot);
+
+    return {
+      errorCode: null,
+      message: "OK",
+      result: { timeSlot: randomTimeSlot },
+    };
+  }
+
+  return {
+    errorCode: "NOT_FOUND",
+    message: "약물을 찾을 수 없습니다.",
+    result: { timeSlot: 0 },
+  };
+};

@@ -11,7 +11,7 @@ import { DEV_SELECTED_MEDICINE } from "@/data/mockMedicine";
 import { useMedicationForm } from "@/hooks/useMedicationForm";
 import { Medication, MedicineInfo, TakingType } from "@/types/medication";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export interface registerFormProps {
@@ -36,6 +36,22 @@ const registerForm = ({
     isActive?: string;
   }>();
 
+  // 편집 모드일 때 초기값 설정
+  const getInitialValues = () => {
+    if (params.mode === "edit" && params.drugId) {
+      return {
+        startAt: params.startAt || "",
+        endAt: params.endAt || "",
+        takingType: (params.takingType as TakingType) || TakingType.UNSELECTED,
+        perDay: params.perDay ? parseInt(params.perDay) : 1,
+        amount: params.amount ? parseFloat(params.amount) : 1.0,
+        groupName: params.groupName || "",
+        isActive: params.isActive === "true",
+      };
+    }
+    return undefined;
+  };
+
   const {
     medication,
     errors,
@@ -44,29 +60,7 @@ const registerForm = ({
     validateForm,
     getSelectedDays,
     updateSelectedDays,
-  } = useMedicationForm(selected);
-
-  // 편집 모드일 때 초기값 설정을 위한 상태
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  // 편집 모드일 때 기존 값 불러오기
-  useEffect(() => {
-    if (params.mode === "edit" && params.drugId && !isInitialized) {
-      console.log("편집 모드 - 기존 값 설정:", params);
-      console.log("그룹명:", params.groupName);
-
-      if (params.startAt) updateField("startAt", params.startAt);
-      if (params.endAt) updateField("endAt", params.endAt);
-      if (params.takingType)
-        updateField("takingType", params.takingType as TakingType);
-      if (params.perDay) updateField("perDay", parseInt(params.perDay));
-      if (params.amount) updateField("amount", parseFloat(params.amount));
-      if (params.groupName) updateField("groupName", params.groupName);
-      if (params.isActive) updateField("isActive", params.isActive === "true");
-
-      setIsInitialized(true);
-    }
-  }, [params.mode, params.drugId, isInitialized]);
+  } = useMedicationForm(selected, getInitialValues());
 
   // 그룹에서 약물 해제 처리
   const handleRemoveFromGroup = async () => {
@@ -183,7 +177,12 @@ const registerForm = ({
           startAt={medication.startAt}
           endAt={medication.endAt}
         />
-        <PerAOnce />
+        <PerAOnce
+          perDay={medication.perDay}
+          amount={medication.amount}
+          onPerDayChange={(value) => updateField("perDay", value)}
+          onAmountChange={(value) => updateField("amount", value)}
+        />
         <Alarm />
         <Group
           groupName={medication.groupName}
@@ -192,7 +191,10 @@ const registerForm = ({
           showRemoveButton={params.mode === "edit"}
         />
 
-        <Button text="다음" onPress={handleSubmit} />
+        <Button
+          text={params.mode === "edit" ? "저장" : "다음"}
+          onPress={handleSubmit}
+        />
       </View>
     </ScrollView>
   );

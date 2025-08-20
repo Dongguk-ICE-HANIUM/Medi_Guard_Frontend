@@ -130,10 +130,17 @@ export const validateMedication = (med: Medication): string[] => {
   return [...byField, ...cross];
 };
 
-export const useMedicationForm = (selected: MedicineInfo) => {
-  const [medication, setMedication] = useState<Medication>(
-    createInitialMedication(selected)
-  );
+export const useMedicationForm = (
+  selected: MedicineInfo,
+  initialValues?: Partial<Medication>
+) => {
+  const [medication, setMedication] = useState<Medication>(() => {
+    const baseMedication = createInitialMedication(selected);
+    if (initialValues) {
+      return { ...baseMedication, ...initialValues };
+    }
+    return baseMedication;
+  });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [submitted, setSubmitted] = useState(false);
 
