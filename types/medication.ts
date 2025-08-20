@@ -32,6 +32,7 @@ export interface Medication {
   amount: number;
   isActive: boolean;
   groupName: string;
+  groupId?: string; // 그룹 ID (선택적)
   notifiTakingList: {
     id: string;
     time: string;

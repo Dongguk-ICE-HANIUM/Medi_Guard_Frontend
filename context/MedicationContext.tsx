@@ -102,6 +102,7 @@ const MOCK_MEDICATIONS: Medication[] = [
     amount: 1,
     isActive: true,
     groupName: "봄 진료 처방약",
+    groupId: "group-1",
     notifiTakingList: [
       { id: "notif-1", time: "08:00" },
       { id: "notif-2", time: "15:00" },
@@ -120,6 +121,7 @@ const MOCK_MEDICATIONS: Medication[] = [
     amount: 1,
     isActive: true,
     groupName: "봄 진료 처방약",
+    groupId: "group-1",
     notifiTakingList: [
       { id: "notif-4", time: "09:00" },
       { id: "notif-5", time: "18:00" },
@@ -137,6 +139,7 @@ const MOCK_MEDICATIONS: Medication[] = [
     amount: 1,
     isActive: true,
     groupName: "겨울 진료 처방약",
+    groupId: "group-2",
     notifiTakingList: [{ id: "notif-6", time: "09:00" }],
   },
   {
@@ -151,6 +154,7 @@ const MOCK_MEDICATIONS: Medication[] = [
     amount: 1,
     isActive: true,
     groupName: "",
+    groupId: "",
     notifiTakingList: [{ id: "notif-7", time: "19:00" }],
   },
 ];

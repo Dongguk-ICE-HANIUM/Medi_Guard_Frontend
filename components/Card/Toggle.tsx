@@ -6,12 +6,13 @@ import CheckBox from "./CheckBox";
 
 interface ToggleProps {
   medication: Medication;
+  selectedDate?: string;
 }
-const Toggle = ({ medication }: ToggleProps) => {
+const Toggle = ({ medication, selectedDate }: ToggleProps) => {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>복용 체크</Text>
-      <CheckBox medication={medication} />
+      <CheckBox medication={medication} selectedDate={selectedDate} />
     </View>
   );
 };

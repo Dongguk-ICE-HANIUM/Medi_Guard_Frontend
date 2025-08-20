@@ -2,7 +2,7 @@ import { colors } from "@/constants";
 import { Medication } from "@/types/medication";
 import React from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import Button from "../Button";
+import GroupMedicineCard from "./GroupMedicineCard";
 import SingleMedicineCard from "./SingleMedicineCard";
 
 interface TodayAllMedicineCardProps {
@@ -29,14 +29,23 @@ const TodayAllMedicineCard = ({
 
   const groupMedications = medications.reduce((groups, medication) => {
     const groupName = medication.groupName;
-    if (groupName && groupName.trim() !== "") {
-      if (!groups[groupName]) {
-        groups[groupName] = [];
+    const groupId = medication.groupId;
+    if (
+      groupName &&
+      groupName.trim() !== "" &&
+      groupId &&
+      groupId.trim() !== ""
+    ) {
+      if (!groups[groupId]) {
+        groups[groupId] = {
+          name: groupName,
+          medications: [],
+        };
       }
-      groups[groupName].push(medication);
+      groups[groupId].medications.push(medication);
     }
     return groups;
-  }, {} as Record<string, Medication[]>);
+  }, {} as Record<string, { name: string; medications: Medication[] }>);
 
   const individualMedications = medications.filter(
     (medication) => !medication.groupName || medication.groupName.trim() === ""
@@ -52,13 +61,13 @@ const TodayAllMedicineCard = ({
     return (
       <>
         {/* 그룹 약물 */}
-        {Object.entries(groupMedications).map(([groupName, groupMeds]) => (
-          <View key={groupName} style={styles.groupContainer}>
-            <View style={styles.groupCard}>
-              <Text style={styles.groupCardTitle}>{groupName}</Text>
-              <Button size="small" icon="right" />
-            </View>
-          </View>
+        {Object.entries(groupMedications).map(([groupId, groupData]) => (
+          <GroupMedicineCard
+            key={groupId}
+            groupId={groupId}
+            groupName={groupData.name}
+            medications={groupData.medications}
+          />
         ))}
 
         {/* 개별 약물 */}
@@ -99,25 +108,6 @@ const styles = StyleSheet.create({
   todayListContainer: {
     flex: 1,
     paddingBottom: 20,
-  },
-  groupContainer: {
-    marginBottom: 5,
-  },
-  groupCard: {
-    backgroundColor: colors.WHITE,
-    width: "100%",
-    height: 60,
-    borderRadius: 15,
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 15,
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  groupCardTitle: {
-    fontWeight: "bold",
-    fontSize: 19,
-    paddingLeft: 10,
   },
   medicationItem: {
     marginBottom: 10,
