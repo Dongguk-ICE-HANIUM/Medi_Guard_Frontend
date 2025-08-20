@@ -2,7 +2,7 @@ import Calendar from "@/components/Calendar/Calendar";
 import NavigationCard from "@/components/Card/NavigationCard";
 import TodayAllMedicineCard from "@/components/Card/TodayAllMedicineCard";
 import { useCalendarContext } from "@/context/CalendarContext";
-import useMedicine from "@/hooks/useMedicine";
+import { useMedicationContext } from "@/context/MedicationContext";
 import { formatDateSlash } from "@/utils/dateUtils";
 import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -15,25 +15,11 @@ export default function MedicineScreen() {
   const currentDay = currentDate.getDate();
 
   const { selectedDate } = useCalendarContext();
-  const { drugGroups, individualDrugs, loading, error, filterByDate } =
-    useMedicine();
+  const { medications, loading, error } = useMedicationContext();
 
   useEffect(() => {
-    const targetDate = selectedDate || currentDate;
-    const datestring = formatDateSlash(targetDate);
-
-    filterByDate(datestring);
-    console.log(`MedicineScreen: ${datestring} 약물 데이터 필터링`);
-  }, [selectedDate]);
-
-  useEffect(() => {
-    if (!selectedDate) {
-      const today = new Date();
-      const todayString = formatDateSlash(today);
-      filterByDate(todayString);
-      console.log("초기 로드 : 오늘의 약물");
-    }
-  }, [selectedDate, filterByDate]);
+    console.log("현재 약물 데이터:", medications);
+  }, [medications]);
 
   const displayDate = selectedDate || currentDate;
   const displayMonth = displayDate.getMonth() + 1;
@@ -75,8 +61,7 @@ export default function MedicineScreen() {
             </View>
             <View style={styles.todayContainer}>
               <TodayAllMedicineCard
-                drugGroups={drugGroups}
-                individualDrugs={individualDrugs}
+                medications={medications}
                 selectedDate={formatDateSlash(displayDate)}
                 loading={loading}
               />

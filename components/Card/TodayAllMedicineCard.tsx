@@ -1,40 +1,47 @@
 import { colors } from "@/constants";
-import { Drug, DrugGroup } from "@/types/medication";
+import { Medication } from "@/types/medication";
 import React from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import GroupMedicineCard from "./GroupMedicineCard";
+import Button from "../Button";
 import SingleMedicineCard from "./SingleMedicineCard";
 
 interface TodayAllMedicineCardProps {
-  drugGroups: DrugGroup[];
-  individualDrugs: Drug[];
+  medications: Medication[];
   selectedDate?: string;
   loading?: boolean;
 }
 
 const TodayAllMedicineCard = ({
-  drugGroups,
-  individualDrugs,
+  medications,
   selectedDate,
   loading = false,
 }: TodayAllMedicineCardProps) => {
-  const DrugGroupList = () => {
-    return (
-      <View>
-        {drugGroups.map((drugGroup) => (
-          <View key={drugGroup.id} style={styles.drugGroupItem}>
-            <GroupMedicineCard drugGroup={drugGroup} />
-          </View>
-        ))}
-      </View>
-    );
-  };
-  const DrugList = () => {
+  // 그룹별로 약물 분류
+  const groupMedications = medications.reduce((groups, medication) => {
+    const groupName = medication.groupName;
+    if (!groups[groupName]) {
+      groups[groupName] = [];
+    }
+    groups[groupName].push(medication);
+    return groups;
+  }, {} as Record<string, Medication[]>);
+
+  const GroupedMedicationList = () => {
     return (
       <>
-        {individualDrugs.map((drugItem) => (
-          <View key={drugItem.id} style={styles.drugItem}>
-            <SingleMedicineCard drugItem={drugItem} />
+        {Object.entries(groupMedications).map(([groupName, groupMeds]) => (
+          <View key={groupName} style={styles.groupContainer}>
+            {/* 그룹 카드 */}
+            <View style={styles.groupCard}>
+              <Text style={styles.groupCardTitle}>{groupName}</Text>
+              <Button size="small" icon="right" />
+            </View>
+            {/* 개별 약물 카드들 */}
+            {groupMeds.map((medication) => (
+              <View key={medication.id} style={styles.medicationItem}>
+                <SingleMedicineCard medication={medication} />
+              </View>
+            ))}
           </View>
         ))}
       </>
@@ -52,17 +59,10 @@ const TodayAllMedicineCard = ({
     return <ActivityIndicator size="large" color={colors.PINK} />;
   }
 
-  const isExisted = drugGroups.length > 0 || individualDrugs.length > 0;
+  const isExisted = medications.length > 0;
   return (
     <View style={styles.todayListContainer}>
-      {isExisted ? (
-        <>
-          <DrugGroupList />
-          <DrugList />
-        </>
-      ) : (
-        <EmptyState />
-      )}
+      {isExisted ? <GroupedMedicationList /> : <EmptyState />}
     </View>
   );
 };
@@ -74,10 +74,26 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingBottom: 20,
   },
-  drugGroupItem: {
+  groupContainer: {
+    marginBottom: 20,
+  },
+  groupCard: {
+    backgroundColor: colors.WHITE,
+    width: "100%",
+    height: 60,
+    borderRadius: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+    justifyContent: "space-between",
     marginBottom: 10,
   },
-  drugItem: {
+  groupCardTitle: {
+    fontWeight: "bold",
+    fontSize: 19,
+    paddingLeft: 10,
+  },
+  medicationItem: {
     marginBottom: 10,
     maxHeight: 200,
   },

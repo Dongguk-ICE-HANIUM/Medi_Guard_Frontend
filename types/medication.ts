@@ -7,10 +7,22 @@ export enum TakingType {
   NEED = "NEED",
 }
 
-//등록용
-export interface Medication {
+// API로 받아오는 약물 기본 정보
+export interface MedicineInfo {
   id: string;
   name: string;
+  code: string;
+  effect: string;
+  warning: string;
+  sideEffect: string;
+  interaction: string;
+  deposit_method: string;
+}
+
+// 사용자가 등록하는 복용 정보
+export interface Medication {
+  id: string;
+  medicineInfo: MedicineInfo; // API에서 가져온 약물 정보 (필수)
   startAt: string;
   endAt: string;
   takingType: TakingType;
@@ -20,6 +32,10 @@ export interface Medication {
   amount: number;
   isActive: boolean;
   groupName: string;
+  notifiTakingList: {
+    id: string;
+    time: string;
+  }[];
 }
 
 export interface MedicationResponse<T> {
@@ -79,8 +95,31 @@ export interface NotifiTakingResponse {
   };
 }
 
-//이전 페이지에서 받아오는 약물 정보
-export interface SelectedMedicineInfo {
+// 디테일 페이지용 약물 정보
+export interface DrugDetail {
   id: string;
   name: string;
+  code: string;
+  effect: string;
+  warning: string;
+  sideEffect: string;
+  interaction: string;
+  deposit_method: string;
+  startAt: string;
+  endAt: string;
+  takingType: TakingType;
+  perDay: number;
+  amount: number;
+  notifiTakingList: {
+    id: string;
+    time: string;
+  }[];
+  isActive: boolean;
+  groupName: string;
+}
+
+export interface DrugDetailResponse {
+  errorCode: string | null;
+  message: string;
+  result: DrugDetail;
 }

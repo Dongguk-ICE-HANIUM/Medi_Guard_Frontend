@@ -1,17 +1,17 @@
 import { colors } from "@/constants";
+import { Medication } from "@/types/medication";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import CheckBox from "./CheckBox";
-import { SingleMedicineCardProps } from "./SingleMedicineCard";
 
 interface ToggleProps {
-  drugItem: SingleMedicineCardProps["drugItem"];
+  medication: Medication;
 }
-const Toggle = ({ drugItem }: ToggleProps) => {
+const Toggle = ({ medication }: ToggleProps) => {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>복용 체크</Text>
-      <CheckBox drugItem={drugItem} />
+      <CheckBox medication={medication} />
     </View>
   );
 };

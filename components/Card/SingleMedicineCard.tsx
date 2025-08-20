@@ -1,5 +1,5 @@
 import { colors } from "@/constants";
-import { Drug } from "@/types/medication";
+import { Medication } from "@/types/medication";
 import { formatDateStringDot } from "@/utils/dateUtils";
 import { router } from "expo-router";
 import React from "react";
@@ -9,14 +9,19 @@ import ProgressBar from "./ProgressBar";
 import Toggle from "./Toggle";
 
 export interface SingleMedicineCardProps {
-  drugItem: Drug;
+  medication: Medication;
 }
 
-const SingleMedicineCard = ({ drugItem }: SingleMedicineCardProps) => {
+const SingleMedicineCard = ({ medication }: SingleMedicineCardProps) => {
   const handleToDetail = () => {
+    console.log(
+      "약물 상세 페이지로 이동:",
+      medication.id,
+      medication.medicineInfo.name
+    );
     router.push({
       pathname: "/medicine/detail",
-      params: { id: drugItem.id },
+      params: { id: medication.id },
     });
   };
 
@@ -24,19 +29,19 @@ const SingleMedicineCard = ({ drugItem }: SingleMedicineCardProps) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.title}>
-          <Text style={styles.name}>{drugItem.name}</Text>
+          <Text style={styles.name}>{medication.medicineInfo.name}</Text>
           <Text style={styles.date}>
-            {formatDateStringDot(drugItem.startDate)}~
-            {formatDateStringDot(drugItem.endDate)}
+            {formatDateStringDot(medication.startAt)}~
+            {formatDateStringDot(medication.endAt)}
           </Text>
         </View>
         <Button size="small" icon="right" onPress={handleToDetail} />
       </View>
       <View style={styles.progressBar}>
-        <ProgressBar drugItem={drugItem} />
+        <ProgressBar medication={medication} />
       </View>
       <View style={styles.toggle}>
-        <Toggle drugItem={drugItem} />
+        <Toggle medication={medication} />
       </View>
     </View>
   );
