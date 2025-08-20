@@ -1,7 +1,9 @@
+import { fetchDrugDetail } from "@/api/medicine";
 import Button from "@/components/Button";
+import BasicInfo from "@/components/Detail/BasicInfo";
+import MedicationInfo from "@/components/Detail/MedicationInfo";
 import { colors } from "@/constants";
-import { useMedicationContext } from "@/context/MedicationContext";
-import { Medication } from "@/types/medication";
+import { DrugDetail } from "@/types/medication";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -10,38 +12,54 @@ import {
   StyleSheet,
   Switch,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 
 const MedicationDetailPage = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { medications, updateMedication } = useMedicationContext();
-  const [medication, setMedication] = useState<Medication | null>(null);
+  const [drugDetail, setDrugDetail] = useState<DrugDetail | null>(null);
   const [isActive, setIsActive] = useState(true);
+  const [activeTab, setActiveTab] = useState<"basic" | "medication">("basic");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log("상세 페이지 - 받은 ID:", id);
-    console.log("상세 페이지 - 전체 약물:", medications);
-
-    if (id) {
-      const foundMedication = medications.find((med) => med.id === id);
-      console.log("상세 페이지 - 찾은 약물:", foundMedication);
-
-      if (foundMedication) {
-        setMedication(foundMedication);
-        setIsActive(foundMedication.isActive);
+    const fetchData = async () => {
+      if (id) {
+        setLoading(true);
+        try {
+          const response = await fetchDrugDetail(id);
+          if (response.result) {
+            setDrugDetail(response.result);
+            setIsActive(response.result.isActive);
+          }
+        } catch (error) {
+          console.error("약물 상세 정보 로드 실패:", error);
+        } finally {
+          setLoading(false);
+        }
       }
-    }
-  }, [id, medications]);
+    };
+
+    fetchData();
+  }, [id]);
 
   const handleToggleActive = (value: boolean) => {
     setIsActive(value);
-    if (medication) {
-      updateMedication(medication.id, { isActive: value });
-    }
+    console.log("약물 활성화 상태 변경:", value);
   };
 
-  if (!medication) {
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centered}>
+          <Text>로딩 중...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!drugDetail) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centered}>
@@ -53,13 +71,9 @@ const MedicationDetailPage = () => {
 
   return (
     <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-      {/* 약물 기본 정보 */}
       <View style={styles.header}>
         <View style={styles.headerInfo}>
-          <Text style={styles.name}>{medication.medicineInfo.name}</Text>
-          <Text style={styles.brand}>
-            복용 기간: {medication.startAt} ~ {medication.endAt}
-          </Text>
+          <Text style={styles.name}>{drugDetail.name}</Text>
         </View>
         <Switch
           value={isActive}
@@ -69,62 +83,53 @@ const MedicationDetailPage = () => {
         />
       </View>
 
-      {/* API에서 가져온 약물 정보 */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>약물 정보</Text>
-        <Text style={styles.infoText}>
-          약물 코드: {medication.medicineInfo.code}
-        </Text>
-        <Text style={styles.infoText}>
-          효능: {medication.medicineInfo.effect}
-        </Text>
-        <Text style={styles.infoText}>
-          주의사항: {medication.medicineInfo.warning}
-        </Text>
-        <Text style={styles.infoText}>
-          부작용: {medication.medicineInfo.sideEffect}
-        </Text>
-        <Text style={styles.infoText}>
-          상호작용: {medication.medicineInfo.interaction}
-        </Text>
-        <Text style={styles.infoText}>
-          복용법: {medication.medicineInfo.deposit_method}
-        </Text>
-      </View>
+      {/* 🔥 수정된 부분: 탭 헤더와 편집 버튼 */}
+      <View style={styles.tabContainer}>
+        <View style={styles.tabGroup}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "basic" && styles.activeTab]}
+            onPress={() => setActiveTab("basic")}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === "basic" && styles.activeTabText,
+              ]}
+            >
+              기본
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "medication" && styles.activeTab]}
+            onPress={() => setActiveTab("medication")}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === "medication" && styles.activeTabText,
+              ]}
+            >
+              복약
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* 복용 정보 */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>복용 정보</Text>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>복용 주기:</Text>
-          <Text style={styles.infoValue}>{medication.takingType}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>1일 복용 횟수:</Text>
-          <Text style={styles.infoValue}>{medication.perDay}회</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>복용량:</Text>
-          <Text style={styles.infoValue}>{medication.amount}정</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>그룹:</Text>
-          <Text style={styles.infoValue}>{medication.groupName}</Text>
-        </View>
-      </View>
-
-      {/* 알림 시간 */}
-      {medication.notifiTakingList &&
-        medication.notifiTakingList.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>알림 시간</Text>
-            {medication.notifiTakingList.map((notification, index) => (
-              <View key={notification.id} style={styles.notificationItem}>
-                <Text style={styles.notificationTime}>{notification.time}</Text>
-              </View>
-            ))}
-          </View>
+        {/* 🔥 수정: 복약 탭일 때만 편집 버튼 표시 */}
+        {activeTab === "medication" && (
+          <TouchableOpacity style={styles.editButton}>
+            <Text style={styles.editText}>편집</Text>
+          </TouchableOpacity>
         )}
+      </View>
+
+      {/* 🔥 수정된 부분: 탭 아래 구분선 */}
+      <View style={styles.tabBorder} />
+
+      {activeTab === "basic" ? (
+        <BasicInfo drugDetail={drugDetail} />
+      ) : (
+        <MedicationInfo drugDetail={drugDetail} />
+      )}
 
       <Button text="다음" />
     </ScrollView>
@@ -134,22 +139,30 @@ const MedicationDetailPage = () => {
 export default MedicationDetailPage;
 
 const styles = StyleSheet.create({
-  centered: {},
-  container: {},
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  container: {
+    flex: 1,
+    backgroundColor: colors.BACK_GRAY,
+  },
   content: {
-    padding: 20,
+    paddingVertical: 10,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginVertical: 20,
+    paddingLeft: 15,
   },
   headerInfo: {
     flex: 1,
   },
   name: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
     marginBottom: 5,
   },
@@ -157,43 +170,68 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.TEXT_GRAY,
   },
-  section: {
-    marginBottom: 20,
-    padding: 15,
-    backgroundColor: colors.WHITE,
-    borderRadius: 10,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  infoRow: {
+  // 🔥 수정된 부분: 탭 컨테이너 스타일
+  tabContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 8,
+    alignItems: "flex-end", // 하단 정렬로 변경
+    marginBottom: 0, // marginBottom 제거
+    paddingBottom: 0, // paddingBottom 제거
+    position: "relative",
   },
-  infoLabel: {
-    fontSize: 14,
+  // 🔥 수정된 부분: 탭 그룹 스타일
+  tabGroup: {
+    flexDirection: "row",
+    justifyContent: "flex-start", // 왼쪽 정렬로 되돌림
+    flex: 1,
+    marginLeft: 15, // 약물명과 같은 위치에서 시작
+  },
+  // 🔥 수정된 부분: 탭 스타일
+  tab: {
+    paddingVertical: 15,
+    paddingHorizontal: 0, // 패딩 제거
+    alignItems: "flex-start", // 왼쪽 정렬
+    marginRight: 20, // 탭 간 간격
+  },
+  // 🔥 수정된 부분: 활성 탭 스타일
+  activeTab: {
+    borderBottomWidth: 2.5,
+    borderBottomColor: colors.BLACK,
+  },
+  tabText: {
+    fontSize: 17,
     color: colors.TEXT_GRAY,
   },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: "500",
+  activeTabText: {
+    color: colors.BLACK,
+    fontWeight: "bold",
   },
-  notificationItem: {
-    padding: 10,
-    backgroundColor: colors.BACK_GRAY,
+  // 🔥 수정: 편집 버튼을 토글과 같은 라인에 맞춤
+  editButton: {
+    position: "absolute",
+    right: 0, // 토글 버튼과 같은 오른쪽 끝 라인
+    bottom: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: colors.WHITE,
     borderRadius: 8,
-    marginBottom: 5,
+    borderWidth: 1,
+    borderColor: colors.TEXT_GRAY,
   },
-  notificationTime: {
+  // 🔥 새로 추가: 편집 텍스트 스타일
+  editText: {
     fontSize: 14,
+    color: colors.TEXT_GRAY,
     fontWeight: "500",
   },
-  infoText: {
-    fontSize: 14,
-    marginBottom: 5,
-    color: colors.TEXT_GRAY,
+  // 🔥 새로 추가된 부분: 탭 아래 구분선
+  tabBorder: {
+    height: 1,
+    backgroundColor: colors.LIGHT_GRAY,
+    marginBottom: 20,
+    marginTop: 0,
+  },
+  editIcon: {
+    fontSize: 20,
   },
 });

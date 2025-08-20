@@ -121,5 +121,5 @@ export interface DrugDetail {
 export interface DrugDetailResponse {
   errorCode: string | null;
   message: string;
-  result: DrugDetail;
+  result: DrugDetail | null;
 }

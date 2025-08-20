@@ -1,40 +1,145 @@
-import { DrugDetailResponse } from "@/types/medication";
+import {
+  DrugDetailResponse,
+  DrugGroupResponse,
+  DrugResponse,
+  TakingType,
+} from "@/types/medication";
 
 // 🎭 Mock 데이터 (서버 API 시뮬레이션)
-const MOCK_DRUG_DETAIL: DrugDetailResponse = {
-  errorCode: null,
-  message: "OK",
-  result: {
+
+// 약물 그룹 데이터
+const MOCK_DRUG_GROUPS = [
+  { id: "group-1", name: "봄 진료 처방약" },
+  { id: "group-2", name: "겨울 진료 처방약" },
+  { id: "group-3", name: "만성질환 처방약" },
+];
+
+// 전체 약물 목록 데이터 (기존 Drug 타입)
+const MOCK_ALL_DRUGS = [
+  {
     id: "drug-1",
+    calendarDrugId: "group-1",
+    name: "우루사정",
+    startDate: "2025-08-10",
+    endDate: "2025-08-20",
+    timeSlot: 800,
+    takenDaysCount: 8,
+    missedDaysCount: 2,
+  },
+  {
+    id: "drug-2",
+    calendarDrugId: "group-1",
+    name: "타이레놀",
+    startDate: "2025-08-05",
+    endDate: "2025-08-25",
+    timeSlot: 1200,
+    takenDaysCount: 15,
+    missedDaysCount: 3,
+  },
+  {
+    id: "drug-3",
+    calendarDrugId: "group-2",
+    name: "종합비타민",
+    startDate: "2025-07-01",
+    endDate: "2025-08-01",
+    timeSlot: 900,
+    takenDaysCount: 45,
+    missedDaysCount: 5,
+  },
+  {
+    id: "drug-4",
+    calendarDrugId: "group-3",
+    name: "오메가3",
+    startDate: "2025-06-15",
+    endDate: "2025-08-15",
+    timeSlot: 1900,
+    takenDaysCount: 120,
+    missedDaysCount: 10,
+  },
+];
+
+// 약물 상세 정보 데이터
+const MOCK_DRUG_DETAILS = {
+  "med-1": {
+    id: "med-1",
     name: "우루사정",
     code: "N05123",
     effect: "담즙산 합성 촉진 및 담즙 분비 촉진, 간세포 보호",
-    warning: "일반적으로 식후 1정(250mg) 복용...",
-    sideEffect: "장기간 복용시 설사, 복통, 메스꺼움 등이 생길 수 있음...",
-    interaction:
-      "담즙산 결합제, 알루미늄 함유 제산제와 함께 복용시 흡수 저하...",
+    warning: "일반적으로 식후 1정(250mg) 복용",
+    sideEffect: "장기간 복용시 설사, 복통, 메스꺼움 등이 생길 수 있음",
+    interaction: "담즙산 결합제, 알루미늄 함유 제산제와 함께 복용시 흡수 저하",
     deposit_method: "일반적으로 식후 1정(250mg) 복용",
-    startAt: "2025-03-08",
-    endAt: "2025-03-10",
-    takingType: "DAILY" as any,
+    startAt: "2025-08-10",
+    endAt: "2025-08-20",
+    takingType: TakingType.DAILY,
     perDay: 3,
-    amount: 1.25,
+    amount: 1,
     notifiTakingList: [
-      {
-        id: "notif-1",
-        time: "2025-03-08T08:00:00Z",
-      },
-      {
-        id: "notif-2",
-        time: "2025-03-08T12:00:00Z",
-      },
-      {
-        id: "notif-3",
-        time: "2025-03-08T18:00:00Z",
-      },
+      { id: "notif-1", time: "08:00" },
+      { id: "notif-2", time: "15:00" },
+      { id: "notif-3", time: "19:00" },
     ],
     isActive: true,
     groupName: "봄 진료 처방약",
+  },
+  "med-2": {
+    id: "med-2",
+    name: "타이레놀",
+    code: "N05124",
+    effect: "해열, 진통",
+    warning: "식후 복용 권장",
+    sideEffect: "위장장애, 알레르기 반응 등이 생길 수 있음",
+    interaction: "항응고제와 함께 복용시 출혈 위험 증가",
+    deposit_method: "식후 1정 복용",
+    startAt: "2025-08-05",
+    endAt: "2025-08-25",
+    takingType: TakingType.DAILY,
+    perDay: 2,
+    amount: 1,
+    notifiTakingList: [
+      { id: "notif-4", time: "09:00" },
+      { id: "notif-5", time: "18:00" },
+    ],
+    isActive: true,
+    groupName: "봄 진료 처방약",
+  },
+  "med-3": {
+    id: "med-3",
+    name: "종합비타민",
+    code: "N05125",
+    effect: "비타민 보충",
+    warning: "과다 복용 주의",
+    sideEffect: "소변 색상 변화 등이 생길 수 있음",
+    interaction: "특별한 상호작용 없음",
+    deposit_method: "아침 식후 1정 복용",
+    startAt: "2025-07-01",
+    endAt: "2025-08-01",
+    takingType: TakingType.DAILY,
+    perDay: 1,
+    amount: 1,
+    notifiTakingList: [{ id: "notif-6", time: "09:00" }],
+    isActive: true,
+    groupName: "겨울 진료 처방약",
+  },
+  "med-4": {
+    id: "med-4",
+    name: "오메가3",
+    code: "N05126",
+    effect: "혈중 중성지방 감소",
+    warning: "식후 복용 권장",
+    sideEffect:
+      "오메가3를 과량 섭취하면 속쓰림, 메스꺼움, 설사와 같은 위장장애가 생길 수 있습니다. 또한 혈액 응고가 지연되어 멍이 잘 들거나 코피, 잇몸 출혈 위험이 높아질 수 있습니다. 드물지만 알레르기 반응이나 면역 관련 이상 증상이 나타날 가능성도 보고되었습니다.",
+    interaction:
+      "오메가3는 항응고제(와파린)나 항혈소판제(아스피린)와 함께 복용 시 출혈 위험을 크게 높일 수 있습니다. 혈압을 낮추는 약물과 병용하면 저혈압이 심해져 어지럼증이나 피로가 나타날 수 있습니다. 따라서 다른 약을 복용 중이라면 반드시 의사나 약사와 상담 후 섭취하는 것이 안전합니다.",
+    deposit_method: "식후 1정 복용",
+    startAt: "2025-06-15",
+    endAt: "2025-08-15",
+    takingType: TakingType.DAILY,
+    perDay: 1,
+    amount: 1,
+    notifiTakingList: [{ id: "notif-7", time: "19:00" }],
+    isActive: true,
+    groupName: "만성질환 처방약",
   },
 };
 
@@ -42,14 +147,52 @@ const MOCK_DRUG_DETAIL: DrugDetailResponse = {
 const mockDelay = (ms: number = 500) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
+// 약물 그룹 목록 조회
+export const fetchDrugGroups = async (): Promise<DrugGroupResponse> => {
+  await mockDelay();
+  console.log("약물 그룹 데이터 로딩");
+
+  return {
+    errorCode: null,
+    message: "OK",
+    result: { drugGroupList: MOCK_DRUG_GROUPS },
+  };
+};
+
+// 전체 약물 목록 조회
+export const fetchAllDrugs = async (): Promise<DrugResponse> => {
+  await mockDelay();
+  console.log("전체 약물 데이터 로딩");
+
+  return {
+    errorCode: null,
+    message: "OK",
+    result: { drugList: MOCK_ALL_DRUGS },
+  };
+};
+
+// 약물 상세 정보 조회
 export const fetchDrugDetail = async (
   id: string
 ): Promise<DrugDetailResponse> => {
   await mockDelay();
   console.log(`약물 상세 정보 요청: ${id}`);
 
-  // 실제로는 서버에서 해당 ID의 약물 정보를 가져와야 함
-  return MOCK_DRUG_DETAIL;
+  const drugDetail = MOCK_DRUG_DETAILS[id as keyof typeof MOCK_DRUG_DETAILS];
+
+  if (!drugDetail) {
+    return {
+      errorCode: "NOT_FOUND",
+      message: "약물을 찾을 수 없습니다.",
+      result: null,
+    };
+  }
+
+  return {
+    errorCode: null,
+    message: "OK",
+    result: drugDetail,
+  };
 };
 
 export const updateDrugActiveStatus = async (

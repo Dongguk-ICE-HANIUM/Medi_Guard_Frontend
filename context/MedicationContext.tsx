@@ -1,8 +1,7 @@
+import { fetchAllDrugs, fetchDrugGroups } from "@/api/medicine";
 import {
   Drug,
   DrugGroup,
-  DrugGroupResponse,
-  DrugResponse,
   Medication,
   MedicineInfo,
   TakingType,
@@ -200,27 +199,6 @@ const MOCK_ALL_DRUGS: Drug[] = [
   },
 ];
 
-//mock API 함수
-const mockDelay = (ms: number = 500) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
-const mockFetchDrugGroups = async (): Promise<DrugGroupResponse> => {
-  await mockDelay();
-  return {
-    errorCode: null,
-    message: "OK",
-    result: { drugGroupList: MOCK_DRUG_GROUPS },
-  };
-};
-
-const mockFetchAllDrugs = async (): Promise<DrugResponse> => {
-  await mockDelay();
-  return {
-    errorCode: null,
-    message: "OK",
-    result: { drugList: MOCK_ALL_DRUGS },
-  };
-};
-
 export const MedicationProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -292,7 +270,7 @@ export const MedicationProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   //서버 api 호출 함수
-  const fetchDrugGroups = useCallback(async () => {
+  const fetchDrugGroupsFromAPI = useCallback(async () => {
     if (loading) return; // 중복 호출 방지
 
     setLoading(true);
@@ -300,7 +278,7 @@ export const MedicationProvider: React.FC<{ children: React.ReactNode }> = ({
 
     try {
       console.log("약물 그룹 데이터 로딩");
-      const response = await mockFetchDrugGroups();
+      const response = await fetchDrugGroups();
 
       if (response.errorCode === null && response.result) {
         setDrugGroups(response.result.drugGroupList);
@@ -320,7 +298,7 @@ export const MedicationProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [loading]);
 
-  const fetchAllDrugs = useCallback(async () => {
+  const fetchAllDrugsFromAPI = useCallback(async () => {
     if (loading) return; // 중복 호출 방지
 
     setLoading(true);
@@ -328,7 +306,7 @@ export const MedicationProvider: React.FC<{ children: React.ReactNode }> = ({
 
     try {
       console.log("전체 약물 데이터 로딩...");
-      const response = await mockFetchAllDrugs();
+      const response = await fetchAllDrugs();
 
       if (response.errorCode === null && response.result) {
         setAllDrugs(response.result.drugList);
@@ -362,8 +340,8 @@ export const MedicationProvider: React.FC<{ children: React.ReactNode }> = ({
     error,
 
     // API 호출
-    fetchDrugGroups,
-    fetchAllDrugs,
+    fetchDrugGroups: fetchDrugGroupsFromAPI,
+    fetchAllDrugs: fetchAllDrugsFromAPI,
   };
 
   return (
