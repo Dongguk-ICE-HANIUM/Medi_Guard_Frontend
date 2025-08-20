@@ -7,7 +7,6 @@ const colors = {
   PURPLE: "#A047FF",
   GREEN: "#09AC00",
 
-
   PINK: "#FFB6B9",
   BACK_GRAY: "#EFF1F5",
   LIGHT_GRAY: "#EFF1F5",
@@ -16,4 +15,14 @@ const colors = {
   BG_COLOR: "#F8F8F8",
 };
 
-export { colors };
+const queryKey = {
+  AUTH: "auth",
+  SIDE_EFFECT: "sideEffect",
+  LIST: "list",
+
+  EMOTION: "emotion",
+
+  QUESTION: "question",
+};
+
+export { colors, queryKey };

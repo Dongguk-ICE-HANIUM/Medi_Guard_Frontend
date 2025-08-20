@@ -45,6 +45,7 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
       "expo-secure-store",
       [
         "expo-local-authentication",
@@ -52,7 +53,6 @@
           "faceIDPermission": "이 앱은 안전한 로그인을 위해 Face ID를 사용합니다."
         }
       ]
-
     ],
     "experiments": {
       "typedRoutes": true
