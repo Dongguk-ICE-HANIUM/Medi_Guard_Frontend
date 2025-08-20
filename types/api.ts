@@ -46,3 +46,13 @@ interface LoginResult {
 }
 
 export type LoginResponse = ApiResponse<LoginResult>;
+
+// 내 정보 가져오기 API
+export interface GetMeResult {
+  email: string;
+  id: number;
+}
+
+export type GetMeResponse = ApiResponse<GetMeResult>;
+
+// 액세스 토큰 재요청

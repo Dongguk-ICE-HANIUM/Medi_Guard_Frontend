@@ -1,4 +1,6 @@
+import queryClient from "@/api/queryClient";
 import { getSecureStore } from "@/utils/secureStore";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import * as LocalAuthentication from "expo-local-authentication";
 import { router, Stack } from "expo-router";
@@ -57,14 +59,17 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="auth" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+    <QueryClientProvider client={queryClient}>
+      <View style={{ flex: 1 }}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="auth" options={{ headerShown: false }} />
+          <Stack.Screen name="sideEffect" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
 
-      <Toast />
-    </View>
+        <Toast />
+      </View>
+    </QueryClientProvider>
   );
 }
