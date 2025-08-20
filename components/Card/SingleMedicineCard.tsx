@@ -1,6 +1,7 @@
 import { colors } from "@/constants";
 import { Drug } from "@/types/medication";
 import { formatDateStringDot } from "@/utils/dateUtils";
+import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "../Button";
@@ -12,6 +13,13 @@ export interface SingleMedicineCardProps {
 }
 
 const SingleMedicineCard = ({ drugItem }: SingleMedicineCardProps) => {
+  const handleToDetail = () => {
+    router.push({
+      pathname: "/medicine/detail",
+      params: { id: drugItem.id },
+    });
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -22,7 +30,7 @@ const SingleMedicineCard = ({ drugItem }: SingleMedicineCardProps) => {
             {formatDateStringDot(drugItem.endDate)}
           </Text>
         </View>
-        <Button size="small" icon="right" />
+        <Button size="small" icon="right" onPress={handleToDetail} />
       </View>
       <View style={styles.progressBar}>
         <ProgressBar drugItem={drugItem} />
@@ -43,7 +51,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: "center",
     padding: 15,
-    minHeight: 100,
   },
   header: {
     flexDirection: "row",

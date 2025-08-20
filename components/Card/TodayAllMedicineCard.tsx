@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   },
   drugItem: {
     marginBottom: 10,
-    maxHeight: 150,
+    maxHeight: 200,
   },
   emptyContainer: {},
   emptyText: {},
