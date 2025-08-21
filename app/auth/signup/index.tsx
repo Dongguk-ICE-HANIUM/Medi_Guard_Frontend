@@ -24,8 +24,8 @@ export default function SignupScreen() {
       feeding: false,
       pregnant: 0,
       dueDate: "",
-      allergy: null,
-      disease: null,
+      allergyList: null,
+      diseaseList: null,
     },
   });
 
