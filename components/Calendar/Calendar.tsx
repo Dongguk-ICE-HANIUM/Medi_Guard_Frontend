@@ -1,6 +1,7 @@
 import { colors } from "@/constants";
 import { useCalendarContext } from "@/context/CalendarContext";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import React, { useEffect } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -20,10 +21,25 @@ export default function Calendar() {
     getDayStatus,
     getTagsForDay,
     refreshData,
+    setCurrentDate,
 
     selectedDate,
     setSelectedDate,
   } = useCalendarContext();
+
+  useEffect(() => {
+    if (selectedDate) {
+      const selectedMonth = selectedDate.getMonth();
+      const selectedYear = selectedDate.getFullYear();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+
+      // 선택된 날짜가 현재 표시중인 달과 다를 때만 이동
+      if (selectedMonth !== currentMonth || selectedYear !== currentYear) {
+        setCurrentDate(new Date(selectedYear, selectedMonth, 1));
+      }
+    }
+  }, [selectedDate]);
 
   const getDaysInMonth = (date: Date): number => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -71,9 +87,7 @@ export default function Calendar() {
         ]}
         onPress={() => {
           setSelectedDate(cellDate);
-
           const dateString = cellDate.toISOString().split("T")[0];
-
           console.log(`날짜 선택 : ${dateString}`);
         }}
       >
@@ -218,7 +232,7 @@ const styles = StyleSheet.create({
     width: "14.28%",
     alignItems: "center",
     paddingVertical: 4,
-    minHeight: 40,
+    minHeight: 50,
     justifyContent: "flex-start",
   },
 

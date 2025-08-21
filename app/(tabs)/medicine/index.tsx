@@ -5,17 +5,29 @@ import { useCalendarContext } from "@/context/CalendarContext";
 import { useMedicationContext } from "@/context/MedicationContext";
 import { formatDateSlash } from "@/utils/dateUtils";
 import { AntDesign } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
-import React, { useEffect } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function MedicineScreen() {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
   const currentDay = currentDate.getDate();
 
-  const { selectedDate } = useCalendarContext();
+  const { selectedDate, setSelectedDate } = useCalendarContext();
   const { medications, loading, error } = useMedicationContext();
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [tempSelectedDate, setTempSelectedDate] = useState<Date>(
+    selectedDate || currentDate
+  );
 
   // 선택된 날짜에 복용해야 하는 약물 필터링
   const getMedicationsForSelectedDate = (date: Date) => {
@@ -74,7 +86,9 @@ export default function MedicineScreen() {
             <Text style={styles.calendarTitleText}>
               {displayMonth}월 {displayDay}일
             </Text>
-            <AntDesign name="downcircleo" size={17} color="black" />
+            <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+              <AntDesign name="downcircleo" size={17} color="black" />
+            </TouchableOpacity>
           </View>
           <View>
             <View style={styles.calendar}>
@@ -91,6 +105,58 @@ export default function MedicineScreen() {
           </View>
         </View>
       </View>
+
+      {/* 날짜 선택 모달 */}
+      <Modal
+        visible={showDatePicker}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowDatePicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>날짜 선택</Text>
+
+            {/* DatePicker를 사용한 날짜 선택 UI */}
+            <View style={styles.datePickerContainer}>
+              <DateTimePicker
+                value={tempSelectedDate}
+                mode="date"
+                display="spinner"
+                locale="ko-KR"
+                onChange={(event, selectedDate) => {
+                  if (selectedDate) {
+                    setTempSelectedDate(selectedDate);
+                  }
+                }}
+                style={styles.datePicker}
+              />
+            </View>
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => {
+                  setTempSelectedDate(selectedDate || currentDate);
+                  setShowDatePicker(false);
+                }}
+              >
+                <Text style={styles.cancelButtonText}>취소</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={() => {
+                  setSelectedDate(tempSelectedDate);
+                  setShowDatePicker(false);
+                }}
+              >
+                <Text style={styles.confirmButtonText}>확인</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -118,4 +184,57 @@ const styles = StyleSheet.create({
   },
   todayContainer: {},
   errorText: {},
+  // 모달 스타일
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+    width: "80%",
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+    color: "black",
+  },
+  datePickerContainer: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  datePicker: {
+    width: 200,
+    height: 200,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    gap: 15,
+  },
+  modalButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+    minWidth: 80,
+    alignItems: "center",
+  },
+  cancelButton: {
+    backgroundColor: "#f0f0f0",
+  },
+  confirmButton: {
+    backgroundColor: "#007AFF",
+  },
+  cancelButtonText: {
+    color: "black",
+    fontWeight: "600",
+  },
+  confirmButtonText: {
+    color: "white",
+    fontWeight: "600",
+  },
 });

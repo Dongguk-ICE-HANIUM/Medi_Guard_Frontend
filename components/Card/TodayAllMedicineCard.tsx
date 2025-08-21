@@ -76,6 +76,7 @@ const TodayAllMedicineCard = ({
             <SingleMedicineCard
               medication={medication}
               selectedDate={selectedDate}
+              showGroupDetail={true}
             />
           </View>
         ))}
