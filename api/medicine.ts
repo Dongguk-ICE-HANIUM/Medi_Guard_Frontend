@@ -82,6 +82,7 @@ const MOCK_DRUG_DETAILS = {
     ],
     isActive: true,
     groupName: "봄 진료 처방약",
+    groupId: "group-1",
   },
   "med-2": {
     id: "med-2",
@@ -103,6 +104,7 @@ const MOCK_DRUG_DETAILS = {
     ],
     isActive: true,
     groupName: "봄 진료 처방약",
+    groupId: "group-1",
   },
   "med-3": {
     id: "med-3",
@@ -121,6 +123,7 @@ const MOCK_DRUG_DETAILS = {
     notifiTakingList: [{ id: "notif-6", time: "09:00" }],
     isActive: true,
     groupName: "겨울 진료 처방약",
+    groupId: "group-2",
   },
   "med-4": {
     id: "med-4",
@@ -141,6 +144,45 @@ const MOCK_DRUG_DETAILS = {
     notifiTakingList: [{ id: "notif-7", time: "19:00" }],
     isActive: true,
     groupName: "",
+    groupId: "",
+  },
+  "med-5": {
+    id: "med-5",
+    name: "아스피린",
+    code: "N05127",
+    effect: "혈전 예방, 진통, 해열",
+    warning: "식후 복용 권장",
+    sideEffect: "위장장애, 출혈 위험 증가 등이 생길 수 있음",
+    interaction: "항응고제와 함께 복용시 출혈 위험 증가",
+    deposit_method: "식후 1정 복용",
+    startAt: "2025-01-01",
+    endAt: "2025-02-01",
+    takingType: TakingType.DAILY,
+    perDay: 1,
+    amount: 1,
+    notifiTakingList: [{ id: "notif-8", time: "09:00" }],
+    isActive: true,
+    groupName: "겨울 진료 처방약",
+    groupId: "group-2",
+  },
+  "med-6": {
+    id: "med-6",
+    name: "비타민D",
+    code: "N05128",
+    effect: "칼슘 흡수 촉진, 뼈 건강",
+    warning: "과다 복용 주의",
+    sideEffect: "과다 복용시 고칼슘혈증 등이 생길 수 있음",
+    interaction: "특별한 상호작용 없음",
+    deposit_method: "아침 식후 1정 복용",
+    startAt: "2025-01-01",
+    endAt: "2025-02-01",
+    takingType: TakingType.DAILY,
+    perDay: 1,
+    amount: 1,
+    notifiTakingList: [{ id: "notif-9", time: "09:00" }],
+    isActive: true,
+    groupName: "겨울 진료 처방약",
+    groupId: "group-2",
   },
 };
 
@@ -249,8 +291,35 @@ export const removeDrugFromGroup = async (
     MOCK_DRUG_DETAILS[drugId as keyof typeof MOCK_DRUG_DETAILS];
   if (drugDetail) {
     drugDetail.groupName = "";
+    drugDetail.groupId = "";
     console.log("그룹에서 약물 해제 완료:", drugDetail);
   }
+
+  return {
+    errorCode: null,
+    message: "OK",
+    result: {},
+  };
+};
+
+// 그룹 삭제 (그룹과 그룹에 속한 모든 약물 삭제)
+export const deleteGroup = async (
+  groupId: string
+): Promise<{ errorCode: string | null; message: string; result: {} }> => {
+  await mockDelay();
+  console.log(`그룹 삭제 요청: ${groupId}`);
+
+  // Mock 데이터에서 해당 그룹에 속한 모든 약물 찾아서 삭제
+  Object.keys(MOCK_DRUG_DETAILS).forEach((key) => {
+    const drugDetail = MOCK_DRUG_DETAILS[key as keyof typeof MOCK_DRUG_DETAILS];
+    if (drugDetail && drugDetail.groupId === groupId) {
+      // 약물을 완전히 삭제하거나 비활성화
+      drugDetail.isActive = false;
+      drugDetail.groupName = "";
+      drugDetail.groupId = "";
+      console.log(`그룹에 속한 약물 비활성화: ${drugDetail.name}`);
+    }
+  });
 
   return {
     errorCode: null,

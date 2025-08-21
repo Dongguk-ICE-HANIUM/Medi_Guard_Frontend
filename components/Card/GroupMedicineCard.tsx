@@ -10,6 +10,8 @@ interface GroupMedicineCardProps {
   groupName: string;
   medications: Medication[];
   onPress?: () => void;
+  isEditMode?: boolean;
+  onDelete?: (groupId: string) => void;
 }
 
 export default function GroupMedicineCard({
@@ -17,6 +19,8 @@ export default function GroupMedicineCard({
   groupName,
   medications,
   onPress,
+  isEditMode = false,
+  onDelete,
 }: GroupMedicineCardProps) {
   const handlePress = () => {
     if (onPress) {
@@ -32,7 +36,16 @@ export default function GroupMedicineCard({
   return (
     <View style={styles.groupCard}>
       <Text style={styles.groupCardTitle}>{groupName}</Text>
-      <Button size="small" icon="right" onPress={handlePress} />
+      {isEditMode ? (
+        <Button
+          text="삭제"
+          size="small"
+          color="gray"
+          onPress={() => onDelete?.(groupId)}
+        />
+      ) : (
+        <Button size="small" icon="right" onPress={handlePress} />
+      )}
     </View>
   );
 }

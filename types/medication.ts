@@ -117,6 +117,7 @@ export interface DrugDetail {
   }[];
   isActive: boolean;
   groupName: string;
+  groupId?: string;
 }
 
 export interface DrugDetailResponse {

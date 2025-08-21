@@ -33,7 +33,10 @@ export default function MedicineLayout() {
             options={{
               headerShown: true,
               title: "약물 관리",
-              contentStyle: { marginHorizontal: 13 },
+              contentStyle: {
+                paddingHorizontal: 13,
+                backgroundColor: colors.BG_COLOR,
+              },
               headerLeft: () => (
                 <TouchableOpacity onPress={() => router.back()}>
                   <Ionicons name="chevron-back" size={24} color={"black"} />

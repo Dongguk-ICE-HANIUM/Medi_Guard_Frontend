@@ -157,6 +157,36 @@ const MOCK_MEDICATIONS: Medication[] = [
     groupId: "",
     notifiTakingList: [{ id: "notif-7", time: "19:00" }],
   },
+  {
+    id: "med-5",
+    medicineInfo: MOCK_MEDICINE_INFO[3], // 오메가3 정보 재사용
+    startAt: "2025-01-01",
+    endAt: "2025-02-01",
+    takingType: TakingType.DAILY,
+    interval: 1,
+    particularDate: [],
+    perDay: 1,
+    amount: 1,
+    isActive: true,
+    groupName: "겨울 진료 처방약",
+    groupId: "group-2",
+    notifiTakingList: [{ id: "notif-8", time: "09:00" }],
+  },
+  {
+    id: "med-6",
+    medicineInfo: MOCK_MEDICINE_INFO[3], // 오메가3 정보 재사용
+    startAt: "2025-01-01",
+    endAt: "2025-02-01",
+    takingType: TakingType.DAILY,
+    interval: 1,
+    particularDate: [],
+    perDay: 1,
+    amount: 1,
+    isActive: true,
+    groupName: "겨울 진료 처방약",
+    groupId: "group-2",
+    notifiTakingList: [{ id: "notif-9", time: "09:00" }],
+  },
 ];
 
 // 기존 Drug 타입 데이터 (호환성을 위해 유지)
