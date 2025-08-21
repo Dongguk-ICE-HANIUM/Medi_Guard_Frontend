@@ -17,7 +17,7 @@ function WeightInput() {
           value={value}
           onChangeText={onChange}
           onBlur={() => {
-            if (value) onChange(value + "kg");
+            if (value) onChange(value);
           }}
           error={error?.message}
           size="small"

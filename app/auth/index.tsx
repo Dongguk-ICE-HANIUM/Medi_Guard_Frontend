@@ -62,7 +62,7 @@ export default function MainLoginScreen() {
         <Button
           text="회원가입 하기"
           color="gray"
-          onPress={() => router.push("/auth/signup/step2")}
+          onPress={() => router.push("/auth/signup")}
         />
       </View>
       <View style={styles.socialLoginButton}>

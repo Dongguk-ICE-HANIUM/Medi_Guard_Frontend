@@ -9,7 +9,7 @@ function useGetMe() {
   // 앱 시작시 토큰이 있으면 그대로 getMe 실행
   const { data } = useQuery({
     queryFn: getMe,
-    queryKey: [queryKey.AUTH, queryKey.GET_ME],
+    queryKey: [queryKey.AUTH],
   });
   return { data };
 }
@@ -17,7 +17,13 @@ function useGetMe() {
 function useSignup() {
   return useMutation({
     mutationFn: postSignup,
-    onSuccess: () => router.replace("/auth/login"),
+    onSuccess: () => {
+      router.replace("/auth");
+      console.log("회원가입 성공");
+    },
+    onError: (error) => {
+      console.error("회원가입 실패:", error);
+    },
   });
 }
 
@@ -30,6 +36,9 @@ function useLogin() {
 
       router.replace("/");
     },
+    onError: (error) => {
+      console.error("로그인 실패:", error);
+    },
   });
 }
 
@@ -41,6 +50,9 @@ function useSocialLogin() {
       await saveSecureStore("accessToken", accessToken);
 
       router.replace("/");
+    },
+    onError: (error) => {
+      console.error("소셜로그인 실패:", error);
     },
   });
 }

@@ -16,7 +16,7 @@ function HeightInput() {
           value={value}
           onChangeText={onChange}
           onBlur={() => {
-            if (value) onChange(value + "cm");
+            if (value) onChange(value);
           }}
           onFocus={() => {
             onChange("");

@@ -4,13 +4,11 @@ export interface SignupRequest {
   password: string;
   name: string;
   birthday: string;
-  height: number | undefined;
-  weight: number | undefined;
+  height?: number | undefined;
+  weight?: number | undefined;
   dueDate: string;
-  pregnant: number;
+  pregnancyWeek: number;
   feeding: boolean;
-  allergyList: string[] | null;
-  diseaseList: string[] | null;
 }
 
 export interface ApiResponse<T> {
