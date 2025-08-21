@@ -168,6 +168,7 @@ const registerForm = ({
           onParticularDateChange={handleParticularDateChange}
           selectedDays={getSelectedDays()}
           onSelectedDaysChange={updateSelectedDays}
+          onIsActiveChange={(isActive) => updateField("isActive", isActive)}
           errors={[
             ...(errors.takingType ?? []),
             ...(errors.interval ?? []),

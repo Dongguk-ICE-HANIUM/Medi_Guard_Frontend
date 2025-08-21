@@ -1,6 +1,6 @@
 import { colors } from "@/constants";
 import { TakingType } from "@/types/medication";
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import NumberInput from "../NumberInput";
 import SpecificDate from "./SpecificDate";
@@ -13,6 +13,7 @@ interface TakingCycleDetailsProps {
   onIntervalChange?: (interval: number) => void;
   onParticularDateChange?: (dates: string[]) => void;
   onSelectedDaysChange?: (days: string[]) => void;
+  onIsActiveChange?: (isActive: boolean) => void;
   errors?: string[];
   showError?: boolean;
   startAt?: string;
@@ -27,6 +28,7 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
   onIntervalChange,
   onParticularDateChange,
   onSelectedDaysChange,
+  onIsActiveChange,
   errors = [],
   showError = false,
   startAt,
@@ -34,6 +36,13 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
 }) => {
   const WEEKDAYS = ["월", "화", "수", "목", "금", "토", "일"];
   const hasError = showError && errors.length > 0;
+
+  useEffect(() => {
+    if (takingType === TakingType.NEED) {
+      onIsActiveChange?.(false);
+      console.log("보류 처리 완료", onIsActiveChange);
+    }
+  }, [takingType]);
 
   // TakingCycleDetails 디버깅 코드
   console.log("TakingCycleDetails - errors:", errors);
