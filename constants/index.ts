@@ -15,4 +15,14 @@ const colors = {
   BG_COLOR: "#F8F9FA",
 };
 
-export { colors };
+const queryKey = {
+  AUTH: "auth",
+  SIDE_EFFECT: "sideEffect",
+  LIST: "list",
+
+  EMOTION: "emotion",
+
+  QUESTION: "question",
+};
+
+export { colors, queryKey };

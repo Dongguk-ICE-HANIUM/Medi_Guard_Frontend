@@ -27,7 +27,7 @@ export default function LoginScreen() {
           const result = await LocalAuthentication.authenticateAsync({
             promptMessage: "Face ID로 로그인",
             cancelLabel: "취소",
-            // disableDeviceFallback: true,
+            disableDeviceFallback: true,
           });
 
           console.log("face ID 결과: ", result);

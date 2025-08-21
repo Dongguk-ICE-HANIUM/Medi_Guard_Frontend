@@ -17,7 +17,7 @@ export default function HomeScreen() {
         text2: "회원가입이 완료되었습니다.",
       });
 
-      router.replace("/");
+      router.replace("/auth");
     }
   }, [searchParams, router]);
 
