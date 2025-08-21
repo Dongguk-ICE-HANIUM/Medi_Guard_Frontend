@@ -18,7 +18,7 @@ export async function getMe(): Promise<GetMeResponse> {
 }
 
 export async function postSignup(body: SignupRequest): Promise<SignupResponse> {
-  const { data } = await axiosInstance.post("/api/user", body);
+  const { data } = await axiosInstance.post("/api/auth/register", body);
   return data;
 }
 

@@ -9,8 +9,8 @@ export interface SocialLoginRequest {
   pregnant: number;
   feeding: boolean;
   dueDate: string;
-  allergy: string[] | null;
-  disease: string[] | null;
+  allergyList: string[] | null;
+  diseaseList: string[] | null;
 }
 
 interface SocialLoginResult {

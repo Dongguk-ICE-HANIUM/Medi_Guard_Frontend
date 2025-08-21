@@ -1,5 +1,6 @@
 import { colors } from "@/constants";
 import { SignupProvider } from "@/context/SignupContext";
+import { Foundation } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, Stack } from "expo-router";
 import { TouchableOpacity } from "react-native";
@@ -9,7 +10,7 @@ export default function SignupLayout() {
     <SignupProvider>
       <Stack
         screenOptions={{
-          headerShown: false,
+          headerShown: true,
           contentStyle: { backgroundColor: colors.WHITE },
         }}
       >
@@ -21,6 +22,14 @@ export default function SignupLayout() {
               <TouchableOpacity onPress={() => router.back()}>
                 <Ionicons name="chevron-back" size={24} color={"black"} />
               </TouchableOpacity>
+            ),
+            headerRight: () => (
+              <Foundation
+                name="home"
+                size={28}
+                color="black"
+                onPress={() => router.replace("/auth")}
+              />
             ),
             title: "회원가입",
           }}

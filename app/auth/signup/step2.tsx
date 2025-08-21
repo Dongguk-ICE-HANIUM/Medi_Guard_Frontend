@@ -26,8 +26,8 @@ export default function Step2Screen() {
       feeding: signupData.feeding,
       pregnant: 7, //undefined,
       dueDate: "2025-08-29", //"",
-      allergy: signupData.allergy,
-      disease: signupData.disease,
+      allergyList: signupData.allergyList,
+      diseaseList: signupData.diseaseList,
     },
   });
 
