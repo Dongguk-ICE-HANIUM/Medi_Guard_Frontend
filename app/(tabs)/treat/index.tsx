@@ -21,6 +21,8 @@ export default function TreatScreen() {
   const [isModal, setIsModal] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState<string>("");
   const [filterEndDate, setFilterEndDate] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const ITEMS_PER_PAGE = 4;
 
   useEffect(() => {
     todayNext.fetchNextAppointment();
@@ -71,6 +73,39 @@ export default function TreatScreen() {
     return `${startFormatted} ~ ${endFormatted}`;
   }, [filterStartDate, filterEndDate]);
 
+  //페이지네이션
+  const totalPages = Math.ceil(filteredHistory.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentPageData = filteredHistory.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+    if (endPage - startPage < maxVisible) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStartDate, filterEndDate]);
+
   const handleCalendarPress = () => {
     setIsModal(true);
   };
@@ -114,78 +149,136 @@ export default function TreatScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>오늘의 진료</Text>
+      <View style={styles.contentContainer}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>오늘의 진료</Text>
 
-          {todayNext.loading ? (
-            <View style={styles.sectionLoading}>
-              <ActivityIndicator size="small" color="#FF6B6B" />
-            </View>
-          ) : todayNext.error ? (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>오류: {todayNext.error}</Text>
-            </View>
-          ) : todayNext.nextAppointment ? (
-            <AppointmentCard
-              dateTime={todayNext.nextAppointment.time}
-              hospitalName={todayNext.nextAppointment.hospitalName}
-              doctorName={todayNext.nextAppointment.doctorName}
-              type="start"
-              onStartPress={handleStartPress}
-              isToday={todayNext.nextAppointment.isToday}
-            />
-          ) : (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>예정된 진료가 없습니다.</Text>
-            </View>
-          )}
-        </View>
+            {todayNext.loading ? (
+              <View style={styles.sectionLoading}>
+                <ActivityIndicator size="small" color="#FF6B6B" />
+              </View>
+            ) : todayNext.error ? (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>오류: {todayNext.error}</Text>
+              </View>
+            ) : todayNext.nextAppointment ? (
+              <AppointmentCard
+                dateTime={todayNext.nextAppointment.time}
+                hospitalName={todayNext.nextAppointment.hospitalName}
+                doctorName={todayNext.nextAppointment.doctorName}
+                type="start"
+                onStartPress={handleStartPress}
+                isToday={todayNext.nextAppointment.isToday}
+              />
+            ) : (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>예정된 진료가 없습니다.</Text>
+              </View>
+            )}
+          </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>진료 이력</Text>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>진료 이력</Text>
 
-          <TouchableOpacity
-            style={styles.periodContainer}
-            onPress={handleCalendarPress}
-          >
-            <Text style={styles.periodText}>{periodText}</Text>
-            <FontAwesome5 name="calendar-alt" size={23} color="black" />
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.periodContainer}
+              onPress={handleCalendarPress}
+            >
+              <Text style={styles.periodText}>{periodText}</Text>
+              <FontAwesome5 name="calendar-alt" size={23} color="black" />
+            </TouchableOpacity>
 
-          {history.loading ? (
-            <View style={styles.sectionLoading}>
-              <ActivityIndicator size="small" color="#FF6B6B" />
-            </View>
-          ) : history.error ? (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>오류: {history.error}</Text>
-            </View>
-          ) : history.appointmentHistory.length > 0 ? (
-            <View style={styles.historyList}>
-              {filteredHistory.map((appointment) => (
-                <AppointmentCard
-                  key={appointment.scheduleId}
-                  dateTime={appointment.datetime}
-                  hospitalName={appointment.hospitalName}
-                  doctorName={appointment.doctorName}
-                  type="detail"
-                  onDetailPress={() =>
-                    handleDetailPress(appointment.scheduleId)
-                  }
-                />
-              ))}
-            </View>
-          ) : (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>진료 이력이 없습니다.</Text>
-            </View>
-          )}
-        </View>
-      </ScrollView>
+            {history.loading ? (
+              <View style={styles.sectionLoading}>
+                <ActivityIndicator size="small" color="#FF6B6B" />
+              </View>
+            ) : history.error ? (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>오류: {history.error}</Text>
+              </View>
+            ) : currentPageData.length > 0 ? (
+              <View style={styles.historyList}>
+                {currentPageData.map((appointment) => (
+                  <AppointmentCard
+                    key={appointment.scheduleId}
+                    dateTime={appointment.datetime}
+                    hospitalName={appointment.hospitalName}
+                    doctorName={appointment.doctorName}
+                    type="detail"
+                    onDetailPress={() =>
+                      handleDetailPress(appointment.scheduleId)
+                    }
+                  />
+                ))}
+              </View>
+            ) : (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>진료 이력이 없습니다.</Text>
+              </View>
+            )}
+          </View>
+        </ScrollView>
+
+        {totalPages > 1 && (
+          <View style={styles.fixedPaginationContainer}>
+            <TouchableOpacity
+              style={[
+                styles.paginationButton,
+                currentPage === 1 && styles.disabledButton,
+              ]}
+              onPress={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <FontAwesome5
+                name="chevron-left"
+                size={14}
+                color={currentPage === 1 ? colors.TEXT_GRAY : colors.PINK}
+              />
+            </TouchableOpacity>
+
+            {getPageNumbers().map((page) => (
+              <TouchableOpacity
+                key={page}
+                style={[
+                  styles.pageNumberButton,
+                  currentPage === page && styles.activePageButton,
+                ]}
+                onPress={() => handlePageChange(page)}
+              >
+                <Text
+                  style={[
+                    styles.pageNumberText,
+                    currentPage === page && styles.activePageText,
+                  ]}
+                >
+                  {page}
+                </Text>
+              </TouchableOpacity>
+            ))}
+
+            <TouchableOpacity
+              style={[
+                styles.paginationButton,
+                currentPage === totalPages && styles.disabledButton,
+              ]}
+              onPress={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <FontAwesome5
+                name="chevron-right"
+                size={14}
+                color={
+                  currentPage === totalPages ? colors.TEXT_GRAY : colors.PINK
+                }
+              />
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
 
       <CalendarModal
         visible={isModal}
@@ -206,10 +299,11 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   container: { flex: 1 },
-  scrollView: { flex: 1, marginVertical: 20 },
-  section: { marginBottom: 10 },
+  contentContainer: { flex: 1 },
+  scrollView: { flex: 1, marginTop: 20, paddingBottom: 5 },
+  section: { marginBottom: 7, flex: 1 },
   sectionTitle: {
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: "600",
     marginBottom: 10,
     marginLeft: 10,
@@ -250,5 +344,67 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.TEXT_GRAY,
     fontWeight: "600",
+  },
+
+  //페이지네이션
+  fixedPaginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 7,
+    marginBottom: 15,
+    gap: 8,
+  },
+  paginationButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.WHITE,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.PINK + "30",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  disabledButton: {
+    backgroundColor: colors.TEXT_GRAY + "20",
+    borderColor: colors.TEXT_GRAY + "30",
+  },
+  pageNumberButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.WHITE,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.PINK + "30",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  activePageButton: {
+    backgroundColor: colors.PINK,
+    borderColor: colors.PINK,
+  },
+  pageNumberText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.PINK,
+  },
+  activePageText: {
+    color: colors.WHITE,
   },
 });

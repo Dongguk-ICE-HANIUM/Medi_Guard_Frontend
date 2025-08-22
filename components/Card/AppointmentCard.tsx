@@ -41,7 +41,6 @@ const AppointmentCard = ({
             onPress={onDetailPress}
             activeOpacity={0.8}
           >
-            <Text style={styles.rightContentText}>진료 내용 보기</Text>
             <AntDesign name="right" size={18} color={colors.TEXT_GRAY} />
           </TouchableOpacity>
         );
@@ -100,7 +99,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 20,
-    marginBottom: 16,
+    marginBottom: 13,
     shadowColor: colors.TEXT_GRAY,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.25,
