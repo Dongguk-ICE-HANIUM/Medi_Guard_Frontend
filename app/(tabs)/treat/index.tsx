@@ -12,6 +12,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 
@@ -26,11 +27,37 @@ export default function TreatScreen() {
     history.fetchAppointmentHistory();
   }, [todayNext.fetchNextAppointment, history.fetchAppointmentHistory]);
 
+  //진료 이력 필터링
+  useEffect(() => {
+    if (
+      history.appointmentHistory.length > 0 &&
+      !filterStartDate &&
+      !filterEndDate
+    ) {
+      const sortedHistory = [...history.appointmentHistory].sort(
+        (a, b) =>
+          new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
+      );
+      const firstAppointment = sortedHistory[0].datetime.split("T")[0];
+      const today = new Date().toISOString().split("T")[0];
+
+      setFilterStartDate(firstAppointment);
+      setFilterEndDate(today);
+    }
+  }, [history.appointmentHistory, filterStartDate, filterEndDate]);
+
   const filteredHistory = useMemo(() => {
     if (!history.appointmentHistory.length) return [];
 
+    if (!filterStartDate || !filterEndDate) {
+      return history.appointmentHistory;
+    }
+
     const startDate = new Date(filterStartDate);
     const endDate = new Date(filterEndDate);
+
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
 
     return history.appointmentHistory.filter((item) => {
       const itemDate = new Date(item.datetime);
@@ -121,15 +148,13 @@ export default function TreatScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>진료 이력</Text>
 
-          <View style={styles.periodContainer}>
+          <TouchableOpacity
+            style={styles.periodContainer}
+            onPress={handleCalendarPress}
+          >
             <Text style={styles.periodText}>{periodText}</Text>
-            <FontAwesome5
-              name="calendar-alt"
-              size={23}
-              color="black"
-              onPress={handleCalendarPress}
-            />
-          </View>
+            <FontAwesome5 name="calendar-alt" size={23} color="black" />
+          </TouchableOpacity>
 
           {history.loading ? (
             <View style={styles.sectionLoading}>
@@ -141,7 +166,7 @@ export default function TreatScreen() {
             </View>
           ) : history.appointmentHistory.length > 0 ? (
             <View style={styles.historyList}>
-              {history.appointmentHistory.map((appointment) => (
+              {filteredHistory.map((appointment) => (
                 <AppointmentCard
                   key={appointment.scheduleId}
                   dateTime={appointment.datetime}
