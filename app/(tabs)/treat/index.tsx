@@ -123,6 +123,13 @@ export default function TreatScreen() {
   const handleStartPress = () => {
     if (todayNext.nextAppointment) {
       consultation.startConsultation(todayNext.nextAppointment.scheduleId);
+      // 진료 시작 페이지로 이동
+      router.push({
+        pathname: "/treat/consultation",
+        params: {
+          scheduleId: todayNext.nextAppointment.scheduleId.toString(),
+        },
+      });
     }
   };
 
