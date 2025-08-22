@@ -2,7 +2,7 @@ import { colors } from "@/constants";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 
 interface QuestionItemProps {
-  id: string;
+  id: number;
   data: {
     question: string;
   };

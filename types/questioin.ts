@@ -12,7 +12,7 @@ export enum QuestionType {
   PATIENT_CONCERNS = "PATIENT_CONCERNS", // 환자 우려사항
 }
 
-export interface question {
+interface question {
   id: string;
   type: QuestionType;
   answer: string;
