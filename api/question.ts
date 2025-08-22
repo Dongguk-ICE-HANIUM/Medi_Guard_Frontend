@@ -3,7 +3,7 @@ import {
   GetQuestionResponse,
   questionResponse,
   UpdateQuestionRequest,
-} from "@/types/questioin";
+} from "@/types/question";
 import axiosInstance from "./axios";
 
 async function getQuestion(date: string): Promise<GetQuestionResponse> {

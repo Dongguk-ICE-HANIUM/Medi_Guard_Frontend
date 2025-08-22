@@ -1,5 +1,5 @@
 import { ApiResponse } from "./api";
-import { QuestionType } from "./questioin";
+import { QuestionType } from "./question";
 
 export enum emotionType {
   VERY_HAPPY = "VERY_HAPPY",
