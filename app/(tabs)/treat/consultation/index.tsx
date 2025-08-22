@@ -4,6 +4,7 @@ import TermsModal from "@/components/consultation/TermsModal";
 import { colors } from "@/constants";
 import { TERMS_DATA, TermsDataType } from "@/data/termsData";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -113,6 +114,10 @@ const index: React.FC = () => {
 
   const canProceed = termsConfig.every(({ key }) => agreement[key]);
 
+  const handleProceed = () => {
+    router.push("/treat/consultation/code");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.content}>
@@ -125,11 +130,7 @@ const index: React.FC = () => {
             <View style={styles.checkboxContainer}>
               <TouchableOpacity onPress={() => handleAllAgree(!agreement.all)}>
                 {agreement.all ? (
-                  <AntDesign
-                    name="checkcircleo"
-                    size={24}
-                    color={colors.BLACK}
-                  />
+                  <AntDesign name="check" size={24} color={colors.BLACK} />
                 ) : (
                   <Ionicons
                     name="ellipse-outline"
@@ -160,7 +161,7 @@ const index: React.FC = () => {
       <Button
         text="인증 코드 생성하기"
         color={canProceed ? "pink" : "gray"}
-        onPress={() => {}}
+        onPress={handleProceed}
         disabled={!canProceed}
       />
 
