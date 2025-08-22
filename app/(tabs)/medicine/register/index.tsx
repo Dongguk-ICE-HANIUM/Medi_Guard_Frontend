@@ -1,3 +1,4 @@
+import Button from "@/components/Button";
 import { colors } from "@/constants";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -56,21 +57,8 @@ const Register = () => {
         </View>
       </View>
 
-      <View style={styles.bottomContainer}>
-        <Pressable
-          onPress={handleNext}
-          disabled={!selectedMethod}
-          style={[styles.nextButton, !selectedMethod && styles.disabledButton]}
-        >
-          <Text
-            style={[
-              styles.nextButtonText,
-              !selectedMethod && styles.disabledButtonText,
-            ]}
-          >
-            다음
-          </Text>
-        </Pressable>
+      <View style={styles.button}>
+        <Button text="다음" onPress={handleNext} disabled={!selectedMethod} />
       </View>
     </View>
   );
@@ -80,13 +68,13 @@ export default Register;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
-    paddingVertical: 30,
     justifyContent: "space-between",
     flex: 1,
   },
   content: {
     flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 30,
     justifyContent: "center",
   },
   title: {
@@ -130,26 +118,7 @@ const styles = StyleSheet.create({
     color: colors.BLACK,
     fontWeight: "600",
   },
-  bottomContainer: {
-    paddingTop: 20,
-  },
-  nextButton: {
-    width: "100%",
-    height: 50,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.PINK,
-  },
-  disabledButton: {
-    backgroundColor: colors.LIGHT_GRAY,
-  },
-  nextButtonText: {
-    fontSize: 18,
-    color: colors.BLACK,
-    fontWeight: "600",
-  },
-  disabledButtonText: {
-    color: colors.TEXT_GRAY || "#999",
+  button: {
+    marginBottom: 15,
   },
 });

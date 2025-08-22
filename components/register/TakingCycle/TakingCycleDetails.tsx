@@ -1,41 +1,84 @@
 import { colors } from "@/constants";
 import { TakingType } from "@/types/medication";
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import NumberInput from "./NumberInput";
+import NumberInput from "../NumberInput";
+import SpecificDate from "./SpecificDate";
 
 interface TakingCycleDetailsProps {
   takingType: TakingType;
   interval?: number;
   particularDate?: string[];
+  selectedDays?: string[];
   onIntervalChange?: (interval: number) => void;
   onParticularDateChange?: (dates: string[]) => void;
+  onSelectedDaysChange?: (days: string[]) => void;
+  onIsActiveChange?: (isActive: boolean) => void;
+  errors?: string[];
+  showError?: boolean;
+  startAt?: string;
+  endAt?: string;
 }
 
 const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
   takingType,
   interval = 1,
   particularDate = [],
+  selectedDays = [],
   onIntervalChange,
   onParticularDateChange,
+  onSelectedDaysChange,
+  onIsActiveChange,
+  errors = [],
+  showError = false,
+  startAt,
+  endAt,
 }) => {
   const WEEKDAYS = ["월", "화", "수", "목", "금", "토", "일"];
+  const hasError = showError && errors.length > 0;
+
+  useEffect(() => {
+    if (takingType === TakingType.NEED) {
+      onIsActiveChange?.(false);
+      console.log("보류 처리 완료", onIsActiveChange);
+    }
+  }, [takingType]);
+
+  // TakingCycleDetails 디버깅 코드
+  console.log("TakingCycleDetails - errors:", errors);
+  console.log("TakingCycleDetails - showError:", showError);
+  console.log("TakingCycleDetails - hasError:", hasError);
 
   const renderSpecificInterval = () => (
-    <View style={styles.detailContainer}>
-      <Text style={styles.detailTitle}>첫 복용일부터</Text>
-      <NumberInput
-        title=""
-        description=""
-        value={interval}
-        unit="일"
-        min={1}
-        max={365}
-        step={1}
-        onValueChange={(value) => onIntervalChange?.(value)}
-        compact={true}
-      />
-      <Text style={styles.detailTitle}>간격으로 복용</Text>
+    <View>
+      <View style={styles.detailContainer}>
+        <View style={styles.intervalContainer}>
+          <Text style={styles.detailTitle}>첫 복용일부터</Text>
+          <NumberInput
+            title=""
+            description=""
+            value={interval}
+            unit="일"
+            min={1}
+            max={365}
+            step={1}
+            onValueChange={(value) => onIntervalChange?.(value)}
+            compact={true}
+          />
+          <Text style={styles.detailTitle}>간격으로 복용</Text>
+        </View>
+      </View>
+      {hasError && (
+        <Text
+          style={{
+            color: colors.RED,
+            textAlign: "center",
+            padding: 2,
+          }}
+        >
+          {errors.join(", ")}
+        </Text>
+      )}
     </View>
   );
 
@@ -43,7 +86,7 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
     <View style={styles.detailContainer}>
       <View style={styles.weekdayContainer}>
         {WEEKDAYS.map((day) => {
-          const isSelected = particularDate.includes(day);
+          const isSelected = selectedDays.includes(day);
           return (
             <TouchableOpacity
               key={day}
@@ -52,10 +95,10 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
                 isSelected && styles.selectedWeekday,
               ]}
               onPress={() => {
-                const newDates = isSelected
-                  ? particularDate.filter((d) => d !== day)
-                  : [...particularDate, day];
-                onParticularDateChange?.(newDates);
+                const newDays = isSelected
+                  ? selectedDays.filter((d) => d !== day)
+                  : [...selectedDays, day];
+                onSelectedDaysChange?.(newDays);
               }}
             >
               <Text
@@ -70,20 +113,39 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
           );
         })}
       </View>
+      {hasError && (
+        <Text
+          style={{
+            color: colors.RED,
+            marginTop: 15,
+          }}
+        >
+          {errors.join(", ")}
+        </Text>
+      )}
     </View>
   );
 
   const renderSpecificDate = () => (
-    <View style={styles.detailContainer}>
-      <Text style={styles.detailTitle}>
-        특정 날짜 선택 기능은 캘린더에서 설정할 수 있습니다.
-      </Text>
-    </View>
-  );
-
-  const renderNeed = () => (
-    <View style={styles.detailContainer}>
-      <Text style={styles.detailTitle}>필요할 때마다 복용하시면 됩니다.</Text>
+    <View style={styles.dateContainer}>
+      {hasError && (
+        <Text
+          style={{
+            color: colors.RED,
+            textAlign: "center",
+            paddingTop: 10,
+            paddingBottom: 5,
+          }}
+        >
+          {errors.join(", ")}
+        </Text>
+      )}
+      <SpecificDate
+        dates={particularDate}
+        onChange={(dates) => onParticularDateChange?.(dates)}
+        startAt={startAt}
+        endAt={endAt}
+      />
     </View>
   );
 
@@ -96,7 +158,7 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
       case TakingType.SPECIFIC_DATE:
         return renderSpecificDate();
       case TakingType.NEED:
-        return renderNeed();
+        return null;
       default:
         return null;
     }
@@ -110,7 +172,7 @@ export default TakingCycleDetails;
 const styles = StyleSheet.create({
   detailContainer: {
     padding: 15,
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "space-between",
   },
@@ -169,7 +231,7 @@ const styles = StyleSheet.create({
   },
   selectedWeekday: {
     backgroundColor: colors.PINK + "60",
-    borderColor: colors.BLACK,
+    borderColor: colors.PINK,
   },
   weekdayText: {
     fontSize: 14,
@@ -177,4 +239,5 @@ const styles = StyleSheet.create({
     color: colors.BLACK,
   },
   selectedWeekdayText: {},
+  dateContainer: {},
 });

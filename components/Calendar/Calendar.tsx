@@ -1,6 +1,7 @@
 import { colors } from "@/constants";
-import { useCalendar } from "@/hooks/useCalendar";
+import { useCalendarContext } from "@/context/CalendarContext";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import React, { useEffect } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -13,8 +14,8 @@ import TagsContainer from "../tag/TagsContainer";
 export default function Calendar() {
   const {
     calendarData,
-    loading,
-    error,
+    loading: calendarLoading,
+    error: calendarError,
     currentDate,
     changeMonth,
     getDayStatus,
@@ -24,7 +25,21 @@ export default function Calendar() {
 
     selectedDate,
     setSelectedDate,
-  } = useCalendar();
+  } = useCalendarContext();
+
+  useEffect(() => {
+    if (selectedDate) {
+      const selectedMonth = selectedDate.getMonth();
+      const selectedYear = selectedDate.getFullYear();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+
+      // 선택된 날짜가 현재 표시중인 달과 다를 때만 이동
+      if (selectedMonth !== currentMonth || selectedYear !== currentYear) {
+        setCurrentDate(new Date(selectedYear, selectedMonth, 1));
+      }
+    }
+  }, [selectedDate]);
 
   const getDaysInMonth = (date: Date): number => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -51,12 +66,14 @@ export default function Calendar() {
   ): React.ReactNode => {
     const tags = getTagsForDay(dayIndex);
 
+    const cellDate = new Date();
+    cellDate.setFullYear(currentDate.getFullYear());
+    cellDate.setMonth(currentDate.getMonth());
+    cellDate.setDate(day);
+    cellDate.setHours(12, 0, 0, 0);
+
     const today = new Date();
-    const cellDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day
-    );
+    today.setHours(12, 0, 0, 0);
     const isToday = today.toDateString() === cellDate.toDateString();
     const isSelectd = selectedDate?.toDateString() === cellDate.toDateString();
 
@@ -70,6 +87,8 @@ export default function Calendar() {
         ]}
         onPress={() => {
           setSelectedDate(cellDate);
+          const dateString = cellDate.toISOString().split("T")[0];
+          console.log(`날짜 선택 : ${dateString}`);
         }}
       >
         {isToday ? (
@@ -127,7 +146,7 @@ export default function Calendar() {
     return days;
   };
 
-  if (loading) {
+  if (calendarLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="colors.PINK" />
@@ -135,7 +154,7 @@ export default function Calendar() {
     );
   }
 
-  if (error) {
+  if (calendarError) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>
@@ -213,7 +232,7 @@ const styles = StyleSheet.create({
     width: "14.28%",
     alignItems: "center",
     paddingVertical: 4,
-    minHeight: 40,
+    minHeight: 50,
     justifyContent: "flex-start",
   },
 
@@ -232,7 +251,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     opacity: 0.8,
   },
-  selectedContainer: {},
+  selectedContainer: {
+    backgroundColor: colors.PINK + "40",
+    borderRadius: 8,
+  },
   prevDayContainer: {
     width: "14.28%",
     alignItems: "center",

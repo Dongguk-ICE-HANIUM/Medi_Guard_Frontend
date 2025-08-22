@@ -1,8 +1,5 @@
-import {
-  Medication,
-  SelectedMedicineInfo,
-  TakingType,
-} from "@/types/medication";
+import { Medication, MedicineInfo, TakingType } from "@/types/medication";
+import { convertBinaryToDays, convertDaysToBinary } from "@/utils/dateUtils";
 import { useState } from "react";
 
 // 상수 정의
@@ -10,25 +7,21 @@ const VALID_DAYS = ["월", "화", "수", "목", "금", "토", "일"] as const;
 const MAX_INTERVAL = 365;
 
 // 기본값
-const MEDICATION_DEFAULTS: Omit<Medication, "id" | "name"> = {
+const MEDICATION_DEFAULTS: Omit<Medication, "id" | "medicineInfo"> = {
   startAt: "",
   endAt: "",
-  takingType: TakingType.DAILY,
-  interval: 1,
+  takingType: TakingType.UNSELECTED,
+  interval: 0,
   particularDate: [],
   perDay: 1,
   amount: 1.0,
   isActive: true,
   groupName: "",
+  notifiTakingList: [],
 };
 
-// 날짜 비교 유틸리티 함수
-const isDateRangeValid = (startAt: string, endAt: string): boolean => {
-  if (!startAt || !endAt) return true;
-  const startDate = new Date(startAt);
-  const endDate = new Date(endAt);
-  return startDate <= endDate;
-};
+type ExtraErrorKeys = "dateRange" | "takingTypeRequired";
+export type FieldKey = keyof Medication | ExtraErrorKeys;
 
 const isDateInRange = (
   dateStr: string,
@@ -41,115 +34,173 @@ const isDateInRange = (
   const endDate = new Date(endAt);
   return date >= startDate && date <= endDate;
 };
+const requireDateRange = (med: Medication): string[] => {
+  const errors: string[] = [];
+  if (!med.startAt || !med.endAt) {
+    errors.push("복용 기간을 설정해주세요.");
+  }
+  return errors;
+};
+
+const requireTakingType = (med: Medication): string[] => {
+  const errors: string[] = [];
+  if (!med.takingType || med.takingType === TakingType.UNSELECTED) {
+    errors.push("복용 주기를 선택해주세요.");
+  }
+  return errors;
+};
 
 // 초기 약물 데이터 생성
 export const createInitialMedication = (
-  medicineInfo: SelectedMedicineInfo
+  medicineInfo: MedicineInfo
 ): Medication => ({
   ...MEDICATION_DEFAULTS,
   id: medicineInfo.id,
-  name: medicineInfo.name,
+  medicineInfo: medicineInfo,
 });
 
 // 약물데이터 유효성 검사
-export const validateField = (
-  med: Medication,
-  field: keyof Medication
-): string[] => {
+export const validateField = (med: Medication, field: FieldKey): string[] => {
   const errors: string[] = [];
 
   switch (field) {
-    case "startAt":
-      if (!med.startAt) {
-        errors.push("복용 시작일이 필요합니다.");
-      }
-      break;
-    case "endAt":
-      if (!med.endAt) {
-        errors.push("복용 종료일이 필요합니다.");
-      }
-      if (!isDateRangeValid(med.startAt, med.endAt)) {
-        errors.push("종료일은 시작일 이후여야 합니다.");
-      }
-      break;
+    case "dateRange":
+      return requireDateRange(med);
+    case "takingTypeRequired":
+      return requireTakingType(med);
+
     case "takingType":
-      if (!med.takingType) {
-        errors.push("복용 주기가 필요합니다.");
-      } else {
-        switch (med.takingType) {
-          case TakingType.DAILY:
-            break;
-          case TakingType.SPECIFIC_INTERVAL:
-            if (!med.interval || med.interval < 1) {
-              errors.push(
-                "특정 날짜 간격으로 복용할 경우, 간격(일 수)을 입력해주세요."
-              );
-            }
-            if (med.interval > MAX_INTERVAL) {
-              errors.push(`간격은 ${MAX_INTERVAL}일을 초과할 수 없습니다.`);
-            }
-            break;
-          case TakingType.SPECIFIC_DAY:
-            if (!med.particularDate || med.particularDate.length === 0) {
-              errors.push("복용할 요일을 선택해주세요.");
-            }
-            const invalidDays = med.particularDate?.filter(
-              (day) => !VALID_DAYS.includes(day as (typeof VALID_DAYS)[number])
+      switch (med.takingType) {
+        case TakingType.DAILY:
+          break;
+        case TakingType.SPECIFIC_INTERVAL:
+          if (med.interval < 1) {
+            errors.push("복용 간격을 1일 이상으로 설정해주세요.");
+          }
+          if (med.interval > MAX_INTERVAL) {
+            errors.push(`간격은 ${MAX_INTERVAL}일을 초과할 수 없습니다.`);
+          }
+          break;
+        case TakingType.SPECIFIC_DAY:
+          if (med.interval === 0) {
+            errors.push("복용할 요일을 선택해주세요.");
+          }
+          break;
+        case TakingType.SPECIFIC_DATE:
+          if (!med.particularDate || med.particularDate.length === 0) {
+            errors.push(
+              "특정 날짜 복용 시 최소 하나 이상의 날짜를 선택해주세요."
             );
-            if (invalidDays && invalidDays.length > 0) {
-              errors.push("올바르지 않은 요일이 선택되었습니다.");
+          }
+          if (med.particularDate && med.startAt && med.endAt) {
+            const outOfRange = med.particularDate.filter(
+              (dateStr) => !isDateInRange(dateStr, med.startAt, med.endAt)
+            );
+            if (outOfRange.length > 0) {
+              errors.push("복용 기간 내에서 날짜를 선택해주세요.");
             }
-            break;
-          case TakingType.SPECIFIC_DATE:
-            if (!med.particularDate || med.particularDate.length === 0) {
-              errors.push(
-                "특정 날짜 복용 시 최소 하나 이상의 날짜를 선택해주세요."
-              );
-            }
-            if (med.particularDate && med.startAt && med.endAt) {
-              const outOfRange = med.particularDate.filter(
-                (dateStr) => !isDateInRange(dateStr, med.startAt, med.endAt)
-              );
-              if (outOfRange.length > 0) {
-                errors.push("복용 기간 내에서 날짜를 선택해주세요.");
-              }
-            }
-            break;
-          case TakingType.NEED:
-            break;
-          default:
-            errors.push("복용 주기를 선택해주세요.");
-        }
+          }
+          break;
+        case TakingType.NEED:
+          break;
       }
+      break;
+
+    case "medicineInfo":
+    case "notifiTakingList":
+      // 이 필드들은 유효성 검사가 필요하지 않음
+      break;
+
+    default:
+      // 다른 필드들에 대한 기본 검사
       break;
   }
   return errors;
 };
 
 export const validateMedication = (med: Medication): string[] => {
-  return (Object.keys(med) as (keyof Medication)[]).flatMap((field) =>
+  const byField = (Object.keys(med) as (keyof Medication)[]).flatMap((field) =>
     validateField(med, field)
   );
+
+  const cross = [
+    ...validateField(med, "dateRange"),
+    ...validateField(med, "takingTypeRequired"),
+  ];
+  return [...byField, ...cross];
 };
 
-export const useMedicationForm = (selected: SelectedMedicineInfo) => {
-  const [medication, setMedication] = useState<Medication>(
-    createInitialMedication(selected)
-  );
+export const useMedicationForm = (
+  selected: MedicineInfo,
+  initialValues?: Partial<Medication>
+) => {
+  const [medication, setMedication] = useState<Medication>(() => {
+    const baseMedication = createInitialMedication(selected);
+    if (initialValues) {
+      return { ...baseMedication, ...initialValues };
+    }
+    return baseMedication;
+  });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [submitted, setSubmitted] = useState(false);
+
+  const getSelectedDays = (): string[] => {
+    if (medication.takingType === TakingType.SPECIFIC_DAY) {
+      return convertBinaryToDays(medication.interval);
+    }
+    return [];
+  };
+
+  const updateSelectedDays = (days: string[]) => {
+    const binaryValue = convertDaysToBinary(days);
+    updateField("interval", binaryValue);
+  };
 
   const updateField = <K extends keyof Medication>(
     field: K,
     value: Medication[K]
   ) => {
-    const newMedication = { ...medication, [field]: value };
-    setMedication(newMedication);
+    setMedication((prevMedication) => {
+      const next = { ...prevMedication, [field]: value };
 
-    const fieldErrors = validateField(newMedication, field);
-    setErrors((prev) => ({ ...prev, [field]: fieldErrors }));
+      if (field === "takingType") {
+        if (value === TakingType.SPECIFIC_DAY) {
+          next.interval = 0;
+        } else if (value === TakingType.SPECIFIC_INTERVAL) {
+          next.interval = 0;
+        }
+      }
+
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [field]: validateField(next, field),
+
+        dateRange:
+          field === "startAt" || field === "endAt"
+            ? validateField(next, "dateRange")
+            : prevErrors.dateRange || [],
+
+        takingTypeRequired:
+          field === "takingType"
+            ? validateField(next, "takingTypeRequired")
+            : prevErrors.takingTypeRequired || [],
+
+        interval:
+          field === "takingType" || field === "interval"
+            ? validateField(next, "interval")
+            : prevErrors.interval || [],
+
+        particularDate:
+          field === "takingType" || field === "particularDate"
+            ? validateField(next, "particularDate")
+            : prevErrors.particularDate || [],
+      }));
+      return next;
+    });
   };
 
   const validateForm = () => {
+    setSubmitted(true);
     const allErrors: Record<string, string[]> = {};
     let isValid = true;
 
@@ -160,6 +211,19 @@ export const useMedicationForm = (selected: SelectedMedicineInfo) => {
         allErrors[field] = fieldErrors;
       }
     });
+
+    const dateErr = validateField(medication, "dateRange");
+    if (dateErr.length > 0) {
+      isValid = false;
+      allErrors.dateRange = dateErr;
+    }
+
+    const takingTypeErr = validateField(medication, "takingTypeRequired");
+    if (takingTypeErr.length > 0) {
+      isValid = false;
+      allErrors.takingTypeRequired = takingTypeErr;
+    }
+
     setErrors(allErrors);
     return { isValid, errors: allErrors };
   };
@@ -167,6 +231,9 @@ export const useMedicationForm = (selected: SelectedMedicineInfo) => {
   return {
     medication,
     errors,
+    submitted,
+    getSelectedDays,
+    updateSelectedDays,
     updateField,
     validateField,
     validateForm,

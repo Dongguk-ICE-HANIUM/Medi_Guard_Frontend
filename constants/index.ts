@@ -12,7 +12,7 @@ const colors = {
   LIGHT_GRAY: "#EFF1F5",
   TEXT_GRAY: "#A09CAB",
 
-  BG_COLOR: "#F8F8F8",
+  BG_COLOR: "#F8F9FA",
 };
 
 const queryKey = {
