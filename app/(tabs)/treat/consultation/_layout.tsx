@@ -47,6 +47,30 @@ export default function RegisterLayout() {
           ),
         }}
       />
+      <Stack.Screen
+        name="result"
+        options={{
+          headerShown: true,
+          title: "병원 진료",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="chevron-back" size={24} color={"black"} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="emptyResult"
+        options={{
+          headerShown: true,
+          title: "병원 진료",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="chevron-back" size={24} color={"black"} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </Stack>
   );
 }

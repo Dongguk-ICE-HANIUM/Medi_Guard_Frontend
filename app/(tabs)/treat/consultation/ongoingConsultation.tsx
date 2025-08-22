@@ -1,8 +1,12 @@
 import Button from "@/components/Button";
+import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 const ongoingConsultation = () => {
+  const handlePress = () => {
+    router.push("/treat/consultation/result");
+  };
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -12,7 +16,7 @@ const ongoingConsultation = () => {
         </Text>
       </View>
       <View style={styles.buttonContainer}>
-        <Button text="오늘 진료 결과 보기" color="pink" onPress={() => {}} />
+        <Button text="오늘 진료 결과 보기" color="pink" onPress={handlePress} />
       </View>
     </View>
   );

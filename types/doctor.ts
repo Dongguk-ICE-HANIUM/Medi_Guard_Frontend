@@ -40,6 +40,7 @@ export interface AppointmentDetail extends AppointmentBase {
   diagnosis: string;
   guidance: string;
   warning: string;
+  isToday: boolean;
 }
 
 export type AppointmentDetailResponse = ApiResponse<AppointmentDetail>;
