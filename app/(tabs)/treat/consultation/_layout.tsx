@@ -8,7 +8,7 @@ export default function RegisterLayout() {
     <Stack
       screenOptions={{
         headerShown: true,
-        contentStyle: { backgroundColor: colors.WHITE, marginHorizontal: 13 },
+        contentStyle: { backgroundColor: colors.WHITE, paddingHorizontal: 13 },
       }}
     >
       <Stack.Screen

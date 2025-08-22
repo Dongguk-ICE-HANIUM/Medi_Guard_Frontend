@@ -17,7 +17,8 @@ import {
 } from "react-native";
 
 export default function TreatScreen() {
-  const { todayNext, history, consultation } = useAppointment();
+  const { todayNext, history, consultation, currentSchedule } =
+    useAppointment();
   const [isModal, setIsModal] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState<string>("");
   const [filterEndDate, setFilterEndDate] = useState<string>("");
@@ -123,24 +124,21 @@ export default function TreatScreen() {
   const handleStartPress = () => {
     if (todayNext.nextAppointment) {
       consultation.startConsultation(todayNext.nextAppointment.scheduleId);
+      // 현재 진행 중인 진료 ID 설정
+      currentSchedule.setCurrentScheduleId(
+        todayNext.nextAppointment.scheduleId
+      );
       // 진료 시작 페이지로 이동
-      router.push({
-        pathname: "/treat/consultation",
-        params: {
-          scheduleId: todayNext.nextAppointment.scheduleId.toString(),
-        },
-      });
+      router.push("/treat/consultation");
     }
   };
 
   const handleDetailPress = (scheduleId: number) => {
     console.log(`진료 상세 페이지로 이동 : ${scheduleId}`);
-    router.push({
-      pathname: "/treat/detail",
-      params: {
-        scheduleId: scheduleId,
-      },
-    });
+    // 현재 진행 중인 진료 ID 설정 (isToday가 false인 경우)
+    currentSchedule.setCurrentScheduleId(scheduleId);
+    // 진료 결과 페이지로 이동
+    router.push("/treat/consultation/result");
   };
 
   if (todayNext.loading && history.loading) {

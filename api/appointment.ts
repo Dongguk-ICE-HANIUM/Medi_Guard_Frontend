@@ -197,8 +197,9 @@ const mockAppointmentDetails: { [key: number]: AppointmentDetailResponse } = {
       symptom: "복통이 있음, 어지러움 동반",
       diagnosis: "태아성장 상태 정상, 철분제 복용 시작 권장",
       guidance:
-        "철분제는 다음 주부터 하루 1회 복용하시고, 충분한 수면을 취하시기 바랍니다.",
+        "철분제는 다음 주부터 하루 1회 식후 복용하시고, 충분한 수면을 취하시기 바랍니다. 또한 규칙적인 식사와 함께 복용하시면 더욱 효과적입니다. 복용 후 30분 정도는 누워있지 마시고, 가벼운 산책을 권장합니다.",
       warning: "무리가 되는 운동 금지",
+      isToday: true,
     },
   },
   2: {
@@ -211,8 +212,10 @@ const mockAppointmentDetails: { [key: number]: AppointmentDetailResponse } = {
       datetime: "2025-04-27T10:00:00",
       symptom: "입덧 심화, 식욕부진",
       diagnosis: "임신 초기 정상적인 증상, 영양제 처방",
-      guidance: "소량씩 자주 섭취하시고, 생강차가 도움이 될 수 있습니다.",
+      guidance:
+        "소량씩 자주 섭취하시고, 생강차가 도움이 될 수 있습니다. 특히 아침에 일어나자마자 가벼운 간식을 드시고, 식사 시간을 정해두시면 입덧 증상이 완화될 수 있습니다. 탈수 방지를 위해 충분한 수분 섭취도 중요합니다.",
       warning: "탈수 증상 발생 시 즉시 병원 방문",
+      isToday: false,
     },
   },
   3: {
@@ -225,8 +228,10 @@ const mockAppointmentDetails: { [key: number]: AppointmentDetailResponse } = {
       datetime: "2025-04-10T10:00:00",
       symptom: "요통, 다리 부종",
       diagnosis: "임신 중기 일반적 증상, 압박스타킹 착용 권장",
-      guidance: "적절한 휴식과 다리 올리기, 가벼운 스트레칭을 권장합니다.",
+      guidance:
+        "적절한 휴식과 다리 올리기, 가벼운 스트레칭을 권장합니다. 특히 압박스타킹은 아침에 일어나자마자 착용하시고, 취침 전에 벗으시면 됩니다. 다리 부종이 심할 때는 소금 섭취를 줄이고, 다리를 심장보다 높게 올려두시면 도움이 됩니다.",
       warning: "심한 부종 시 즉시 연락",
+      isToday: false,
     },
   },
   4: {
@@ -240,8 +245,9 @@ const mockAppointmentDetails: { [key: number]: AppointmentDetailResponse } = {
       symptom: "정기검진",
       diagnosis: "모든 수치 정상, 건강한 임신 진행 중",
       guidance:
-        "현재 상태가 매우 좋습니다. 균형잡힌 식단과 적절한 운동을 지속해주세요.",
+        "현재 상태가 매우 좋습니다. 균형잡힌 식단과 적절한 운동을 지속해주세요. 특히 단백질이 풍부한 식품과 신선한 채소, 과일을 충분히 섭취하시고, 하루 30분 정도의 가벼운 산책이나 임신 요가를 권장합니다. 규칙적인 생활 리듬을 유지하시면 더욱 건강한 임신을 유지할 수 있습니다.",
       warning: "특별한 주의사항 없음",
+      isToday: false,
     },
   },
 };

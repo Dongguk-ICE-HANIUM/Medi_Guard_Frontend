@@ -18,7 +18,7 @@ export default function TreatLayout() {
           title: "병원 진료",
           contentStyle: {
             paddingHorizontal: 13,
-            backgroundColor: colors.WHITE,
+            backgroundColor: colors.BG_COLOR,
           },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()}>

@@ -25,6 +25,9 @@ interface AppointmentState {
   consultationCode: string | null;
   consultationLoading: boolean;
   consultationError: string | null;
+
+  //현재 진행 중인 진료
+  currentScheduleId: number | null;
 }
 
 type AppointmentAction =
@@ -41,7 +44,9 @@ type AppointmentAction =
   | { type: "START_CONSULTATION" }
   | { type: "START_CONSULTATION_SUCCESS"; payload: string }
   | { type: "START_CONSULTATION_ERROR"; payload: string }
-  | { type: "CLEAR_CONSULTATION_CODE" };
+  | { type: "CLEAR_CONSULTATION_CODE" }
+  | { type: "SET_CURRENT_SCHEDULE_ID"; payload: number }
+  | { type: "CLEAR_CURRENT_SCHEDULE_ID" };
 
 const initialState: AppointmentState = {
   nextAppointment: null,
@@ -59,6 +64,8 @@ const initialState: AppointmentState = {
   consultationCode: null,
   consultationLoading: false,
   consultationError: null,
+
+  currentScheduleId: null,
 };
 
 const appointmentReducer = (
@@ -158,6 +165,16 @@ const appointmentReducer = (
         consultationCode: null,
         consultationLoading: false,
         consultationError: null,
+      };
+    case "SET_CURRENT_SCHEDULE_ID":
+      return {
+        ...state,
+        currentScheduleId: action.payload,
+      };
+    case "CLEAR_CURRENT_SCHEDULE_ID":
+      return {
+        ...state,
+        currentScheduleId: null,
       };
     default:
       return state;

@@ -191,17 +191,38 @@ export const useStartConsultation = () => {
   };
 };
 
+// 현재 진행 중인 진료 관리
+export const useCurrentSchedule = () => {
+  const { state, dispatch } = useAppointmentContext();
+
+  const setCurrentScheduleId = useCallback((scheduleId: number) => {
+    dispatch({ type: "SET_CURRENT_SCHEDULE_ID", payload: scheduleId });
+  }, [dispatch]);
+
+  const clearCurrentScheduleId = useCallback(() => {
+    dispatch({ type: "CLEAR_CURRENT_SCHEDULE_ID" });
+  }, [dispatch]);
+
+  return {
+    currentScheduleId: state.currentScheduleId,
+    setCurrentScheduleId,
+    clearCurrentScheduleId,
+  };
+};
+
 // 통합
 export const useAppointment = () => {
   const todayNext = useNextAppointment();
   const history = useAppointmentHistory();
   const detail = useAppointmentDetail();
   const consultation = useStartConsultation();
+  const currentSchedule = useCurrentSchedule();
 
   return {
     todayNext,
     history,
     detail,
     consultation,
+    currentSchedule,
   };
 };

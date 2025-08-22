@@ -5,7 +5,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 const code = () => {
   const handlePress = () => {
-    router.push("/treat/consultation/emptyResult");
+    router.push("/treat/consultation/ongoingConsultation");
   };
   return (
     <View style={styles.container}>
