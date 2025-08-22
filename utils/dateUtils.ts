@@ -1,3 +1,5 @@
+import { FormattedDateTime } from "@/types/doctor";
+
 //YYYY.MM.DD
 export const formatDateDot = (date: Date): string => {
   const year = date.getFullYear();
@@ -59,7 +61,7 @@ export const convertBinaryToDays = (binary: number): string[] => {
   return days;
 };
 
-// 복용 시간대 배열을 이진법으로 변환 (예: [0, 2] -> 5)
+// 복용 횟수 배열을 이진법으로 변환
 export const convertTimeSlotsToBinary = (timeSlots: number[]): number => {
   let binary = 0;
   timeSlots.forEach((slot) => {
@@ -68,7 +70,7 @@ export const convertTimeSlotsToBinary = (timeSlots: number[]): number => {
   return binary;
 };
 
-// 이진법을 복용 시간대 배열로 변환 (예: 5 -> [0, 2])
+// 이진법을 복용 횟수 배열로 변환
 export const convertBinaryToTimeSlots = (binary: number): number[] => {
   const timeSlots: number[] = [];
   let temp = binary;
@@ -83,4 +85,56 @@ export const convertBinaryToTimeSlots = (binary: number): number[] => {
   }
 
   return timeSlots;
+};
+
+//병원 진료용 날짜 데이터 전송
+export const formatAppointmentDate = (isoString: string): FormattedDateTime => {
+  const date = new Date(isoString);
+  const now = new Date();
+
+  const isToday = date.toDateString() === now.toDateString();
+
+  const dateString = formatDateDot(date);
+
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const timeString = `${hours}:${minutes}`;
+
+  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+  const dayOfWeek = dayNames[date.getDay()];
+
+  return {
+    date: dateString,
+    time: timeString,
+    dayOfWeek,
+    isToday,
+  };
+};
+
+//년.월.일 (요일) 시간 형식
+export const formatAppointmentDisplay = (isoString: string): string => {
+  const formatted = formatAppointmentDate(isoString);
+  return `${formatted.date} (${formatted.dayOfWeek}) ${formatted.time}`;
+};
+
+//진료 시작까지 남은 시간 계산
+export const getTimeUntilAppointment = (isoString: string): string | null => {
+  const appoinmentTime = new Date(isoString);
+  const now = new Date();
+
+  if (appoinmentTime <= now) {
+    return null;
+  }
+  const diffMs = appoinmentTime.getTime() - now.getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffDays > 0) {
+    return `${diffDays}일 전`;
+  } else if (diffHours > 0) {
+    return `${diffHours}시간 전`;
+  } else {
+    return `${diffMinutes}분 전`;
+  }
 };

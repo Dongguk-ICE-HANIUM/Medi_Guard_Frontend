@@ -7,7 +7,7 @@ import TakingCycle from "@/components/register/TakingCycle/TakingCycle";
 import TakingCycleDetails from "@/components/register/TakingCycle/TakingCycleDetails";
 import Group from "@/components/register/group/Group";
 import { colors } from "@/constants";
-import { DEV_SELECTED_MEDICINE } from "@/data/mockMedicine";
+
 import { useMedicationForm } from "@/hooks/useMedicationForm";
 import { Medication, MedicineInfo, TakingType } from "@/types/medication";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -18,10 +18,20 @@ export interface registerFormProps {
   selected: MedicineInfo;
   onSubmit?: (medication: Medication) => void;
 }
-const registerForm = ({
-  selected = DEV_SELECTED_MEDICINE,
-  onSubmit,
-}: registerFormProps) => {
+const registerForm = ({ selected, onSubmit }: registerFormProps) => {
+  // selected가 없을 때 기본값 설정
+  const defaultMedicineInfo: MedicineInfo = {
+    id: "default",
+    name: "새로운 약물",
+    code: "",
+    effect: "",
+    warning: "",
+    sideEffect: "",
+    interaction: "",
+    deposit_method: "",
+  };
+
+  const medicineInfo = selected || defaultMedicineInfo;
   const router = useRouter();
   const params = useLocalSearchParams<{
     mode?: string;
@@ -60,7 +70,7 @@ const registerForm = ({
     validateForm,
     getSelectedDays,
     updateSelectedDays,
-  } = useMedicationForm(selected, getInitialValues());
+  } = useMedicationForm(medicineInfo, getInitialValues());
 
   // 그룹에서 약물 해제 처리
   const handleRemoveFromGroup = async () => {
@@ -139,7 +149,7 @@ const registerForm = ({
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.nameContainer}>
-        <Text style={styles.name}>{selected.name}</Text>
+        <Text style={styles.name}>{medicineInfo.name}</Text>
       </View>
       <View>
         <DateRange
