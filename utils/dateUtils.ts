@@ -21,6 +21,19 @@ export const formatDateSlash = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+//년 월 일
+export const formatDateKor = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  return `${year}년 ${month}월 ${day}일`;
+};
+
+export const formatDateStringKor = (dateString: string): string => {
+  const date = new Date(dateString);
+  return formatDateKor(date);
+};
+
 //요일을 이진법으로
 export const convertDaysToBinary = (selectedDays: string[]): number => {
   let binary = 0;

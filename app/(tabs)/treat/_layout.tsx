@@ -16,6 +16,10 @@ export default function TreatLayout() {
         options={{
           headerShown: true,
           title: "병원 진료",
+          contentStyle: {
+            paddingHorizontal: 13,
+            backgroundColor: colors.BG_COLOR,
+          },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()}>
               <Ionicons name="chevron-back" size={24} color={"black"} />
