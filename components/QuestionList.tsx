@@ -1,4 +1,4 @@
-import { QuestionType } from "@/types/questioin";
+import { question, QuestionType } from "@/types/question";
 import { View } from "react-native";
 import QuestionItem from "./QuestionItem";
 
@@ -10,7 +10,7 @@ interface RandomQuestionProps {
 
 interface QuestionListProps {
   isEditing: boolean;
-  todayQuestions: RandomQuestionProps[];
+  todayQuestions?: question[];
 }
 
 export default function QuestionList({
@@ -19,11 +19,11 @@ export default function QuestionList({
 }: QuestionListProps) {
   return (
     <View>
-      {todayQuestions.map((questionData) => (
+      {todayQuestions?.map((questionData) => (
         <QuestionItem
           key={questionData.id}
           id={questionData.id}
-          data={{ question: questionData.question }}
+          data={{ question: questionData.answer }}
           isEditing={isEditing}
         />
       ))}

@@ -1,12 +1,12 @@
-import { updateEmotion } from "@/api/emotion";
 import queryClient from "@/api/queryClient";
+import { updateQuestion } from "@/api/question";
 import { queryKey } from "@/constants";
 import { useMutation } from "@tanstack/react-query";
 import dayjs from "dayjs";
 
 function useUpdateQuestion() {
   return useMutation({
-    mutationFn: updateEmotion,
+    mutationFn: updateQuestion,
     onSuccess: () => {
       const today = dayjs().format("YYYY-MM-DD");
       queryClient.invalidateQueries({
