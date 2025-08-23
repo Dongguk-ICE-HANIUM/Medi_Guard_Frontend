@@ -1,3 +1,5 @@
+import { ApiResponse } from "./api";
+
 export enum TakingType {
   UNSELECTED = "UNSELECTED", //null 허용안하기 위해서 추가
   DAILY = "DAILY",
@@ -61,21 +63,17 @@ export interface Drug {
   missedDaysCount: number;
 }
 
-export interface DrugGroupResponse {
-  errorCode: string | null;
-  message: string;
-  result: {
-    drugGroupList: DrugGroup[];
-  };
+export interface DrugGroupResult {
+  drugGroupList: DrugGroup[];
 }
 
-export interface DrugResponse {
-  errorCode: string | null;
-  message: string;
-  result: {
-    drugList: Drug[];
-  };
+export type DrugGroupResponse = ApiResponse<DrugGroupResult>;
+
+export interface DrugResult {
+  drugList: Drug[];
 }
+
+export type DrugResponse = ApiResponse<DrugResult>;
 
 export interface ApiErrorResponse {
   errorCode: string;
@@ -88,13 +86,11 @@ export interface NotifiTaking {
   isActive: boolean;
 }
 
-export interface NotifiTakingResponse {
-  errorCode: string;
-  message: string;
-  result: {
-    NotifiTakingList: NotifiTaking[];
-  };
+export interface NotifiTakingResult {
+  NotifiTakingList: NotifiTaking[];
 }
+
+export type NotifiTakingResponse = ApiResponse<NotifiTakingResult>;
 
 // 디테일 페이지용 약물 정보
 export interface DrugDetail {
@@ -120,8 +116,4 @@ export interface DrugDetail {
   groupId?: string;
 }
 
-export interface DrugDetailResponse {
-  errorCode: string | null;
-  message: string;
-  result: DrugDetail | null;
-}
+export type DrugDetailResponse = ApiResponse<DrugDetail>;

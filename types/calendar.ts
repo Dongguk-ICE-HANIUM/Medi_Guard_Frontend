@@ -1,3 +1,5 @@
+import { ApiResponse } from "./api";
+
 export interface DayData {
   didTakePill: boolean;
   hasSideEffect: boolean;
@@ -5,10 +7,8 @@ export interface DayData {
   isScheduled: boolean;
 }
 
-export interface CalendarResponse {
-  errorCode: string | null;
-  message: string;
-  result: {
-    dateList: DayData[];
-  };
+export interface CalendarResult {
+  dateList: DayData[];
 }
+
+export type CalendarResponse = ApiResponse<CalendarResult>;
