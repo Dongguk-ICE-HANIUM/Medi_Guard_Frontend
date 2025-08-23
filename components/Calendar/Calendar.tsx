@@ -11,11 +11,7 @@ import {
 } from "react-native";
 import TagsContainer from "../tag/TagsContainer";
 
-type CalendarProps = {
-  onDateSelect?: (date: Date) => void;
-};
-
-export default function Calendar({ onDateSelect }: CalendarProps) {
+export default function Calendar() {
   const {
     calendarData,
     loading: calendarLoading,
@@ -26,6 +22,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
     getTagsForDay,
     refreshData,
     setCurrentDate,
+
     selectedDate,
     setSelectedDate,
   } = useCalendarContext();
@@ -44,26 +41,36 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
     }
   }, [selectedDate]);
 
-  const getDaysInMonth = (date: Date): number =>
-    new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const getDaysInMonth = (date: Date): number => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  };
 
-  const getFirstDayOfMonth = (date: Date): number =>
-    new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  const getFirstDayOfMonth = (date: Date): number => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  };
+  const getLastDayOfMonth = (date: Date): number => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDay();
+  };
 
-  const getLastDayOfMonth = (date: Date): number =>
-    new Date(date.getFullYear(), date.getMonth() + 1, 0).getDay();
+  const getPrevMonthLastDay = (date: Date): number => {
+    return new Date(date.getFullYear(), date.getMonth(), 0).getDate();
+  };
 
-  const getPrevMonthLastDay = (date: Date): number =>
-    new Date(date.getFullYear(), date.getMonth(), 0).getDate();
-
-  const formatMonthYear = (date: Date): string =>
-    `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
+  const formatMonthYear = (date: Date): string => {
+    return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
+  };
 
   const renderCalendarDay = (
     day: number,
     dayIndex: number
   ): React.ReactNode => {
     const tags = getTagsForDay(dayIndex);
+
+    const cellDate = new Date();
+    cellDate.setFullYear(currentDate.getFullYear());
+    cellDate.setMonth(currentDate.getMonth());
+    cellDate.setDate(day);
+    cellDate.setHours(12, 0, 0, 0);
 
     const today = new Date();
     today.setHours(12, 0, 0, 0);
@@ -142,7 +149,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
   if (calendarLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.PINK} />
+        <ActivityIndicator size="large" color="colors.PINK" />
       </View>
     );
   }
@@ -151,7 +158,8 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>
-          캘린더를 불러오는 중 오류가 발생했습니다.
+          {" "}
+          캘린더를 불러오는 중 오류가 발생했습니다.{" "}
         </Text>
         <TouchableOpacity onPress={refreshData} style={styles.retryButton}>
           <Text style={styles.retryText}>다시 시도</Text>
@@ -159,29 +167,30 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
       </View>
     );
   }
-
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => changeMonth(-1)}>
-          <MaterialIcons name="navigate-before" size={30} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.monthYear}>{formatMonthYear(currentDate)}</Text>
-        <TouchableOpacity onPress={() => changeMonth(1)}>
-          <MaterialIcons name="navigate-next" size={30} color="black" />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.calendarConatiner}>
-        <View style={styles.dayOfWeekContainer}>
-          {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
-            <Text key={day} style={styles.weekDay}>
-              {day}
-            </Text>
-          ))}
+    <>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => changeMonth(-1)}>
+            <MaterialIcons name="navigate-before" size={30} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.monthYear}>{formatMonthYear(currentDate)}</Text>
+          <TouchableOpacity onPress={() => changeMonth(1)}>
+            <MaterialIcons name="navigate-next" size={30} color="black" />
+          </TouchableOpacity>
         </View>
-        <View style={styles.calendarGrid}>{renderCalendarGrid()}</View>
+        <View style={styles.calendarConatiner}>
+          <View style={styles.dayOfWeekContainer}>
+            {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
+              <Text key={day} style={styles.weekDay}>
+                {day}
+              </Text>
+            ))}
+          </View>
+          <View style={styles.calendarGrid}>{renderCalendarGrid()}</View>
+        </View>
       </View>
-    </View>
+    </>
   );
 }
 
@@ -202,10 +211,12 @@ const styles = StyleSheet.create({
     fontSize: 19,
     lineHeight: 19,
   },
+
   calendarGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
   },
+
   calendarConatiner: { margin: 5 },
   dayOfWeekContainer: {
     flexDirection: "row",
@@ -216,6 +227,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     padding: 10,
   },
+
   dayContainer: {
     width: "14.28%",
     alignItems: "center",
@@ -223,6 +235,7 @@ const styles = StyleSheet.create({
     minHeight: 50,
     justifyContent: "flex-start",
   },
+
   dayNumber: {
     fontSize: 17,
     justifyContent: "flex-start",
@@ -253,6 +266,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: colors.TEXT_GRAY,
   },
+
   nextDayContainer: {
     width: "14.28%",
     alignItems: "center",
@@ -264,6 +278,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: colors.TEXT_GRAY,
   },
+  //추후 수정
   loadingContainer: {},
   errorContainer: {
     flex: 1,
@@ -271,11 +286,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     minHeight: 200,
   },
+
   errorText: {
     fontSize: 16,
     textAlign: "center",
     marginBottom: 10,
   },
+
   retryButton: {
     backgroundColor: colors.PINK,
     paddingHorizontal: 20,
