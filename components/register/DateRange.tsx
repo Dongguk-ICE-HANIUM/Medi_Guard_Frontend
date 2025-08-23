@@ -1,9 +1,10 @@
 import { colors } from "@/constants";
+import { formatDateStringDot } from "@/utils/dateUtils";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import CalendarModal from "../CalendarModal";
+import CalendarModal, { CalendarMode } from "../CalendarModal";
 
 export interface DateRangeProps {
   startAt: string;
@@ -11,6 +12,7 @@ export interface DateRangeProps {
   onStartChange: (date: string) => void;
   onEndChange: (date: string) => void;
   errors?: string[];
+  showError?: boolean;
 }
 
 const DateRange: React.FC<DateRangeProps> = ({
@@ -19,8 +21,10 @@ const DateRange: React.FC<DateRangeProps> = ({
   onStartChange,
   onEndChange,
   errors = [],
+  showError = false,
 }) => {
   const [isModal, setIsModal] = useState(false);
+  const hasError = showError && errors.length > 0;
 
   // 캘린더 모달에서 날짜 선택 후 호출
   const handleConfirm = (startDate: string, endDate: string) => {
@@ -39,15 +43,30 @@ const DateRange: React.FC<DateRangeProps> = ({
           color="red"
           style={{ marginLeft: 3 }}
         />
+        {hasError && (
+          <Text
+            style={{
+              color: colors.RED,
+              marginLeft: 5,
+              top: -1,
+            }}
+          >
+            {errors.join(", ")}
+          </Text>
+        )}
       </View>
       <View style={styles.dateContainer}>
         <View style={styles.startContainer}>
           <Text style={styles.start}>Start</Text>
-          <Text style={styles.startDate}>2025.04.15</Text>
+          <Text style={[styles.startDate, !startAt && styles.placeholderText]}>
+            {startAt ? formatDateStringDot(startAt) : "시작일을 선택해주세요"}
+          </Text>
         </View>
         <View style={styles.endContainer}>
           <Text style={styles.end}>End</Text>
-          <Text style={styles.endDate}>2025.04.30</Text>
+          <Text style={[styles.endDate, !endAt && styles.placeholderText]}>
+            {endAt ? formatDateStringDot(endAt) : "종료일 선택해주세요"}
+          </Text>
         </View>
 
         <View style={styles.calendar}>
@@ -60,9 +79,9 @@ const DateRange: React.FC<DateRangeProps> = ({
         </View>
       </View>
 
-      {/* ✅ CalendarModal 연결 */}
       <CalendarModal
         visible={isModal}
+        selectionMode={CalendarMode.RANGE} // **추가: RANGE 모드 명시**
         onClose={() => setIsModal(false)}
         onConfirm={handleConfirm}
         initialStartDate={startAt}
@@ -108,6 +127,10 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     fontSize: 19,
     fontWeight: "500",
+  },
+  placeholderText: {
+    color: colors.TEXT_GRAY,
+    fontSize: 15,
   },
   endContainer: {
     flex: 4,

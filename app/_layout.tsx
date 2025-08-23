@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import * as LocalAuthentication from "expo-local-authentication";
 import { router, Stack } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { View } from "react-native";
 import "react-native-reanimated";
 import Toast from "react-native-toast-message";
@@ -15,9 +15,10 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-  useEffect(() => {
-    if (loaded) checkAutoLogin();
-  }, [loaded]);
+  //저장 새로고침 때문에 주석처리
+  // useEffect(() => {
+  //   if (loaded) checkAutoLogin();
+  // }, [loaded]);
 
   const checkAutoLogin = async () => {
     try {

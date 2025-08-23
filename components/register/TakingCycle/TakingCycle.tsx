@@ -8,12 +8,18 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 export interface TakingCycleProps {
   selectedType?: TakingType;
   onTypeChange?: (type: TakingType) => void;
+  errors?: string[];
+  showError?: boolean;
 }
 
 const TakingCycle: React.FC<TakingCycleProps> = ({
-  selectedType = TakingType.DAILY,
+  selectedType,
   onTypeChange,
+  errors = [],
+  showError = false,
 }) => {
+  const hasError = showError && errors.length > 0;
+
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
@@ -24,6 +30,11 @@ const TakingCycle: React.FC<TakingCycleProps> = ({
           color="red"
           style={{ marginLeft: 3 }}
         />
+        {hasError && (
+          <Text style={{ color: colors.RED, marginLeft: 5, top: -1 }}>
+            {errors.join(", ")}
+          </Text>
+        )}
       </View>
       <View style={styles.typeContainer}>
         {TAKING_TYPE_OPTIONS.map((option) => (
@@ -80,8 +91,8 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
   },
   selected: {
-    backgroundColor: colors.PINK + "40", // 40은 16진수로 25% 투명도
-    borderColor: colors.BLACK,
+    backgroundColor: colors.PINK + "40",
+    borderColor: colors.PINK,
   },
   text: {
     textAlign: "center",

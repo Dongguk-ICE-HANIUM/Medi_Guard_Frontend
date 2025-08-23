@@ -23,6 +23,42 @@ export default function RegisterLayout() {
           ),
         }}
       />
+      <Stack.Screen
+        name="registerForm"
+        options={{
+          headerShown: true,
+          title: "약물 등록",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="chevron-back" size={24} color={"black"} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="interactionCheck"
+        options={{
+          headerShown: true,
+          title: "약물 등록",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="chevron-back" size={24} color={"black"} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="confirm"
+        options={{
+          headerShown: true,
+          title: "약물 등록",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="chevron-back" size={24} color={"black"} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </Stack>
   );
 }

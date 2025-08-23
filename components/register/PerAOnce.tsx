@@ -1,11 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet, View } from "react-native";
 import NumberInput from "./NumberInput";
 
-const PerAOnce = () => {
-  const [perDay, setPerDay] = useState(1);
-  const [amount, setAmount] = useState(1.0);
+interface PerAOnceProps {
+  perDay: number;
+  amount: number;
+  onPerDayChange: (value: number) => void;
+  onAmountChange: (value: number) => void;
+}
 
+const PerAOnce = ({
+  perDay,
+  amount,
+  onPerDayChange,
+  onAmountChange,
+}: PerAOnceProps) => {
   return (
     <View style={styles.container}>
       <NumberInput
@@ -16,7 +25,7 @@ const PerAOnce = () => {
         min={1}
         max={10}
         step={1}
-        onValueChange={setPerDay}
+        onValueChange={onPerDayChange}
       />
       <NumberInput
         title="1회 복용량"
@@ -26,7 +35,7 @@ const PerAOnce = () => {
         min={0.25}
         max={10}
         step={0.25}
-        onValueChange={setAmount}
+        onValueChange={onAmountChange}
       />
     </View>
   );

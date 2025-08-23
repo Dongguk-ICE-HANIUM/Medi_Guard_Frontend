@@ -65,16 +65,6 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
   ): React.ReactNode => {
     const tags = getTagsForDay(dayIndex);
 
-    const cellDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day,
-      12,
-      0,
-      0,
-      0
-    );
-
     const today = new Date();
     today.setHours(12, 0, 0, 0);
     const isToday = today.toDateString() === cellDate.toDateString();
@@ -90,7 +80,6 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
         ]}
         onPress={() => {
           setSelectedDate(cellDate);
-          onDateSelect?.(cellDate);
           const dateString = cellDate.toISOString().split("T")[0];
           console.log(`날짜 선택 : ${dateString}`);
         }}

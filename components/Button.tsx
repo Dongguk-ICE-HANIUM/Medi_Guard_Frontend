@@ -15,8 +15,16 @@ function Button({
   size = "large",
   color = "pink",
   icon = null,
+  onPress,
   ...props
 }: ButtonProps) {
+  const handlePress = (event: any) => {
+    console.log("Button pressed:", { text, icon, onPress: !!onPress });
+    if (onPress) {
+      onPress(event);
+    }
+  };
+
   return (
     <Pressable
       style={({ pressed }) => [
@@ -25,6 +33,7 @@ function Button({
         ButtonStyles[color],
         pressed && ButtonStyles.pressed,
       ]}
+      onPress={handlePress}
       {...props}
     >
       {icon && (
