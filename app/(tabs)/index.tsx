@@ -1,7 +1,10 @@
+import CalendarCard from "@/components/Card/CalendarCard";
+import NextTreatCard from "@/components/Card/NextTreatCard";
+import UserInfoCard from "@/components/Card/UserInfoCard";
 import { useRouter } from "expo-router";
 import { useSearchParams } from "expo-router/build/hooks";
 import { useEffect } from "react";
-import { SafeAreaView, Text, View } from "react-native";
+import { SafeAreaView, ScrollView, View } from "react-native";
 import Toast from "react-native-toast-message";
 
 export default function HomeScreen() {
@@ -22,12 +25,15 @@ export default function HomeScreen() {
   }, [searchParams, router]);
 
   return (
-    <View style={{ flex: 1 }}>
-      <SafeAreaView>
-        <Text>홈</Text>
-      </SafeAreaView>
-
-      <Toast />
-    </View>
+    <ScrollView bounces={true}>
+      <View style={{ flex: 1 }}>
+        <SafeAreaView>
+          <UserInfoCard />
+          <NextTreatCard />
+          <CalendarCard />
+        </SafeAreaView>
+        <Toast />
+      </View>
+    </ScrollView>
   );
 }
