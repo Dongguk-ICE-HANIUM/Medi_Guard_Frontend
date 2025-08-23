@@ -1,6 +1,7 @@
 import { colors } from "@/constants";
-import { useCalendar } from "@/hooks/useCalendar";
+import { useCalendarContext } from "@/context/CalendarContext";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import React, { useEffect } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -10,40 +11,53 @@ import {
 } from "react-native";
 import TagsContainer from "../tag/TagsContainer";
 
-export default function Calendar() {
+type CalendarProps = {
+  onDateSelect?: (date: Date) => void;
+};
+
+export default function Calendar({ onDateSelect }: CalendarProps) {
   const {
     calendarData,
-    loading,
-    error,
+    loading: calendarLoading,
+    error: calendarError,
     currentDate,
     changeMonth,
     getDayStatus,
     getTagsForDay,
     refreshData,
     setCurrentDate,
-
     selectedDate,
     setSelectedDate,
-  } = useCalendar();
+  } = useCalendarContext();
 
-  const getDaysInMonth = (date: Date): number => {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-  };
+  useEffect(() => {
+    if (selectedDate) {
+      const selectedMonth = selectedDate.getMonth();
+      const selectedYear = selectedDate.getFullYear();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
 
-  const getFirstDayOfMonth = (date: Date): number => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-  };
-  const getLastDayOfMonth = (date: Date): number => {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDay();
-  };
+      // 선택된 날짜가 현재 표시중인 달과 다를 때만 이동
+      if (selectedMonth !== currentMonth || selectedYear !== currentYear) {
+        setCurrentDate(new Date(selectedYear, selectedMonth, 1));
+      }
+    }
+  }, [selectedDate]);
 
-  const getPrevMonthLastDay = (date: Date): number => {
-    return new Date(date.getFullYear(), date.getMonth(), 0).getDate();
-  };
+  const getDaysInMonth = (date: Date): number =>
+    new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 
-  const formatMonthYear = (date: Date): string => {
-    return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
-  };
+  const getFirstDayOfMonth = (date: Date): number =>
+    new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+
+  const getLastDayOfMonth = (date: Date): number =>
+    new Date(date.getFullYear(), date.getMonth() + 1, 0).getDay();
+
+  const getPrevMonthLastDay = (date: Date): number =>
+    new Date(date.getFullYear(), date.getMonth(), 0).getDate();
+
+  const formatMonthYear = (date: Date): string =>
+    `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
 
   const renderCalendarDay = (
     day: number,
@@ -51,12 +65,18 @@ export default function Calendar() {
   ): React.ReactNode => {
     const tags = getTagsForDay(dayIndex);
 
-    const today = new Date();
     const cellDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
-      day
+      day,
+      12,
+      0,
+      0,
+      0
     );
+
+    const today = new Date();
+    today.setHours(12, 0, 0, 0);
     const isToday = today.toDateString() === cellDate.toDateString();
     const isSelectd = selectedDate?.toDateString() === cellDate.toDateString();
 
@@ -70,6 +90,9 @@ export default function Calendar() {
         ]}
         onPress={() => {
           setSelectedDate(cellDate);
+          onDateSelect?.(cellDate);
+          const dateString = cellDate.toISOString().split("T")[0];
+          console.log(`날짜 선택 : ${dateString}`);
         }}
       >
         {isToday ? (
@@ -127,20 +150,19 @@ export default function Calendar() {
     return days;
   };
 
-  if (loading) {
+  if (calendarLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="colors.PINK" />
+        <ActivityIndicator size="large" color={colors.PINK} />
       </View>
     );
   }
 
-  if (error) {
+  if (calendarError) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>
-          {" "}
-          캘린더를 불러오는 중 오류가 발생했습니다.{" "}
+          캘린더를 불러오는 중 오류가 발생했습니다.
         </Text>
         <TouchableOpacity onPress={refreshData} style={styles.retryButton}>
           <Text style={styles.retryText}>다시 시도</Text>
@@ -148,30 +170,29 @@ export default function Calendar() {
       </View>
     );
   }
+
   return (
-    <>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => changeMonth(-1)}>
-            <MaterialIcons name="navigate-before" size={30} color="black" />
-          </TouchableOpacity>
-          <Text style={styles.monthYear}>{formatMonthYear(currentDate)}</Text>
-          <TouchableOpacity onPress={() => changeMonth(1)}>
-            <MaterialIcons name="navigate-next" size={30} color="black" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.calendarConatiner}>
-          <View style={styles.dayOfWeekContainer}>
-            {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
-              <Text key={day} style={styles.weekDay}>
-                {day}
-              </Text>
-            ))}
-          </View>
-          <View style={styles.calendarGrid}>{renderCalendarGrid()}</View>
-        </View>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => changeMonth(-1)}>
+          <MaterialIcons name="navigate-before" size={30} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.monthYear}>{formatMonthYear(currentDate)}</Text>
+        <TouchableOpacity onPress={() => changeMonth(1)}>
+          <MaterialIcons name="navigate-next" size={30} color="black" />
+        </TouchableOpacity>
       </View>
-    </>
+      <View style={styles.calendarConatiner}>
+        <View style={styles.dayOfWeekContainer}>
+          {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
+            <Text key={day} style={styles.weekDay}>
+              {day}
+            </Text>
+          ))}
+        </View>
+        <View style={styles.calendarGrid}>{renderCalendarGrid()}</View>
+      </View>
+    </View>
   );
 }
 
@@ -192,12 +213,10 @@ const styles = StyleSheet.create({
     fontSize: 19,
     lineHeight: 19,
   },
-
   calendarGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
   },
-
   calendarConatiner: { margin: 5 },
   dayOfWeekContainer: {
     flexDirection: "row",
@@ -208,15 +227,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     padding: 10,
   },
-
   dayContainer: {
     width: "14.28%",
     alignItems: "center",
     paddingVertical: 4,
-    minHeight: 40,
+    minHeight: 50,
     justifyContent: "flex-start",
   },
-
   dayNumber: {
     fontSize: 17,
     justifyContent: "flex-start",
@@ -232,7 +249,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     opacity: 0.8,
   },
-  selectedContainer: {},
+  selectedContainer: {
+    backgroundColor: colors.PINK + "40",
+    borderRadius: 8,
+  },
   prevDayContainer: {
     width: "14.28%",
     alignItems: "center",
@@ -244,7 +264,6 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: colors.TEXT_GRAY,
   },
-
   nextDayContainer: {
     width: "14.28%",
     alignItems: "center",
@@ -256,7 +275,6 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: colors.TEXT_GRAY,
   },
-  //추후 수정
   loadingContainer: {},
   errorContainer: {
     flex: 1,
@@ -264,13 +282,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     minHeight: 200,
   },
-
   errorText: {
     fontSize: 16,
     textAlign: "center",
     marginBottom: 10,
   },
-
   retryButton: {
     backgroundColor: colors.PINK,
     paddingHorizontal: 20,
