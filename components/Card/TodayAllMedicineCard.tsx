@@ -8,12 +8,14 @@ import SingleMedicineCard from "./SingleMedicineCard";
 interface TodayAllMedicineCardProps {
   medications: Medication[];
   selectedDate?: string;
+  targetDate?: Date;
   loading?: boolean;
 }
 
 const TodayAllMedicineCard = ({
   medications,
   selectedDate,
+  targetDate,
   loading = false,
 }: TodayAllMedicineCardProps) => {
   // 디버깅용 로그
@@ -76,6 +78,7 @@ const TodayAllMedicineCard = ({
             <SingleMedicineCard
               medication={medication}
               selectedDate={selectedDate}
+              targetDate={targetDate}
               showGroupDetail={true}
             />
           </View>

@@ -259,11 +259,7 @@ export const useDeleteMedication = () => {
           queryKey: medicationKeys.calendarDrugs(),
         });
 
-        Alert.alert(
-          "삭제 완료",
-          `"${result.deletedName}" 약물이 삭제되었습니다.`,
-          [{ text: "확인" }]
-        );
+        // Alert는 medicineList.tsx에서 처리
       }
     },
     onError: (error) => {

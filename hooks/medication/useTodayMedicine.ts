@@ -6,6 +6,7 @@ import { useMedicationList } from "./useMedicationQuery";
 
 export interface TodayMedicationsReturn {
   scheduledMedications: Medication[];
+  targetDate: Date;
   getTodayScheduledCount: (selectedDate?: string) => number;
   hasMedicationScheduled: (date: Date) => boolean;
 }
@@ -26,9 +27,17 @@ const useTodayMedications = (selectedDate?: string): TodayMedicationsReturn => {
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(0, 0, 0, 0);
 
-      // 복용 기간 내에 있는지 확인
-      if (targetDate < startDate || targetDate > endDate) {
-        return false;
+      // 오늘 날짜 기준으로 미래인 경우 (복용 예정)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (targetDate < today) {
+        return false; // 과거 날짜는 제외
+      }
+
+      // 복용 기간 내에 있거나 복용 시작일 이전인 경우 포함
+      if (targetDate > endDate) {
+        return false; // 복용 종료일 이후는 제외
       }
 
       // NEED 타입은 오늘 약물 목록에서도 제외
@@ -38,10 +47,11 @@ const useTodayMedications = (selectedDate?: string): TodayMedicationsReturn => {
 
       // 복용 주기에 따라 해당 날짜에 실제로 약을 먹는지 확인
       const shouldTakeToday = checkIfShouldTakeOnDate(medication, targetDate);
+
       return shouldTakeToday;
     });
 
-    return filtered;
+    return { filtered, targetDate };
   }, [allMedications, selectedDate]);
 
   // 특정 날짜에 복용 예정 약물 개수
@@ -75,7 +85,8 @@ const useTodayMedications = (selectedDate?: string): TodayMedicationsReturn => {
   };
 
   return {
-    scheduledMedications,
+    scheduledMedications: scheduledMedications.filtered,
+    targetDate: scheduledMedications.targetDate,
     getTodayScheduledCount,
     hasMedicationScheduled,
   };

@@ -13,6 +13,11 @@ export const checkIfShouldTakeOnDate = (
   const startDate = new Date(medication.startAt);
   startDate.setHours(0, 0, 0, 0);
 
+  // 복용 시작일 이전인 경우도 true 반환 (복용 예정으로 표시)
+  // if (targetDate < startDate) {
+  //   return false;
+  // }
+
   switch (medication.takingType) {
     case "EVERY_DAY":
       return true;

@@ -11,26 +11,32 @@ import Toggle from "./Toggle";
 export interface SingleMedicineCardProps {
   medication: Medication;
   selectedDate?: string;
+  targetDate?: Date;
   showGroupDetail?: boolean;
   isEditMode?: boolean;
-  onDelete?: (medicationId: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 const SingleMedicineCard = ({
   medication,
   selectedDate,
+  targetDate,
   showGroupDetail = false,
   isEditMode = false,
   onDelete,
 }: SingleMedicineCardProps) => {
-  // 복용 상태 계산 (임시 로직 - 실제로는 서버 데이터 기반)
+  // 복용 상태 계산 (오늘 날짜 기준)
   const medicationStatus = useMemo(() => {
-    const currentDate = selectedDate ? new Date(selectedDate) : new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const startDate = new Date(medication.startAt);
     const endDate = new Date(medication.endAt);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
 
-    const isCompleted = currentDate > endDate;
-    const isScheduled = currentDate < startDate;
+    const isCompleted = today > endDate;
+    const isScheduled = today < startDate;
 
     const totalDays =
       Math.ceil(
@@ -42,7 +48,7 @@ const SingleMedicineCard = ({
     const daysPassed = Math.max(
       0,
       Math.floor(
-        (currentDate.getTime() - new Date(medication.startAt).getTime()) /
+        (today.getTime() - new Date(medication.startAt).getTime()) /
           (1000 * 60 * 60 * 24)
       )
     );
@@ -66,7 +72,7 @@ const SingleMedicineCard = ({
       completionRate: Math.min(completionRate, 100),
       status,
     };
-  }, [medication, selectedDate]);
+  }, [medication]);
 
   const handleToDetail = () => {
     console.log(
@@ -145,12 +151,11 @@ const SingleMedicineCard = ({
       </View>
 
       {/* 복용 중일때만 체크박스 보이게 */}
-      {(!showGroupDetail || !medicationStatus.isCompleted) &&
-        medicationStatus.status !== "scheduled" && (
-          <View style={styles.toggle}>
-            <Toggle medication={medication} selectedDate={selectedDate} />
-          </View>
-        )}
+      {medicationStatus.status === "taking" && (
+        <View style={styles.toggle}>
+          <Toggle medication={medication} selectedDate={selectedDate} />
+        </View>
+      )}
     </View>
   );
 };

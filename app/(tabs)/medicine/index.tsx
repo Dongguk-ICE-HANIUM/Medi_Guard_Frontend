@@ -37,7 +37,7 @@ export default function MedicineScreen() {
   const displayDate = selectedDate || currentDate;
   const selectedDateString = displayDate.toISOString().split("T")[0];
 
-  const { scheduledMedications, getTodayScheduledCount } =
+  const { scheduledMedications, targetDate, getTodayScheduledCount } =
     useTodayMedications(selectedDateString);
 
   const displayMonth = displayDate.getMonth() + 1;
@@ -109,6 +109,7 @@ export default function MedicineScreen() {
               <TodayAllMedicineCard
                 medications={scheduledMedications}
                 selectedDate={formatDateSlash(displayDate)}
+                targetDate={targetDate}
                 loading={loading}
               />
               {error && <Text style={styles.errorText}>{error.message}</Text>}
