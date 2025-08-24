@@ -2,9 +2,11 @@ import BasicInfo from "@/components/Detail/BasicInfo";
 import MedicationInfo from "@/components/Detail/MedicationInfo";
 import { colors } from "@/constants";
 import { mockMedicineStore } from "@/data/mockMedicineStore";
-import { Medication } from "@/types/medication";
+import { useMedicationDetail } from "@/hooks/useMedicationQuery";
+import { useFocusEffect } from "@react-navigation/native";
+import { useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -17,31 +19,20 @@ import {
 
 const MedicationDetailPage = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [drugDetail, setDrugDetail] = useState<Medication | null>(null);
+  const queryClient = useQueryClient();
+  const {
+    data: drugDetail,
+    isLoading: loading,
+    refetch,
+  } = useMedicationDetail(id || "");
   const [isActive, setIsActive] = useState(true);
   const [activeTab, setActiveTab] = useState<"basic" | "medication">("basic");
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (id) {
-        setLoading(true);
-        try {
-          const medication = await mockMedicineStore.getMedication(id);
-          if (medication) {
-            setDrugDetail(medication);
-            setIsActive(medication.isActive);
-          }
-        } catch (error) {
-          console.error("약물 상세 정보 로드 실패:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchData();
-  }, [id]);
+    if (drugDetail) {
+      setIsActive(drugDetail.isActive);
+    }
+  }, [drugDetail]);
 
   const handleToggleActive = async (value: boolean) => {
     if (drugDetail) {
@@ -50,6 +41,17 @@ const MedicationDetailPage = () => {
           isActive: value,
         });
         setIsActive(value);
+
+        // React Query 캐시 즉시 업데이트
+        queryClient.setQueryData(["medications", "detail", drugDetail.id], {
+          ...drugDetail,
+          isActive: value,
+        });
+
+        // 다른 관련 쿼리들 무효화
+        queryClient.invalidateQueries({ queryKey: ["medications", "list"] });
+        queryClient.invalidateQueries({ queryKey: ["calendarDrugs"] });
+
         console.log("약물 활성화 상태 변경 완료:", value);
       } catch (error) {
         console.error("활성화 상태 변경 중 오류:", error);
@@ -76,6 +78,15 @@ const MedicationDetailPage = () => {
       });
     }
   };
+
+  // 편집 후 돌아왔을 때 데이터 새로고침
+  useFocusEffect(
+    useCallback(() => {
+      if (id) {
+        refetch();
+      }
+    }, [id, refetch])
+  );
 
   if (loading) {
     return (
