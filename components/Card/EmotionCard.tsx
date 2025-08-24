@@ -2,6 +2,7 @@ import { colors } from "@/constants";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useState } from "react";
 import {
+  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -36,7 +37,12 @@ export default function EmotionCard() {
           <Text style={styles.headerText}>오늘의 기분</Text>
           <View style={styles.headerButton}>
             <Button text="수정" color="gray" size="small" />
-            <Button text="저장" color="pink" size="small" />
+            <Button
+              text="저장"
+              color="pink"
+              size="small"
+              onPress={() => Alert.alert("알림", "저장되었습니다.")}
+            />
           </View>
         </View>
         <View style={styles.emotion}>

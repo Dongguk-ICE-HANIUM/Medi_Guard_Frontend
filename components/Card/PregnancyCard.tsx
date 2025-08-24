@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
   leftChild: {
     backgroundColor: colors.WHITE,
     borderRadius: 16,
-    width: "44%",
+    width: "46%",
     padding: 15,
     alignItems: "center",
     flexDirection: "row",
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   rightChild: {
     backgroundColor: colors.WHITE,
     borderRadius: 16,
-    width: "44%",
+    width: "47%",
     padding: 10,
     alignItems: "center",
     flexDirection: "row",

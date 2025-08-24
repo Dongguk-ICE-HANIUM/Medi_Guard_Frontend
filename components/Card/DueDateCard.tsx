@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: colors.WHITE,
     borderRadius: 16,
-    width: "90%",
+    width: "95%",
     padding: 10,
   },
   leftChild: {
@@ -51,5 +51,6 @@ const styles = StyleSheet.create({
   textTheDay: {
     fontSize: 22,
     fontWeight: "500",
+    color: colors.PINK,
   },
 });
