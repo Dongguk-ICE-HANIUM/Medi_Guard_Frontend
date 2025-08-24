@@ -148,7 +148,7 @@ const SingleMedicineCard = ({
       {(!showGroupDetail || !medicationStatus.isCompleted) &&
         medicationStatus.status !== "scheduled" && (
           <View style={styles.toggle}>
-            <Toggle medication={medication} />
+            <Toggle medication={medication} selectedDate={selectedDate} />
           </View>
         )}
     </View>

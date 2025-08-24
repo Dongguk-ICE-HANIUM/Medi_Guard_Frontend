@@ -41,6 +41,8 @@ export interface Medication {
     time: string;
     isActive?: boolean;
   }>;
+  // 복용 완료 상태 관리 (날짜별로 저장)
+  takenDates?: Record<string, number>; // 날짜: timeSlot (이진수)
 }
 
 export type DrugDetailResponse = ApiResponse<Medication>;

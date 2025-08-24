@@ -2,10 +2,11 @@ import Button from "@/components/Button";
 import GroupMedicineCard from "@/components/Card/GroupMedicineCard";
 import SingleMedicineCard from "@/components/Card/SingleMedicineCard";
 import { colors } from "@/constants";
+import { useCalendarContext } from "@/context/CalendarContext";
 import {
   useDeleteMedication,
   useMedicationList,
-} from "@/hooks/useMedicationQuery";
+} from "@/hooks/medication/useMedicationQuery";
 import { Medication } from "@/types/medication";
 import { AntDesign } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
@@ -32,6 +33,12 @@ const MedicineList = () => {
     new Set()
   );
   const [pendingChanges, setPendingChanges] = useState<boolean>(false);
+
+  // useCalendarContext에서 선택된 날짜 가져오기
+  const { selectedDate } = useCalendarContext();
+  const selectedDateString = selectedDate
+    ? selectedDate.toISOString().split("T")[0]
+    : new Date().toISOString().split("T")[0];
 
   // 삭제된 약물을 제외한 약물 목록
   const filteredMedications = useMemo(() => {
@@ -275,6 +282,7 @@ const MedicineList = () => {
           <View key={medication.id} style={styles.medicationItem}>
             <SingleMedicineCard
               medication={medication}
+              selectedDate={selectedDateString}
               showGroupDetail={true}
               isEditMode={isEditMode}
               onDelete={

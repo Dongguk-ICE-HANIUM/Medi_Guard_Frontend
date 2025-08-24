@@ -1,4 +1,5 @@
 import { colors } from "@/constants";
+import { useCalendarContext } from "@/context/CalendarContext";
 import { mockMedicineStore } from "@/data/mockMedicineStore";
 import { Medication } from "@/types/medication";
 import {
@@ -6,6 +7,7 @@ import {
   convertTimeSlotsToBinary,
 } from "@/utils/dateUtils";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 
@@ -18,6 +20,8 @@ const CheckBox = ({ medication, selectedDate }: CheckBoxProps) => {
   const { perDay, id } = medication;
   const [checkedStates, setCheckedStates] = useState<boolean[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
+  const { refreshData } = useCalendarContext();
 
   // perDay 변경 시 체크박스 개수 업데이트
   useEffect(() => {
@@ -34,9 +38,9 @@ const CheckBox = ({ medication, selectedDate }: CheckBoxProps) => {
 
       setCheckedStates(newCheckedStates);
     }
-  }, [perDay, checkedStates.length]);
+  }, [perDay]); // checkedStates.length 제거
 
-  // mockStorage에서 복용 상태 조회하여 체크박스 초기화
+  // mockStorage에서 복용 상태 조회하여 체크박스 초기화 (selectedDate 변경 시에만)
   useEffect(() => {
     const loadMedicationStatus = async () => {
       if (!selectedDate) return;
@@ -45,9 +49,12 @@ const CheckBox = ({ medication, selectedDate }: CheckBoxProps) => {
         // mockStorage에서 약물 정보 조회
         const medication = await mockMedicineStore.getMedication(id);
         if (medication) {
-          const timeSlot = medication.perDay || 0;
+          const takenDates = medication.takenDates || {};
+          const dateKey = selectedDate;
+          const timeSlot = takenDates[dateKey] || 0;
+
           console.log(
-            `mockStorage에서 받은 timeSlot: ${timeSlot} (이진수: ${timeSlot.toString(
+            `${dateKey} 날짜의 timeSlot: ${timeSlot} (이진수: ${timeSlot.toString(
               2
             )})`
           );
@@ -74,14 +81,18 @@ const CheckBox = ({ medication, selectedDate }: CheckBoxProps) => {
       }
     };
 
-    loadMedicationStatus();
-  }, [id, selectedDate, perDay]);
+    // selectedDate가 변경될 때만 상태 초기화
+    if (selectedDate) {
+      loadMedicationStatus();
+    }
+  }, [selectedDate, id, perDay]); // selectedDate 변경 시에만 실행
 
   const handleCheckboxPress = async (index: number) => {
-    if (isLoading) return;
+    if (isLoading || !selectedDate) return;
 
     setIsLoading(true);
     try {
+      // 즉시 UI 상태 업데이트
       const newCheckedStates = [...checkedStates];
       newCheckedStates[index] = !newCheckedStates[index];
       setCheckedStates(newCheckedStates);
@@ -96,31 +107,59 @@ const CheckBox = ({ medication, selectedDate }: CheckBoxProps) => {
       const timeSlot = convertTimeSlotsToBinary(checkedTimeSlots);
 
       console.log(
-        `복용 체크박스 ${index + 1}번째 ${
+        `${selectedDate}: 체크박스 ${index + 1} ${
           newCheckedStates[index] ? "체크" : "해제"
-        }, timeSlot: ${timeSlot}`
+        }, timeSlot=${timeSlot}`
       );
 
       // mockStorage 업데이트
       const medication = await mockMedicineStore.getMedication(id);
       if (medication) {
-        const currentTimeSlot = medication.perDay || 0;
-        const newTimeSlot = currentTimeSlot | timeSlot;
+        const takenDates = medication.takenDates || {};
+        const dateKey = selectedDate;
+
+        console.log(`체크박스: ${selectedDate} → timeSlot: ${timeSlot}`);
+
+        // 해당 날짜의 복용 상태 업데이트
+        takenDates[dateKey] = timeSlot;
 
         await mockMedicineStore.updateMedication(id, {
-          perDay: newTimeSlot,
+          takenDates: takenDates,
         });
 
-        console.log("복용 완료 mockStorage 업데이트 성공:", newTimeSlot);
+        // 복용 완료 여부 로그
+        const newTakenCount = newCheckedStates.filter(
+          (isChecked) => isChecked
+        ).length;
+        if (newTakenCount === perDay) {
+          console.log(`${selectedDate}: 복용 완료! (${perDay}/${perDay})`);
+        } else {
+          console.log(`${selectedDate}: 미복용 (${newTakenCount}/${perDay})`);
+        }
+
+        // React Query 캐시 업데이트
+        queryClient.setQueryData(["medications", "list"], (oldData: any) => {
+          if (!oldData) return oldData;
+          return oldData.map((med: any) =>
+            med.id === id
+              ? {
+                  ...med,
+                  takenDates: { ...med.takenDates, [dateKey]: timeSlot },
+                }
+              : med
+          );
+        });
+
+        // 캘린더 데이터 새로고침
+        queryClient.invalidateQueries({ queryKey: ["medications", "list"] });
+        queryClient.invalidateQueries({ queryKey: ["calendarDrugs"] });
       } else {
         Alert.alert("오류", "약물 정보를 찾을 수 없습니다.");
-        // 실패 시 원래 상태로 되돌리기
         setCheckedStates([...checkedStates]);
       }
     } catch (error) {
-      console.error("복용 완료 mockStorage 업데이트 오류:", error);
+      console.error("복용 상태 업데이트 오류:", error);
       Alert.alert("오류", "복용 상태 업데이트에 실패했습니다.");
-      // 실패 시 원래 상태로 되돌리기
       setCheckedStates([...checkedStates]);
     } finally {
       setIsLoading(false);
@@ -138,6 +177,8 @@ const CheckBox = ({ medication, selectedDate }: CheckBoxProps) => {
             key={index}
             onPress={() => handleCheckboxPress(index)}
             disabled={isLoading}
+            style={styles.touchable}
+            activeOpacity={0.7}
           >
             <View style={styles.box}>
               {isChecked ? (
@@ -166,10 +207,17 @@ export default CheckBox;
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    gap: 8,
+    // gap: 3,
     flexWrap: "wrap",
     width: "80%",
   },
-  overbox: {},
-  box: {},
+  touchable: {
+    padding: 3,
+  },
+  box: {
+    justifyContent: "center",
+    alignItems: "center",
+
+    backgroundColor: colors.WHITE,
+  },
 });

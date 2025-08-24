@@ -1,5 +1,6 @@
 import { colors } from "@/constants";
 import { useCalendarContext } from "@/context/CalendarContext";
+import useTodayMedications from "@/hooks/medication/useTodayMedicine";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React, { useEffect } from "react";
 import {
@@ -29,6 +30,8 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
     selectedDate,
     setSelectedDate,
   } = useCalendarContext();
+
+  const { hasMedicationScheduled } = useTodayMedications();
 
   useEffect(() => {
     if (selectedDate) {
@@ -77,6 +80,8 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
     const isToday = today.toDateString() === cellDate.toDateString();
     const isSelectd = selectedDate?.toDateString() === cellDate.toDateString();
 
+    const hasMedication = hasMedicationScheduled(cellDate);
+
     return (
       <TouchableOpacity
         key={day}
@@ -87,9 +92,9 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
         ]}
         onPress={() => {
           setSelectedDate(cellDate);
-          onDateSelect?.(cellDate);
-          const dateString = cellDate.toISOString().split("T")[0];
-          console.log(`날짜 선택 : ${dateString}`);
+          if (hasMedication) {
+            onDateSelect?.(cellDate);
+          }
         }}
       >
         {isToday ? (
@@ -133,7 +138,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
-      days.push(renderCalendarDay(day, day - 1));
+      days.push(renderCalendarDay(day, day));
     }
 
     for (let i = 1; i <= 6 - lastDayInMonth; i++) {

@@ -2,7 +2,7 @@ import BasicInfo from "@/components/Detail/BasicInfo";
 import MedicationInfo from "@/components/Detail/MedicationInfo";
 import { colors } from "@/constants";
 import { mockMedicineStore } from "@/data/mockMedicineStore";
-import { useMedicationDetail } from "@/hooks/useMedicationQuery";
+import { useMedicationDetail } from "@/hooks/medication/useMedicationQuery";
 import { useFocusEffect } from "@react-navigation/native";
 import { useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";

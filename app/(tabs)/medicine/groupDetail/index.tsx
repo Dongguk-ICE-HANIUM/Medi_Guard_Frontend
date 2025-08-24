@@ -2,7 +2,7 @@ import Button from "@/components/Button";
 import SingleMedicineCard from "@/components/Card/SingleMedicineCard";
 import { colors } from "@/constants";
 import { mockMedicineStore } from "@/data/mockMedicineStore";
-import { useMedicationList } from "@/hooks/useMedicationQuery";
+import { useMedicationList } from "@/hooks/medication/useMedicationQuery";
 import { AntDesign } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useMemo, useState } from "react";

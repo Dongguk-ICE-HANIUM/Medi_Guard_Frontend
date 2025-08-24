@@ -8,8 +8,8 @@ import TakingCycleDetails from "@/components/register/TakingCycle/TakingCycleDet
 import Group from "@/components/register/group/Group";
 import { mockMedicineStore } from "@/data/mockMedicineStore";
 
-import { useMedicationForm } from "@/hooks/useMedicationForm";
-import { useMedicationList } from "@/hooks/useMedicationQuery";
+import { useMedicationForm } from "@/hooks/medication/useMedicationForm";
+import { useMedicationList } from "@/hooks/medication/useMedicationQuery";
 import { Medication, MedicineInfo, TakingType } from "@/types/medication";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";

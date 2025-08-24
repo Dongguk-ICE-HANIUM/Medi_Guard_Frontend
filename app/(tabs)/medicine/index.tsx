@@ -5,12 +5,13 @@ import { useCalendarContext } from "@/context/CalendarContext";
 import {
   useMedicationList,
   useMedicationStatus,
-} from "@/hooks/useMedicationQuery";
+} from "@/hooks/medication/useMedicationQuery";
+import useTodayMedications from "@/hooks/medication/useTodayMedicine";
 import { formatDateSlash } from "@/utils/dateUtils";
 import { AntDesign } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Modal,
   ScrollView,
@@ -33,34 +34,40 @@ export default function MedicineScreen() {
     selectedDate || currentDate
   );
 
-  // 선택된 날짜에 복용해야 하는 약물 필터링
-  const getMedicationsForSelectedDate = (date: Date) => {
-    if (!date) return medications;
-
-    const selectedDateString = date.toISOString().split("T")[0];
-
-    return medications.filter((medication) => {
-      const startDate = new Date(medication.startAt);
-      const endDate = new Date(medication.endAt);
-      const currentDateObj = new Date(selectedDateString);
-
-      return currentDateObj >= startDate && currentDateObj <= endDate;
-    });
-  };
-
-  const filteredMedications = getMedicationsForSelectedDate(
-    selectedDate || currentDate
-  );
-
-  useEffect(() => {
-    console.log("현재 약물 데이터:", medications);
-    console.log("선택된 날짜:", selectedDate?.toISOString().split("T")[0]);
-    console.log("필터링된 약물:", filteredMedications.length, "개");
-  }, [medications, selectedDate, filteredMedications]);
-
   const displayDate = selectedDate || currentDate;
+  const selectedDateString = displayDate.toISOString().split("T")[0];
+
+  const { scheduledMedications, getTodayScheduledCount } =
+    useTodayMedications(selectedDateString);
+
   const displayMonth = displayDate.getMonth() + 1;
   const displayDay = displayDate.getDate();
+  const medicationCount = getTodayScheduledCount(selectedDateString);
+
+  // 선택된 날짜에 복용해야 하는 약물 필터링
+  // const getMedicationsForSelectedDate = (date: Date) => {
+  //   if (!date) return medications;
+
+  //   const selectedDateString = date.toISOString().split("T")[0];
+
+  //   return medications.filter((medication) => {
+  //     const startDate = new Date(medication.startAt);
+  //     const endDate = new Date(medication.endAt);
+  //     const currentDateObj = new Date(selectedDateString);
+
+  //     return currentDateObj >= startDate && currentDateObj <= endDate;
+  //   });
+  // };
+
+  // const filteredMedications = getMedicationsForSelectedDate(
+  //   selectedDate || currentDate
+  // );
+
+  // useEffect(() => {
+  //   console.log("현재 약물 데이터:", medications);
+  //   console.log("선택된 날짜:", selectedDate?.toISOString().split("T")[0]);
+  //   console.log("필터링된 약물:", filteredMedications.length, "개");
+  // }, [medications, selectedDate, filteredMedications]);
 
   return (
     <ScrollView
@@ -100,7 +107,7 @@ export default function MedicineScreen() {
             </View>
             <View style={styles.todayContainer}>
               <TodayAllMedicineCard
-                medications={filteredMedications}
+                medications={scheduledMedications}
                 selectedDate={formatDateSlash(displayDate)}
                 loading={loading}
               />
