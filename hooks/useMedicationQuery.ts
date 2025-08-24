@@ -94,6 +94,23 @@ export const useAddMedication = () => {
         queryKey: medicationKeys.calendarDrugs(),
       });
 
+      queryClient.setQueryData(
+        medicationKeys.calendarDrugs(),
+        (oldData: Drug[] | undefined) => {
+          const newCalendarDrug: Drug = {
+            id: newMedication.id,
+            calendarDrugId: newMedication.id,
+            name: newMedication.medicineInfo.name,
+            startDate: newMedication.startAt,
+            endDate: newMedication.endAt,
+            timeSlot: newMedication.perDay,
+            takenDaysCount: 0,
+            missedDaysCount: 0,
+          };
+          return oldData ? [...oldData, newCalendarDrug] : [newCalendarDrug];
+        }
+      );
+
       setTimeout(() => {
         Alert.alert(
           "등록 완료",
@@ -154,6 +171,24 @@ export const useUpdateMedication = () => {
         updatedMedication
       );
 
+      queryClient.setQueryData(
+        medicationKeys.calendarDrugs(),
+        (oldData: Drug[] | undefined) => {
+          if (!oldData) return [];
+          return oldData.map((drug) =>
+            drug.id === variables.id
+              ? {
+                  ...drug,
+                  name: updatedMedication.medicineInfo.name,
+                  startDate: updatedMedication.startAt,
+                  endDate: updatedMedication.endAt,
+                  timeSlot: updatedMedication.perDay,
+                }
+              : drug
+          );
+        }
+      );
+
       // 다른 관련 쿼리들 무효화
       queryClient.invalidateQueries({ queryKey: medicationKeys.lists() });
       queryClient.invalidateQueries({
@@ -209,6 +244,13 @@ export const useDeleteMedication = () => {
         );
 
         queryClient.removeQueries({ queryKey: medicationKeys.detail(id) });
+        queryClient.setQueryData(
+          medicationKeys.calendarDrugs(),
+          (oldData: Drug[] | undefined) => {
+            if (!oldData) return [];
+            return oldData.filter((drug) => drug.id !== id);
+          }
+        );
 
         // 다른 관련 쿼리들 무효화
         queryClient.invalidateQueries({ queryKey: medicationKeys.lists() });

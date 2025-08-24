@@ -1,37 +1,24 @@
 import Button from "@/components/Button";
+import Input from "@/components/Input/Input";
 import Alarm from "@/components/register/Alarm/Alarm";
 import DateRange from "@/components/register/DateRange";
 import PerAOnce from "@/components/register/PerAOnce";
 import TakingCycle from "@/components/register/TakingCycle/TakingCycle";
 import TakingCycleDetails from "@/components/register/TakingCycle/TakingCycleDetails";
 import Group from "@/components/register/group/Group";
-import { colors } from "@/constants";
 import { mockMedicineStore } from "@/data/mockMedicineStore";
 
 import { useMedicationForm } from "@/hooks/useMedicationForm";
 import { Medication, MedicineInfo, TakingType } from "@/types/medication";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 export interface registerFormProps {
-  selected: MedicineInfo;
+  selected?: MedicineInfo; //이름 등록 때문에 ? 붙임
   onSubmit?: (medication: Medication) => void;
 }
 const registerForm = ({ selected, onSubmit }: registerFormProps) => {
-  // selected가 없을 때 기본값 설정
-  const defaultMedicineInfo: MedicineInfo = {
-    id: "default",
-    name: "새로운 약물",
-    code: "",
-    effect: "",
-    warning: "",
-    sideEffect: "",
-    interaction: "",
-    depositMethod: "",
-  };
-
-  const medicineInfo = selected || defaultMedicineInfo;
   const router = useRouter();
   const params = useLocalSearchParams<{
     mode?: string;
@@ -45,6 +32,24 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
     groupName?: string;
     isActive?: string;
   }>();
+
+  //이름 등록 때문
+  const [drugName, setDrugName] = useState<string>(
+    selected?.name || params.drugName || ""
+  );
+
+  // selected가 없을 때 기본값 설정
+  const defaultMedicineInfo: MedicineInfo = {
+    id: "temp-default",
+    name: "새로운 약물", //이름 등록 때문에 drugName 추가
+    code: "",
+    effect: "",
+    warning: "",
+    sideEffect: "",
+    interaction: "",
+    depositMethod: "",
+  };
+  const medicineInfo = selected || defaultMedicineInfo;
 
   // 편집 모드일 때 초기값 설정
   const getInitialValues = () => {
@@ -114,6 +119,7 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
         // 편집 모드) mockStorage로 데이터 업데이트 후 상세페이지로 이동
         try {
           console.log("편집 모드 - 데이터 업데이트 시작");
+
           await mockMedicineStore.updateMedication(params.drugId, {
             startAt: medication.startAt,
             endAt: medication.endAt,
@@ -133,7 +139,19 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
         }
       } else {
         // 새로 등록) 다음 단계로 이동하면서 약물 데이터 전달
-        const medicationData = encodeURIComponent(JSON.stringify(medication));
+
+        //이름 등록 때문에
+        const medicationWithName = {
+          ...medication,
+          medicineInfo: {
+            ...medication.medicineInfo,
+            name: drugName,
+          },
+        };
+
+        const medicationData = encodeURIComponent(
+          JSON.stringify(medicationWithName)
+        );
         router.push({
           pathname: "/medicine/register/interactionCheck",
           params: { medicationData },
@@ -159,10 +177,12 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
   // flatList에 들어갈 요소들
   const getFormSections = () => [
     {
-      id: "header",
+      id: "drugName",
       component: (
         <View style={styles.nameContainer}>
-          <Text style={styles.name}>{medicineInfo.name}</Text>
+          {/* <Text style={styles.name}>{medicineInfo.name}</Text> */}
+          <Text style={styles.label}>약물 이름</Text>
+          <Input value={drugName} onChangeText={setDrugName} />
         </View>
       ),
     },
@@ -271,12 +291,19 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   nameContainer: {
-    borderBottomWidth: 0.5,
-    borderBottomColor: colors.TEXT_GRAY,
+    // borderBottomWidth: 0.5,
+    // borderBottomColor: colors.TEXT_GRAY,
+    paddingBottom: 15,
   },
-  name: {
-    fontSize: 23,
-    fontWeight: "bold",
-    paddingBottom: 10,
+  label: {
+    fontSize: 18,
+    fontWeight: "600",
+    paddingBottom: 8,
   },
+
+  // name: {
+  //   fontSize: 23,
+  //   fontWeight: "bold",
+  //   paddingBottom: 10,
+  // },
 });
