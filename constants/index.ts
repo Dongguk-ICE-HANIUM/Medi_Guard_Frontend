@@ -4,6 +4,7 @@ const colors = {
   RED: "#FF4747",
   BLUE: "#4791FF",
   YELLOW: "#FFEA47",
+  TAG_YELLOW: "#D4AC0D",
   PURPLE: "#A047FF",
   GREEN: "#09AC00",
 

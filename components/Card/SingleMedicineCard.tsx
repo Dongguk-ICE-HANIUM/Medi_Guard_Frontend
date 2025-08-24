@@ -26,9 +26,11 @@ const SingleMedicineCard = ({
   // 복용 상태 계산 (임시 로직 - 실제로는 서버 데이터 기반)
   const medicationStatus = useMemo(() => {
     const currentDate = selectedDate ? new Date(selectedDate) : new Date();
+    const startDate = new Date(medication.startAt);
     const endDate = new Date(medication.endAt);
 
     const isCompleted = currentDate > endDate;
+    const isScheduled = currentDate < startDate;
 
     const totalDays =
       Math.ceil(
@@ -49,10 +51,20 @@ const SingleMedicineCard = ({
     const completionRate =
       totalDays > 0 ? (actualDaysPassed / totalDays) * 100 : 0;
 
+    let status: "completed" | "taking" | "scheduled";
+    if (isCompleted) {
+      status = "completed";
+    } else if (isScheduled) {
+      status = "scheduled";
+    } else {
+      status = "taking";
+    }
+
     return {
       isCompleted,
+      isScheduled,
       completionRate: Math.min(completionRate, 100),
-      status: isCompleted ? "completed" : "taking",
+      status,
     };
   }, [medication, selectedDate]);
 
@@ -83,6 +95,8 @@ const SingleMedicineCard = ({
                     backgroundColor:
                       medicationStatus.status === "completed"
                         ? colors.GREEN + "20"
+                        : medicationStatus.status === "scheduled"
+                        ? colors.YELLOW + "20"
                         : colors.BLUE + "20",
                   },
                 ]}
@@ -94,12 +108,16 @@ const SingleMedicineCard = ({
                       color:
                         medicationStatus.status === "completed"
                           ? colors.GREEN
+                          : medicationStatus.status === "scheduled"
+                          ? colors.TAG_YELLOW
                           : colors.BLUE,
                     },
                   ]}
                 >
                   {medicationStatus.status === "completed"
                     ? "복용 완료"
+                    : medicationStatus.status === "scheduled"
+                    ? "복용 예정"
                     : "복용 중"}
                 </Text>
               </View>
@@ -127,11 +145,12 @@ const SingleMedicineCard = ({
       </View>
 
       {/* 복용 중일때만 체크박스 보이게 */}
-      {(!showGroupDetail || !medicationStatus.isCompleted) && (
-        <View style={styles.toggle}>
-          <Toggle medication={medication} />
-        </View>
-      )}
+      {(!showGroupDetail || !medicationStatus.isCompleted) &&
+        medicationStatus.status !== "scheduled" && (
+          <View style={styles.toggle}>
+            <Toggle medication={medication} />
+          </View>
+        )}
     </View>
   );
 };

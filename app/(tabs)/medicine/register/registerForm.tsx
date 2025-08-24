@@ -9,7 +9,9 @@ import Group from "@/components/register/group/Group";
 import { mockMedicineStore } from "@/data/mockMedicineStore";
 
 import { useMedicationForm } from "@/hooks/useMedicationForm";
+import { useMedicationList } from "@/hooks/useMedicationQuery";
 import { Medication, MedicineInfo, TakingType } from "@/types/medication";
+import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
@@ -18,7 +20,7 @@ export interface registerFormProps {
   selected?: MedicineInfo; //이름 등록 때문에 ? 붙임
   onSubmit?: (medication: Medication) => void;
 }
-const registerForm = ({ selected, onSubmit }: registerFormProps) => {
+const registerForm = ({ onSubmit }: registerFormProps) => {
   const router = useRouter();
   const params = useLocalSearchParams<{
     mode?: string;
@@ -32,10 +34,13 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
     groupName?: string;
     isActive?: string;
   }>();
+  const queryClient = useQueryClient();
+  const { data: medications = [] } = useMedicationList();
+  const selected = medications.find((med) => med.id === params.drugId);
 
   //이름 등록 때문
   const [drugName, setDrugName] = useState<string>(
-    selected?.name || params.drugName || ""
+    selected?.medicineInfo?.name || params.drugName || ""
   );
 
   // selected가 없을 때 기본값 설정
@@ -49,7 +54,7 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
     interaction: "",
     depositMethod: "",
   };
-  const medicineInfo = selected || defaultMedicineInfo;
+  const medicineInfo = selected?.medicineInfo || defaultMedicineInfo;
 
   // 편집 모드일 때 초기값 설정
   const getInitialValues = () => {
@@ -120,18 +125,61 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
         try {
           console.log("편집 모드 - 데이터 업데이트 시작");
 
-          await mockMedicineStore.updateMedication(params.drugId, {
-            startAt: medication.startAt,
-            endAt: medication.endAt,
-            takingType: medication.takingType,
-            interval: medication.interval,
-            specificDateList: medication.specificDateList,
-            perDay: medication.perDay,
-            amount: medication.amount,
-            groupName: medication.groupName,
-            isActive: medication.isActive,
-            isEssential: medication.isEssential,
-          });
+          const updatedMedication = await mockMedicineStore.updateMedication(
+            params.drugId,
+            {
+              startAt: medication.startAt,
+              endAt: medication.endAt,
+              takingType: medication.takingType,
+              interval: medication.interval,
+              specificDateList: medication.specificDateList,
+              perDay: medication.perDay,
+              amount: medication.amount,
+              groupName: medication.groupName,
+              isActive: medication.isActive,
+              isEssential: medication.isEssential,
+            }
+          );
+
+          // React Query 캐시 즉시 업데이트
+          if (updatedMedication) {
+            // 상세 정보 캐시 업데이트
+            queryClient.setQueryData(
+              ["medications", "detail", params.drugId],
+              updatedMedication
+            );
+
+            // 목록 캐시 업데이트
+            queryClient.setQueryData(
+              ["medications", "list"],
+              (oldData: Medication[] | undefined) => {
+                if (!oldData) return [updatedMedication];
+                return oldData.map((med) =>
+                  med.id === params.drugId ? updatedMedication : med
+                );
+              }
+            );
+
+            // 캘린더 약물 캐시 업데이트
+            queryClient.setQueryData(
+              ["calendarDrugs"],
+              (oldData: any[] | undefined) => {
+                if (!oldData) return [];
+                return oldData.map((drug) =>
+                  drug.id === params.drugId
+                    ? {
+                        ...drug,
+                        name: updatedMedication.medicineInfo.name,
+                        startDate: updatedMedication.startAt,
+                        endDate: updatedMedication.endAt,
+                        timeSlot: updatedMedication.perDay,
+                      }
+                    : drug
+                );
+              }
+            );
+          }
+
           console.log("편집 완료 - 상세페이지로 이동");
           router.back();
         } catch (error) {
