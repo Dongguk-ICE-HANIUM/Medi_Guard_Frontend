@@ -1,10 +1,10 @@
 import { ApiResponse } from "./api";
 
 export enum TakingType {
-  UNSELECTED = "UNSELECTED", //null 허용안하기 위해서 추가
-  DAILY = "DAILY",
-  SPECIFIC_INTERVAL = "SPECIFIC_INTERVAL",
-  SPECIFIC_DAY = "SPECIFIC_DAY",
+  UNSELECTED = "UNSELECTED",
+  EVERY_DAY = "EVERY_DAY",
+  PARTICULAR_INTERVAL = "PARTICULAR_INTERVAL",
+  PARTICULAR_DAY = "PARTICULAR_DAY",
   SPECIFIC_DATE = "SPECIFIC_DATE",
   NEED = "NEED",
 }
@@ -18,40 +18,45 @@ export interface MedicineInfo {
   warning: string;
   sideEffect: string;
   interaction: string;
-  deposit_method: string;
+  depositMethod: string;
 }
 
-// 사용자가 등록하는 복용 정보
+// 약물데이터 상세
 export interface Medication {
   id: string;
-  medicineInfo: MedicineInfo; // API에서 가져온 약물 정보 (필수)
+  medicineInfo: MedicineInfo; // API에서 가져온 약물 정보
   startAt: string;
   endAt: string;
   takingType: TakingType;
-  interval: number;
-  particularDate: string[];
+  interval?: number;
+  specificDateList?: string[];
   perDay: number;
   amount: number;
   isActive: boolean;
-  groupName: string;
-  groupId?: string; // 그룹 ID (선택적)
-  notifiTakingList: {
+  isEssential: boolean;
+  groupName?: string;
+  groupId?: string;
+  notifiTakingList: Array<{
     id: string;
     time: string;
-  }[];
+    isActive?: boolean;
+  }>;
 }
 
-export interface MedicationResponse<T> {
-  errorCode: string;
-  message: string;
-  result: T | null;
-}
+export type DrugDetailResponse = ApiResponse<Medication>;
 
+//약물 그룹 정보
 export interface DrugGroup {
   id: string;
   name: string;
 }
+export interface DrugGroupResult {
+  drugGroupList: DrugGroup[];
+}
 
+export type DrugGroupResponse = ApiResponse<DrugGroupResult>;
+
+//달력용 복용 정보
 export interface Drug {
   id: string;
   calendarDrugId: string;
@@ -63,24 +68,13 @@ export interface Drug {
   missedDaysCount: number;
 }
 
-export interface DrugGroupResult {
-  drugGroupList: DrugGroup[];
-}
-
-export type DrugGroupResponse = ApiResponse<DrugGroupResult>;
-
 export interface DrugResult {
   drugList: Drug[];
 }
 
 export type DrugResponse = ApiResponse<DrugResult>;
 
-export interface ApiErrorResponse {
-  errorCode: string;
-  message: string;
-  result: null;
-}
-
+//복용 알림
 export interface NotifiTaking {
   time: string;
   isActive: boolean;
@@ -92,28 +86,28 @@ export interface NotifiTakingResult {
 
 export type NotifiTakingResponse = ApiResponse<NotifiTakingResult>;
 
-// 디테일 페이지용 약물 정보
-export interface DrugDetail {
-  id: string;
+//api용
+//post. 약물 등록
+export type CreateMedicationRequest = Pick<
+  Medication,
+  | "startAt"
+  | "endAt"
+  | "takingType"
+  | "perDay"
+  | "amount"
+  | "groupId"
+  | "interval"
+  | "specificDateList"
+> & {
+  drugId: string;
   name: string;
-  code: string;
-  effect: string;
-  warning: string;
-  sideEffect: string;
-  interaction: string;
-  deposit_method: string;
-  startAt: string;
-  endAt: string;
-  takingType: TakingType;
-  perDay: number;
-  amount: number;
-  notifiTakingList: {
-    id: string;
-    time: string;
-  }[];
-  isActive: boolean;
-  groupName: string;
-  groupId?: string;
-}
+};
 
-export type DrugDetailResponse = ApiResponse<DrugDetail>;
+export type CreateMedicationResponse = ApiResponse<Medication>;
+
+//patch. 약물 수정 요청
+export type UpdateMedicationRequest = Partial<
+  Omit<Medication, "id" | "medicineInfo">
+>;
+
+export type UpdateMedicationResponse = ApiResponse<Medication>;

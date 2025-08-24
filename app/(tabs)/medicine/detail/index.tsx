@@ -2,7 +2,7 @@ import { fetchDrugDetail, updateDrugActiveStatus } from "@/api/medicine";
 import BasicInfo from "@/components/Detail/BasicInfo";
 import MedicationInfo from "@/components/Detail/MedicationInfo";
 import { colors } from "@/constants";
-import { DrugDetail } from "@/types/medication";
+import { Medication } from "@/types/medication";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -17,7 +17,7 @@ import {
 
 const MedicationDetailPage = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [drugDetail, setDrugDetail] = useState<DrugDetail | null>(null);
+  const [drugDetail, setDrugDetail] = useState<Medication | null>(null);
   const [isActive, setIsActive] = useState(true);
   const [activeTab, setActiveTab] = useState<"basic" | "medication">("basic");
   const [loading, setLoading] = useState(false);
@@ -62,13 +62,13 @@ const MedicationDetailPage = () => {
         params: {
           mode: "edit",
           drugId: drugDetail.id,
-          drugName: drugDetail.name,
+          drugName: drugDetail.medicineInfo.name,
           startAt: drugDetail.startAt,
           endAt: drugDetail.endAt,
           takingType: drugDetail.takingType,
           perDay: drugDetail.perDay.toString(),
           amount: drugDetail.amount.toString(),
-          groupName: drugDetail.groupName,
+          groupName: drugDetail.groupName || "",
           isActive: drugDetail.isActive.toString(),
         },
       });
@@ -99,7 +99,7 @@ const MedicationDetailPage = () => {
     <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <View style={styles.headerInfo}>
-          <Text style={styles.name}>{drugDetail.name}</Text>
+          <Text style={styles.name}>{drugDetail.medicineInfo.name}</Text>
         </View>
         <Switch
           value={isActive}
@@ -156,7 +156,6 @@ const MedicationDetailPage = () => {
     </ScrollView>
   );
 };
-
 export default MedicationDetailPage;
 
 const styles = StyleSheet.create({

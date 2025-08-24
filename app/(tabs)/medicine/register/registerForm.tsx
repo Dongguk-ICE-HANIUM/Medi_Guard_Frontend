@@ -12,7 +12,7 @@ import { useMedicationForm } from "@/hooks/useMedicationForm";
 import { Medication, MedicineInfo, TakingType } from "@/types/medication";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
 export interface registerFormProps {
   selected: MedicineInfo;
@@ -28,7 +28,7 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
     warning: "",
     sideEffect: "",
     interaction: "",
-    deposit_method: "",
+    depositMethod: "",
   };
 
   const medicineInfo = selected || defaultMedicineInfo;
@@ -76,7 +76,6 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
   const handleRemoveFromGroup = async () => {
     if (params.mode === "edit" && params.drugId) {
       try {
-        console.log("그룹에서 약물 해제 시작");
         await removeDrugFromGroup(params.drugId);
         updateField("groupName", "");
         console.log("그룹에서 약물 해제 완료");
@@ -95,6 +94,7 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
     updateField(field, value);
   };
 
+  //다음
   const handleSubmit = async () => {
     console.log("[handleSubmit] medication:", medication);
     const { isValid, errors: all } = validateForm();
@@ -115,10 +115,13 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
             startAt: medication.startAt,
             endAt: medication.endAt,
             takingType: medication.takingType,
+            interval: medication.interval,
+            specificDateList: medication.specificDateList,
             perDay: medication.perDay,
             amount: medication.amount,
             groupName: medication.groupName,
             isActive: medication.isActive,
+            isEssential: medication.isEssential,
           });
           console.log("편집 완료 - 상세페이지로 이동");
           router.back();
@@ -142,72 +145,110 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
     updateField("interval", interval);
   };
 
-  const handleParticularDateChange = (dates: string[]) => {
-    updateField("particularDate", dates);
+  const handleSpecificDateListChange = (dates: string[]) => {
+    updateField("specificDateList", dates);
   };
 
-  return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.nameContainer}>
-        <Text style={styles.name}>{medicineInfo.name}</Text>
-      </View>
-      <View>
+  // 폼 섹션들을 외부 함수로 분리
+  const getFormSections = () => [
+    {
+      id: "header",
+      component: (
+        <View style={styles.nameContainer}>
+          <Text style={styles.name}>{medicineInfo.name}</Text>
+        </View>
+      ),
+    },
+    {
+      id: "dateRange",
+      component: (
         <DateRange
           startAt={medication.startAt}
           endAt={medication.endAt}
-          onStartChange={(date) => {
-            updateField("startAt", date);
-          }}
-          onEndChange={(date) => {
-            updateField("endAt", date);
-          }}
+          onStartChange={(date) => updateField("startAt", date)}
+          onEndChange={(date) => updateField("endAt", date)}
           errors={errors.dateRange ?? []}
           showError={submitted}
         />
+      ),
+    },
+    {
+      id: "takingCycle",
+      component: (
         <TakingCycle
           selectedType={medication.takingType}
           onTypeChange={handleTakingTypeChange}
           errors={errors.takingTypeRequired ?? []}
           showError={submitted}
         />
+      ),
+    },
+    {
+      id: "takingCycleDetails",
+      component: (
         <TakingCycleDetails
           takingType={medication.takingType}
           interval={medication.interval}
-          particularDate={medication.particularDate}
+          specificDateList={medication.specificDateList}
           onIntervalChange={handleIntervalChange}
-          onParticularDateChange={handleParticularDateChange}
+          onSpecificDateListChange={handleSpecificDateListChange}
           selectedDays={getSelectedDays()}
           onSelectedDaysChange={updateSelectedDays}
           onIsActiveChange={(isActive) => updateField("isActive", isActive)}
           errors={[
             ...(errors.takingType ?? []),
             ...(errors.interval ?? []),
-            ...(errors.particularDate ?? []),
+            ...(errors.specificDateList ?? []),
           ]}
           showError={submitted}
           startAt={medication.startAt}
           endAt={medication.endAt}
         />
+      ),
+    },
+    {
+      id: "perAOnce",
+      component: (
         <PerAOnce
           perDay={medication.perDay}
           amount={medication.amount}
           onPerDayChange={(value) => updateField("perDay", value)}
           onAmountChange={(value) => updateField("amount", value)}
         />
-        <Alarm />
+      ),
+    },
+    { id: "alarm", component: <Alarm /> },
+    {
+      id: "group",
+      component: (
         <Group
-          groupName={medication.groupName}
+          groupName={medication.groupName || ""}
           onGroupChange={(name) => updateField("groupName", name)}
           onRemoveFromGroup={handleRemoveFromGroup}
           showRemoveButton={params.mode === "edit"}
         />
-
+      ),
+    },
+    {
+      id: "button",
+      component: (
         <Button
           text={params.mode === "edit" ? "저장" : "다음"}
           onPress={handleSubmit}
         />
-      </View>
-    </ScrollView>
+      ),
+    },
+  ];
+
+  return (
+    <FlatList
+      data={getFormSections()}
+      renderItem={({ item }) => item.component}
+      keyExtractor={(item) => item.id}
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.contentContainer}
+    />
   );
 };
 
@@ -217,6 +258,10 @@ const styles = StyleSheet.create({
   container: {
     marginVertical: 25,
     marginHorizontal: 10,
+    flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: 20,
   },
   nameContainer: {
     borderBottomWidth: 0.5,

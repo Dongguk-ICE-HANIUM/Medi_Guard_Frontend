@@ -36,6 +36,9 @@ yarn-error.*
 # local env files
 .env*.local
 
+# 토큰 config 파일 (보안상 깃허브에 올라가지 않음)
+config/tokens.ts
+
 # typescript
 *.tsbuildinfo
 
