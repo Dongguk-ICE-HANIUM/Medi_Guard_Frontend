@@ -1,4 +1,3 @@
-import { removeDrugFromGroup, updateDrugDetail } from "@/api/medicine";
 import Button from "@/components/Button";
 import Alarm from "@/components/register/Alarm/Alarm";
 import DateRange from "@/components/register/DateRange";
@@ -7,6 +6,7 @@ import TakingCycle from "@/components/register/TakingCycle/TakingCycle";
 import TakingCycleDetails from "@/components/register/TakingCycle/TakingCycleDetails";
 import Group from "@/components/register/group/Group";
 import { colors } from "@/constants";
+import { mockMedicineStore } from "@/data/mockMedicineStore";
 
 import { useMedicationForm } from "@/hooks/useMedicationForm";
 import { Medication, MedicineInfo, TakingType } from "@/types/medication";
@@ -76,7 +76,10 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
   const handleRemoveFromGroup = async () => {
     if (params.mode === "edit" && params.drugId) {
       try {
-        await removeDrugFromGroup(params.drugId);
+        await mockMedicineStore.updateMedication(params.drugId, {
+          groupName: undefined,
+          groupId: undefined,
+        });
         updateField("groupName", "");
         console.log("그룹에서 약물 해제 완료");
       } catch (error) {
@@ -108,10 +111,10 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
       }
 
       if (params.mode === "edit" && params.drugId) {
-        // 편집 모드) API로 데이터 업데이트 후 상세페이지로 이동
+        // 편집 모드) mockStorage로 데이터 업데이트 후 상세페이지로 이동
         try {
           console.log("편집 모드 - 데이터 업데이트 시작");
-          await updateDrugDetail(params.drugId, {
+          await mockMedicineStore.updateMedication(params.drugId, {
             startAt: medication.startAt,
             endAt: medication.endAt,
             takingType: medication.takingType,
@@ -129,8 +132,12 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
           console.error("편집 중 오류 발생:", error);
         }
       } else {
-        // 새로 등록) 다음 단계로 이동
-        router.push("/medicine/register/interactionCheck");
+        // 새로 등록) 다음 단계로 이동하면서 약물 데이터 전달
+        const medicationData = encodeURIComponent(JSON.stringify(medication));
+        router.push({
+          pathname: "/medicine/register/interactionCheck",
+          params: { medicationData },
+        });
       }
     } else {
       console.log("[handleSubmit] 유효성 검사 실패 - 페이지 이동 불가");
@@ -149,7 +156,7 @@ const registerForm = ({ selected, onSubmit }: registerFormProps) => {
     updateField("specificDateList", dates);
   };
 
-  // 폼 섹션들을 외부 함수로 분리
+  // flatList에 들어갈 요소들
   const getFormSections = () => [
     {
       id: "header",

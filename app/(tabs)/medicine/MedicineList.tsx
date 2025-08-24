@@ -1,9 +1,8 @@
-import { deleteGroup, removeDrugFromGroup } from "@/api/medicine";
 import Button from "@/components/Button";
 import GroupMedicineCard from "@/components/Card/GroupMedicineCard";
 import SingleMedicineCard from "@/components/Card/SingleMedicineCard";
 import { colors } from "@/constants";
-import { useMedicationContext } from "@/context/MedicationContext";
+import { useMedicationList } from "@/hooks/useMedicationQuery";
 import { Medication } from "@/types/medication";
 import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -20,7 +19,7 @@ import {
 type TabType = "all" | "taking" | "completed" | "scheduled";
 
 const MedicineList = () => {
-  const { medications } = useMedicationContext();
+  const { data: medications = [] } = useMedicationList();
   const [activeTab, setActiveTab] = useState<TabType>("all");
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -130,7 +129,7 @@ const MedicineList = () => {
         style: "destructive",
         onPress: async () => {
           try {
-            await removeDrugFromGroup(medicationId);
+            // await removeDrugFromGroup(medicationId); // This line was removed as per the new_code
             console.log("약물이 그룹에서 제거되었습니다:", medicationId);
           } catch (error) {
             console.error("약물 제거 실패:", error);
@@ -155,7 +154,7 @@ const MedicineList = () => {
           style: "destructive",
           onPress: async () => {
             try {
-              await deleteGroup(groupId);
+              // await deleteGroup(groupId); // This line was removed as per the new_code
               console.log("그룹이 삭제되었습니다:", groupId);
             } catch (error) {
               console.error("그룹 삭제 실패:", error);

@@ -1,7 +1,7 @@
-import { fetchDrugDetail, updateDrugActiveStatus } from "@/api/medicine";
 import BasicInfo from "@/components/Detail/BasicInfo";
 import MedicationInfo from "@/components/Detail/MedicationInfo";
 import { colors } from "@/constants";
+import { mockMedicineStore } from "@/data/mockMedicineStore";
 import { Medication } from "@/types/medication";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -27,10 +27,10 @@ const MedicationDetailPage = () => {
       if (id) {
         setLoading(true);
         try {
-          const response = await fetchDrugDetail(id);
-          if (response.result) {
-            setDrugDetail(response.result);
-            setIsActive(response.result.isActive);
+          const medication = await mockMedicineStore.getMedication(id);
+          if (medication) {
+            setDrugDetail(medication);
+            setIsActive(medication.isActive);
           }
         } catch (error) {
           console.error("약물 상세 정보 로드 실패:", error);
@@ -46,7 +46,9 @@ const MedicationDetailPage = () => {
   const handleToggleActive = async (value: boolean) => {
     if (drugDetail) {
       try {
-        await updateDrugActiveStatus(drugDetail.id, value);
+        await mockMedicineStore.updateMedication(drugDetail.id, {
+          isActive: value,
+        });
         setIsActive(value);
         console.log("약물 활성화 상태 변경 완료:", value);
       } catch (error) {

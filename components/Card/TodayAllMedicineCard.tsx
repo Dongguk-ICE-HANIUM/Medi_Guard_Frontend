@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 30,
   },
   emptyText: {},
 });

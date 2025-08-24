@@ -1,5 +1,5 @@
 import { colors } from "@/constants";
-import { useMedicationContext } from "@/context/MedicationContext";
+import { useMedicationList } from "@/hooks/useMedicationQuery";
 import { DayData } from "@/types/calendar";
 import { TagInfo } from "@/types/tags";
 import { useCallback, useEffect, useState } from "react";
@@ -94,7 +94,7 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
   );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  const { medications } = useMedicationContext();
+  const { data: medications = [] } = useMedicationList();
 
   const fetchCalendarData = useCallback(
     async (date: Date): Promise<void> => {

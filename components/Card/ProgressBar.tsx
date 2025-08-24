@@ -1,5 +1,5 @@
-import { getMedicationStatus } from "@/api/medicine";
 import { colors } from "@/constants";
+import { mockMedicineStore } from "@/data/mockMedicineStore";
 import { Medication } from "@/types/medication";
 import { convertBinaryToTimeSlots } from "@/utils/dateUtils";
 import React, { useEffect, useState } from "react";
@@ -14,15 +14,18 @@ const ProgressBar = ({ medication, selectedDate }: ProgressBarProps) => {
   const { startAt, endAt, perDay } = medication;
   const [completionRate, setCompletionRate] = useState(0);
 
-  // 서버에서 복용 상태를 받아와서 복용률 계산
+  // mockStorage에서 복용 상태를 받아와서 복용률 계산
   useEffect(() => {
     const calculateCompletionRate = async () => {
       if (!selectedDate) return;
 
       try {
-        const response = await getMedicationStatus(medication.id, selectedDate);
-        if (response.errorCode === null) {
-          const timeSlot = response.result.timeSlot;
+        // mockStorage에서 약물 정보 조회
+        const medicationData = await mockMedicineStore.getMedication(
+          medication.id
+        );
+        if (medicationData) {
+          const timeSlot = medicationData.perDay || 0;
           const timeSlots = convertBinaryToTimeSlots(timeSlot);
 
           // 해당 날짜의 복용 완료 횟수
@@ -68,7 +71,7 @@ const ProgressBar = ({ medication, selectedDate }: ProgressBarProps) => {
             )}%`
           );
         } else {
-          console.error("복용 상태 조회 실패:", response.message);
+          console.error("약물 정보 조회 실패");
           setCompletionRate(0);
         }
       } catch (error) {

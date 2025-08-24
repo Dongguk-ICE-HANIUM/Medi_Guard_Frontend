@@ -2,7 +2,10 @@ import Calendar from "@/components/Calendar/Calendar";
 import NavigationCard from "@/components/Card/NavigationCard";
 import TodayAllMedicineCard from "@/components/Card/TodayAllMedicineCard";
 import { useCalendarContext } from "@/context/CalendarContext";
-import { useMedicationContext } from "@/context/MedicationContext";
+import {
+  useMedicationList,
+  useMedicationStatus,
+} from "@/hooks/useMedicationQuery";
 import { formatDateSlash } from "@/utils/dateUtils";
 import { AntDesign } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -23,7 +26,8 @@ export default function MedicineScreen() {
   const currentDay = currentDate.getDate();
 
   const { selectedDate, setSelectedDate } = useCalendarContext();
-  const { medications, loading, error } = useMedicationContext();
+  const { data: medications = [] } = useMedicationList();
+  const { loading, error } = useMedicationStatus();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [tempSelectedDate, setTempSelectedDate] = useState<Date>(
     selectedDate || currentDate
@@ -100,7 +104,7 @@ export default function MedicineScreen() {
                 selectedDate={formatDateSlash(displayDate)}
                 loading={loading}
               />
-              {error && <Text style={styles.errorText}>{error}</Text>}
+              {error && <Text style={styles.errorText}>{error.message}</Text>}
             </View>
           </View>
         </View>

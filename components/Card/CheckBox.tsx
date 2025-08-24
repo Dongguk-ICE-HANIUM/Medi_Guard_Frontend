@@ -1,5 +1,5 @@
-import { completeMedication, getMedicationStatus } from "@/api/medicine";
 import { colors } from "@/constants";
+import { mockMedicineStore } from "@/data/mockMedicineStore";
 import { Medication } from "@/types/medication";
 import {
   convertBinaryToTimeSlots,
@@ -36,17 +36,18 @@ const CheckBox = ({ medication, selectedDate }: CheckBoxProps) => {
     }
   }, [perDay, checkedStates.length]);
 
-  // 서버에서 복용 상태 조회하여 체크박스 초기화
+  // mockStorage에서 복용 상태 조회하여 체크박스 초기화
   useEffect(() => {
     const loadMedicationStatus = async () => {
       if (!selectedDate) return;
 
       try {
-        const response = await getMedicationStatus(id, selectedDate);
-        if (response.errorCode === null) {
-          const timeSlot = response.result.timeSlot;
+        // mockStorage에서 약물 정보 조회
+        const medication = await mockMedicineStore.getMedication(id);
+        if (medication) {
+          const timeSlot = medication.perDay || 0;
           console.log(
-            `서버에서 받은 timeSlot: ${timeSlot} (이진수: ${timeSlot.toString(
+            `mockStorage에서 받은 timeSlot: ${timeSlot} (이진수: ${timeSlot.toString(
               2
             )})`
           );
@@ -64,7 +65,7 @@ const CheckBox = ({ medication, selectedDate }: CheckBoxProps) => {
           setCheckedStates(newCheckedStates);
           console.log("체크박스 상태 초기화:", newCheckedStates);
         } else {
-          console.error("복용 상태 조회 실패:", response.message);
+          console.error("약물 정보 조회 실패");
           setCheckedStates(new Array(perDay).fill(false));
         }
       } catch (error) {
@@ -100,17 +101,24 @@ const CheckBox = ({ medication, selectedDate }: CheckBoxProps) => {
         }, timeSlot: ${timeSlot}`
       );
 
-      // API 호출
-      const response = await completeMedication(id, timeSlot);
-      if (response.errorCode === null) {
-        console.log("복용 완료 API 성공:", response.result);
+      // mockStorage 업데이트
+      const medication = await mockMedicineStore.getMedication(id);
+      if (medication) {
+        const currentTimeSlot = medication.perDay || 0;
+        const newTimeSlot = currentTimeSlot | timeSlot;
+
+        await mockMedicineStore.updateMedication(id, {
+          perDay: newTimeSlot,
+        });
+
+        console.log("복용 완료 mockStorage 업데이트 성공:", newTimeSlot);
       } else {
-        Alert.alert("오류", "복용 상태 업데이트에 실패했습니다.");
+        Alert.alert("오류", "약물 정보를 찾을 수 없습니다.");
         // 실패 시 원래 상태로 되돌리기
         setCheckedStates([...checkedStates]);
       }
     } catch (error) {
-      console.error("복용 완료 API 오류:", error);
+      console.error("복용 완료 mockStorage 업데이트 오류:", error);
       Alert.alert("오류", "복용 상태 업데이트에 실패했습니다.");
       // 실패 시 원래 상태로 되돌리기
       setCheckedStates([...checkedStates]);
