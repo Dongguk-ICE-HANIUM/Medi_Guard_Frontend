@@ -11,7 +11,7 @@ const Register = () => {
     if (selectedMethod === "direct") {
       router.push("/medicine/register/registerForm");
     } else if (selectedMethod === "ai") {
-      router.push("/medicine/register/aiRegister");
+      router.push("/medicine/register/camera");
     }
   };
 

@@ -12,10 +12,11 @@ const MEDICATION_DEFAULTS: Omit<Medication, "id" | "medicineInfo"> = {
   endAt: "",
   takingType: TakingType.UNSELECTED,
   interval: 0,
-  particularDate: [],
+  specificDateList: [],
   perDay: 1,
   amount: 1.0,
   isActive: true,
+  isEssential: false,
   groupName: "",
   notifiTakingList: [],
 };
@@ -71,29 +72,29 @@ export const validateField = (med: Medication, field: FieldKey): string[] => {
 
     case "takingType":
       switch (med.takingType) {
-        case TakingType.DAILY:
+        case TakingType.EVERY_DAY:
           break;
-        case TakingType.SPECIFIC_INTERVAL:
-          if (med.interval < 1) {
+        case TakingType.PARTICULAR_INTERVAL:
+          if ((med.interval ?? 0) < 1) {
             errors.push("복용 간격을 1일 이상으로 설정해주세요.");
           }
-          if (med.interval > MAX_INTERVAL) {
+          if ((med.interval ?? 0) > MAX_INTERVAL) {
             errors.push(`간격은 ${MAX_INTERVAL}일을 초과할 수 없습니다.`);
           }
           break;
-        case TakingType.SPECIFIC_DAY:
-          if (med.interval === 0) {
+        case TakingType.PARTICULAR_DAY:
+          if ((med.interval ?? 0) === 0) {
             errors.push("복용할 요일을 선택해주세요.");
           }
           break;
         case TakingType.SPECIFIC_DATE:
-          if (!med.particularDate || med.particularDate.length === 0) {
+          if (!med.specificDateList || med.specificDateList.length === 0) {
             errors.push(
               "특정 날짜 복용 시 최소 하나 이상의 날짜를 선택해주세요."
             );
           }
-          if (med.particularDate && med.startAt && med.endAt) {
-            const outOfRange = med.particularDate.filter(
+          if (med.specificDateList && med.startAt && med.endAt) {
+            const outOfRange = med.specificDateList.filter(
               (dateStr) => !isDateInRange(dateStr, med.startAt, med.endAt)
             );
             if (outOfRange.length > 0) {
@@ -135,7 +136,25 @@ export const useMedicationForm = (
   initialValues?: Partial<Medication>
 ) => {
   const [medication, setMedication] = useState<Medication>(() => {
-    const baseMedication = createInitialMedication(selected);
+    //임시 id 때문에 (고유 id가 없어서)
+    // 임시 ID인 경우 고유한 ID로 변경 (컴포넌트 마운트 시 한 번만 실행)
+    let medicineInfoWithUniqueId = selected;
+
+    if (selected.id.startsWith("temp-")) {
+      // 이미 고유한 ID가 있는지 확인
+      if (selected.id === "temp-default") {
+        medicineInfoWithUniqueId = {
+          ...selected,
+          id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        };
+      } else {
+        // 이미 고유한 ID가 있으면 그대로 사용
+        medicineInfoWithUniqueId = selected;
+      }
+    }
+    //
+
+    const baseMedication = createInitialMedication(medicineInfoWithUniqueId);
     if (initialValues) {
       return { ...baseMedication, ...initialValues };
     }
@@ -145,15 +164,15 @@ export const useMedicationForm = (
   const [submitted, setSubmitted] = useState(false);
 
   const getSelectedDays = (): string[] => {
-    if (medication.takingType === TakingType.SPECIFIC_DAY) {
-      return convertBinaryToDays(medication.interval);
+    if (medication.takingType === TakingType.PARTICULAR_DAY) {
+      return convertBinaryToDays(medication.interval ?? 0);
     }
     return [];
   };
 
   const updateSelectedDays = (days: string[]) => {
     const binaryValue = convertDaysToBinary(days);
-    updateField("interval", binaryValue);
+    updateField("interval", binaryValue ?? 0);
   };
 
   const updateField = <K extends keyof Medication>(
@@ -164,11 +183,15 @@ export const useMedicationForm = (
       const next = { ...prevMedication, [field]: value };
 
       if (field === "takingType") {
-        if (value === TakingType.SPECIFIC_DAY) {
+        if (value === TakingType.PARTICULAR_DAY) {
           next.interval = 0;
-        } else if (value === TakingType.SPECIFIC_INTERVAL) {
+        } else if (value === TakingType.PARTICULAR_INTERVAL) {
           next.interval = 0;
         }
+      }
+
+      if (field === "specificDateList") {
+        next.specificDateList = value as string[];
       }
 
       setErrors((prevErrors) => ({
@@ -190,10 +213,10 @@ export const useMedicationForm = (
             ? validateField(next, "interval")
             : prevErrors.interval || [],
 
-        particularDate:
-          field === "takingType" || field === "particularDate"
-            ? validateField(next, "particularDate")
-            : prevErrors.particularDate || [],
+        specificDateList:
+          field === "takingType" || field === "specificDateList"
+            ? validateField(next, "specificDateList")
+            : prevErrors.specificDateList || [],
       }));
       return next;
     });

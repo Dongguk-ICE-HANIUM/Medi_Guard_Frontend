@@ -21,9 +21,9 @@ export const WEEKDAY_LABELS = {
 };
 
 export const TAKING_TYPE_OPTIONS = [
-  { label: "매일", value: TakingType.DAILY },
-  { label: "특정일 간격", value: TakingType.SPECIFIC_INTERVAL },
-  { label: "특정 요일", value: TakingType.SPECIFIC_DAY },
+  { label: "매일", value: TakingType.EVERY_DAY },
+  { label: "특정일 간격", value: TakingType.PARTICULAR_INTERVAL },
+  { label: "특정 요일", value: TakingType.PARTICULAR_DAY },
   { label: "특정 날짜", value: TakingType.SPECIFIC_DATE },
   { label: "필요시 복용", value: TakingType.NEED },
 ];

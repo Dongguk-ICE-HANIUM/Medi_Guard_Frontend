@@ -1,15 +1,34 @@
 import { AppointmentProvider } from "@/context/AppointmentContext";
 import { CalendarProvider } from "@/context/CalendarContext";
-import { MedicationProvider } from "@/context/MedicationContext";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Tabs } from "expo-router";
 import React from "react";
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 10,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: 1,
+    },
+  },
+});
+
 export default function TabLayout() {
   return (
-    <AppointmentProvider>
+
+    <QueryClientProvider client={queryClient}>
+      <AppointmentProvider>
+
+
       <MedicationProvider>
+
         <CalendarProvider>
           <Tabs screenOptions={{ headerShown: false }}>
             <Tabs.Screen
@@ -79,7 +98,8 @@ export default function TabLayout() {
             />
           </Tabs>
         </CalendarProvider>
-      </MedicationProvider>
-    </AppointmentProvider>
+
+      </AppointmentProvider>
+    </QueryClientProvider>
   );
 }

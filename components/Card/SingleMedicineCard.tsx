@@ -11,24 +11,32 @@ import Toggle from "./Toggle";
 export interface SingleMedicineCardProps {
   medication: Medication;
   selectedDate?: string;
+  targetDate?: Date;
   showGroupDetail?: boolean;
   isEditMode?: boolean;
-  onDelete?: (medicationId: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 const SingleMedicineCard = ({
   medication,
   selectedDate,
+  targetDate,
   showGroupDetail = false,
   isEditMode = false,
   onDelete,
 }: SingleMedicineCardProps) => {
-  // 복용 상태 계산 (임시 로직 - 실제로는 서버 데이터 기반)
+  // 복용 상태 계산 (오늘 날짜 기준)
   const medicationStatus = useMemo(() => {
-    const currentDate = selectedDate ? new Date(selectedDate) : new Date();
-    const endDate = new Date(medication.endAt);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    const isCompleted = currentDate > endDate;
+    const startDate = new Date(medication.startAt);
+    const endDate = new Date(medication.endAt);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+
+    const isCompleted = today > endDate;
+    const isScheduled = today < startDate;
 
     const totalDays =
       Math.ceil(
@@ -40,7 +48,7 @@ const SingleMedicineCard = ({
     const daysPassed = Math.max(
       0,
       Math.floor(
-        (currentDate.getTime() - new Date(medication.startAt).getTime()) /
+        (today.getTime() - new Date(medication.startAt).getTime()) /
           (1000 * 60 * 60 * 24)
       )
     );
@@ -49,12 +57,22 @@ const SingleMedicineCard = ({
     const completionRate =
       totalDays > 0 ? (actualDaysPassed / totalDays) * 100 : 0;
 
+    let status: "completed" | "taking" | "scheduled";
+    if (isCompleted) {
+      status = "completed";
+    } else if (isScheduled) {
+      status = "scheduled";
+    } else {
+      status = "taking";
+    }
+
     return {
       isCompleted,
+      isScheduled,
       completionRate: Math.min(completionRate, 100),
-      status: isCompleted ? "completed" : "taking",
+      status,
     };
-  }, [medication, selectedDate]);
+  }, [medication]);
 
   const handleToDetail = () => {
     console.log(
@@ -80,10 +98,15 @@ const SingleMedicineCard = ({
                 style={[
                   styles.statusTag,
                   {
-                    backgroundColor:
-                      medicationStatus.status === "completed"
-                        ? colors.GREEN + "20"
-                        : colors.BLUE + "20",
+                    backgroundColor: !medication.isActive
+                      ? colors.LIGHT_GRAY + "20"
+                      : medication.takingType === "NEED"
+                      ? colors.LIGHT_GRAY + "20"
+                      : medicationStatus.status === "completed"
+                      ? colors.GREEN + "20"
+                      : medicationStatus.status === "scheduled"
+                      ? colors.YELLOW + "20"
+                      : colors.BLUE + "20",
                   },
                 ]}
               >
@@ -91,15 +114,26 @@ const SingleMedicineCard = ({
                   style={[
                     styles.statusText,
                     {
-                      color:
-                        medicationStatus.status === "completed"
-                          ? colors.GREEN
-                          : colors.BLUE,
+                      color: !medication.isActive
+                        ? colors.TEXT_GRAY
+                        : medication.takingType === "NEED"
+                        ? colors.TEXT_GRAY
+                        : medicationStatus.status === "completed"
+                        ? colors.GREEN
+                        : medicationStatus.status === "scheduled"
+                        ? colors.TAG_YELLOW
+                        : colors.BLUE,
                     },
                   ]}
                 >
-                  {medicationStatus.status === "completed"
+                  {!medication.isActive
+                    ? "보류"
+                    : medication.takingType === "NEED"
+                    ? "보류"
+                    : medicationStatus.status === "completed"
                     ? "복용 완료"
+                    : medicationStatus.status === "scheduled"
+                    ? "복용 예정"
                     : "복용 중"}
                 </Text>
               </View>
@@ -126,12 +160,14 @@ const SingleMedicineCard = ({
         <ProgressBar medication={medication} selectedDate={selectedDate} />
       </View>
 
-      {/* 복용 중일때만 체크박스 보이게 */}
-      {(!showGroupDetail || !medicationStatus.isCompleted) && (
-        <View style={styles.toggle}>
-          <Toggle medication={medication} />
-        </View>
-      )}
+      {/* 복용 중이거나 필요시 복용이 아니고, isActive가 true일 때만 체크박스 보이게 */}
+      {medication.isActive &&
+        medication.takingType !== "NEED" &&
+        medicationStatus.status === "taking" && (
+          <View style={styles.toggle}>
+            <Toggle medication={medication} selectedDate={selectedDate} />
+          </View>
+        )}
     </View>
   );
 };

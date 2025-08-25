@@ -16,7 +16,8 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-  // 저장 새로고침 때문에 주석처리
+
+  //저장 새로고침 때문에 주석처리
   useEffect(() => {
     if (loaded) checkAutoLogin();
   }, [loaded]);
