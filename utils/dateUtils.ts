@@ -2,6 +2,7 @@ import { FormattedDateTime } from "@/types/doctor";
 
 //YYYY.MM.DD
 export const formatDateDot = (date: Date): string => {
+  console.log("이거 지우기");
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");

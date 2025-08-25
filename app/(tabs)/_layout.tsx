@@ -22,8 +22,13 @@ const queryClient = new QueryClient({
 
 export default function TabLayout() {
   return (
+
     <QueryClientProvider client={queryClient}>
       <AppointmentProvider>
+
+
+      <MedicationProvider>
+
         <CalendarProvider>
           <Tabs screenOptions={{ headerShown: false }}>
             <Tabs.Screen
@@ -93,6 +98,7 @@ export default function TabLayout() {
             />
           </Tabs>
         </CalendarProvider>
+
       </AppointmentProvider>
     </QueryClientProvider>
   );

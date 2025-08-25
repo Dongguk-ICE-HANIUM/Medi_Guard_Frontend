@@ -1,4 +1,5 @@
 import queryClient from "@/api/queryClient";
+import { MedicationProvider } from "@/context/MedicationContext";
 import { getSecureStore } from "@/utils/secureStore";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
@@ -14,6 +15,7 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
+
 
   //저장 새로고침 때문에 주석처리
   useEffect(() => {
@@ -61,17 +63,18 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <View style={{ flex: 1 }}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="auth" options={{ headerShown: false }} />
-          <Stack.Screen name="sideEffect" options={{ headerShown: false }} />
-          <Stack.Screen name="calendar" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-
-        <Toast />
-      </View>
+      <MedicationProvider>
+        <View style={{ flex: 1 }}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="auth" options={{ headerShown: false }} />
+            <Stack.Screen name="sideEffect" options={{ headerShown: false }} />
+            <Stack.Screen name="calendar" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <Toast />
+        </View>
+      </MedicationProvider>
     </QueryClientProvider>
   );
 }

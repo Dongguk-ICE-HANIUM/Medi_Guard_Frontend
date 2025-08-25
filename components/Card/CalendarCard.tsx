@@ -1,15 +1,29 @@
 import { colors } from "@/constants";
+import { CalendarProvider } from "@/context/CalendarContext";
+import { useMedicineContext } from "@/context/MedicineContext";
 import { Octicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Dimensions, Modal, StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import Button from "../Button";
 import Calendar from "../Calendar/Calendar";
+import CustomModal from "../CustomModal";
+import Tag from "../tag/Tag";
 
 export default function CalendarCard() {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isGuideVisible, setIsGuideVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const { medicines } = useMedicineContext();
+
+  const tagDescriptions = [
+    { type: "pillMissed", label: "미복용", desc: "약을 먹지 않은 상태" },
+    { type: "pillTaken", label: "복용", desc: "약을 복용중인 상태" },
+    { type: "sideEffect", label: "부작용", desc: "부작용이 발생한 상태" },
+    { type: "pillSchedule", label: "예정", desc: "복용 예정인 상태" },
+    { type: "appointment", label: "진료", desc: "병원 진료가 예약된 상태" },
+  ];
 
   const handleCalendarButton = () => {
     if (!selectedDate) return;
@@ -33,41 +47,78 @@ export default function CalendarCard() {
 
   return (
     <View>
-      <View style={styles.title}>
-        <Text style={styles.titleText}>복용 달력</Text>
-        <Octicons name="question" size={18} color="black" />
-      </View>
-      <View style={styles.calendarParent}>
-        <View style={styles.calendar}>
-          <Calendar onDateSelect={handleDateSelect} />
-          <Modal
-            visible={isModalVisible}
-            presentationStyle="overFullScreen"
-            transparent={true}
+      <CalendarProvider>
+        <View style={styles.title}>
+          <Text style={styles.titleText}>복용 달력</Text>
+          <Octicons
+            name="question"
+            size={18}
+            color="black"
+            onPress={() => setIsGuideVisible(true)}
+          />
+          <CustomModal
+            visible={isGuideVisible}
+            onClose={() => setIsGuideVisible(false)}
           >
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalDate}>
-                  {dayjs(selectedDate).format("M월 DD일 dddd")}
-                </Text>
-                <View style={styles.buttonContainer}>
-                  <Button
-                    text="취소"
-                    size="medium"
-                    color="gray"
-                    onPress={() => setIsModalVisible(false)}
+            <View>
+              {tagDescriptions.map((tag) => (
+                <View
+                  key={tag.type}
+                  style={{ flexDirection: "row", gap: 5, margin: 5 }}
+                >
+                  <Tag
+                    tagInfo={{ type: tag.type as any, label: tag.label }}
+                    size="small"
                   />
-                  <Button
-                    text="달력보기"
-                    size="medium"
-                    onPress={handleCalendarButton}
-                  />
+                  <Text>{tag.desc}</Text>
                 </View>
-              </View>
+              ))}
             </View>
-          </Modal>
+            <View style={styles.buttonContainer}>
+              <Button
+                text="확인"
+                size="medium"
+                onPress={() => setIsGuideVisible(false)}
+              />
+            </View>
+          </CustomModal>
         </View>
-      </View>
+        <View style={styles.calendarParent}>
+          <View style={styles.calendar}>
+            <Calendar onDateSelect={handleDateSelect} />
+            <CustomModal
+              visible={isModalVisible}
+              onClose={() => setIsModalVisible(false)}
+            >
+              <Text style={styles.modalDate}>
+                {dayjs(selectedDate).format("M월 DD일 dddd")}
+              </Text>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalContentTitle}>복용중인 약물</Text>
+                {medicines.map((medicine) => (
+                  <View key={medicine.id} style={styles.modalContentMedicine}>
+                    <Text style={styles.medicineName}>{medicine.name}</Text>
+                    <Text>{medicine.date}</Text>
+                  </View>
+                ))}
+              </View>
+              <View style={styles.buttonContainer}>
+                <Button
+                  text="취소"
+                  size="medium"
+                  color="gray"
+                  onPress={() => setIsModalVisible(false)}
+                />
+                <Button
+                  text="달력보기"
+                  size="medium"
+                  onPress={handleCalendarButton}
+                />
+              </View>
+            </CustomModal>
+          </View>
+        </View>
+      </CalendarProvider>
     </View>
   );
 }
@@ -91,34 +142,39 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   calendar: {
-    width: "95%",
+    width: "100%",
     padding: 10,
   },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.16,
-    shadowRadius: 22,
 
-    backgroundColor: colors.WHITE,
-    borderRadius: 16,
-    width: width * 0.95,
-    height: "auto",
-    gap: 10,
-    padding: 10,
-  },
   modalDate: {
-    fontSize: 17,
+    fontSize: 19,
     fontWeight: "700",
     margin: 5,
+    marginBottom: 0,
+  },
+  modalContent: {
+    margin: 5,
+    gap: 5,
+  },
+  modalContentTitle: {
+    fontWeight: "700",
+    fontSize: 17,
+  },
+  modalContentMedicine: {
+    flexDirection: "row",
+    gap: 25,
+    paddingVertical: 15,
+    marginVertical: 5,
+    padding: 5,
+    borderRadius: 10,
+
+    borderBottomWidth: 1, // 전체 테두리에 두께 적용
+    borderColor: colors.PINK, // 아래쪽만 색상
+  },
+  medicineName: {
+    fontWeight: "500",
+    minWidth: 50,
+    fontSize: 16,
   },
 
   medicineItem: {
@@ -133,7 +189,7 @@ const styles = StyleSheet.create({
   },
 
   buttonContainer: {
-    flexDirection: "row",
+    flexDirection: "row-reverse",
     gap: 5,
   },
 });
