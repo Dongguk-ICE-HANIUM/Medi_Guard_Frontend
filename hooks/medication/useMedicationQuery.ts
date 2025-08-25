@@ -6,6 +6,7 @@ import {
   Medication,
   UpdateMedicationRequest,
 } from "@/types/medication";
+import { RecognizedMedicineInfo } from "@/types/medicationReconition";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
 
@@ -320,6 +321,105 @@ export const useCalendarDrugs = () => {
   });
 };
 
+//ai 루트
+// 인식된 약물로 등록하는 mutation 추가
+export const useAddMedicationFromRecognition = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      recognizedMedicine,
+      medicationData,
+    }: {
+      recognizedMedicine: RecognizedMedicineInfo;
+      medicationData: Partial<Medication>;
+    }): Promise<Medication> => {
+      await mockDelay();
+      console.log("인식된 약물 등록 요청: ", recognizedMedicine.name);
+
+      const newMedication: Medication = {
+        id: `med_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+        medicineInfo: {
+          id: recognizedMedicine.id,
+          name: recognizedMedicine.name,
+          code: recognizedMedicine.code,
+          effect: recognizedMedicine.effect,
+          warning: recognizedMedicine.warning,
+          sideEffect: recognizedMedicine.sideEffect,
+          interaction: recognizedMedicine.interaction,
+          depositMethod: recognizedMedicine.depositMethod,
+        },
+        startAt:
+          medicationData.startAt || new Date().toISOString().split("T")[0],
+        endAt:
+          medicationData.endAt ||
+          new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0],
+        takingType: medicationData.takingType || ("EVERY_DAY" as any),
+        interval: medicationData.interval,
+        specificDateList: medicationData.specificDateList,
+        perDay: medicationData.perDay || 2,
+        amount: medicationData.amount || 1,
+        isActive: true,
+        isEssential: false,
+        groupName: "인식된 약물",
+        groupId: medicationData.groupId || "group-1",
+        notifiTakingList: [],
+      };
+
+      await mockMedicineStore.addMedication(newMedication);
+      return newMedication;
+    },
+    onSuccess: (newMedication) => {
+      console.log("인식된 약물 등록 성공", newMedication.medicineInfo.name);
+
+      // 캐시 즉시 업데이트
+      queryClient.setQueryData(
+        medicationKeys.lists(),
+        (oldData: Medication[] | undefined) => {
+          return oldData ? [...oldData, newMedication] : [newMedication];
+        }
+      );
+
+      // 관련 쿼리들 무효화
+      queryClient.invalidateQueries({ queryKey: medicationKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: medicationKeys.calendarDrugs(),
+      });
+
+      queryClient.setQueryData(
+        medicationKeys.calendarDrugs(),
+        (oldData: Drug[] | undefined) => {
+          const newCalendarDrug: Drug = {
+            id: newMedication.id,
+            calendarDrugId: newMedication.id,
+            name: newMedication.medicineInfo.name,
+            startDate: newMedication.startAt,
+            endDate: newMedication.endAt,
+            timeSlot: newMedication.perDay,
+            takenDaysCount: 0,
+            missedDaysCount: 0,
+          };
+          return oldData ? [...oldData, newCalendarDrug] : [newCalendarDrug];
+        }
+      );
+
+      setTimeout(() => {
+        Alert.alert(
+          "등록 완료",
+          `${newMedication.medicineInfo.name}이(가) 등록되었습니다.`,
+          [{ text: "확인" }]
+        );
+      }, 1000);
+    },
+    onError: (error) => {
+      console.error("인식된 약물 등록 실패", error);
+      Alert.alert("등록 실패", "약물 등록에 실패했습니다.", [{ text: "확인" }]);
+    },
+  });
+};
+
 //개발자용 유틸 훅
 export const useDemoUtils = () => {
   const queryClient = useQueryClient();
@@ -364,10 +464,22 @@ export const useDemoUtils = () => {
     ]);
   };
 
+  //ai 루트
+  const addRecognitionSample = async () => {
+    await mockStoreUtils.addRecognizedSample();
+    queryClient.invalidateQueries({ queryKey: medicationKeys.lists() });
+    queryClient.invalidateQueries({ queryKey: medicationKeys.calendarDrugs() });
+
+    Alert.alert("인식 샘플 추가 완료", "휴온스아목시크라정이 추가되었습니다.", [
+      { text: "확인" },
+    ]);
+  };
+
   return {
     logCurrentState,
     resetDemo,
     addSampleMedication,
+    addRecognitionSample,
   };
 };
 

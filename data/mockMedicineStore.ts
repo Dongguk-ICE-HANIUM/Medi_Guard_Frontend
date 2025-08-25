@@ -1,4 +1,5 @@
 import { Drug, DrugGroup, Medication } from "@/types/medication";
+import { RecognizedMedicineInfo } from "@/types/medicationReconition";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const STORAGE_KEYS = {
@@ -155,6 +156,74 @@ class MedicineMockStore {
     console.log("그룹 추가 완료", group.name);
   }
 
+  //ai 루트
+  // 인식된 약물 정보로 약물 등록 (기존 addMedication 메서드를 확장)
+  async addMedicationFromRecognition(
+    recognizedMedicine: RecognizedMedicineInfo,
+    medicationData: Partial<Medication>
+  ): Promise<void> {
+    const medication: Medication = {
+      id: `med_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      medicineInfo: {
+        id: recognizedMedicine.id,
+        name: recognizedMedicine.name,
+        code: recognizedMedicine.code,
+        effect: recognizedMedicine.effect,
+        warning: recognizedMedicine.warning,
+        sideEffect: recognizedMedicine.sideEffect,
+        interaction: recognizedMedicine.interaction,
+        depositMethod: recognizedMedicine.depositMethod,
+      },
+      startAt: medicationData.startAt || new Date().toISOString().split("T")[0],
+      endAt:
+        medicationData.endAt ||
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
+      takingType: medicationData.takingType || ("EVERY_DAY" as any),
+      interval: medicationData.interval,
+      specificDateList: medicationData.specificDateList,
+      perDay: medicationData.perDay || 2,
+      amount: medicationData.amount || 1,
+      isActive: true,
+      isEssential: false,
+      groupName: medicationData.groupName || "인식된 약물",
+      groupId: medicationData.groupId || "group-1",
+      notifiTakingList: medicationData.notifiTakingList || [],
+    };
+
+    const medications = await this.getMedicationsList();
+    const updated = [...medications, medication];
+    await this.saveMedications(updated);
+
+    console.log("인식된 약물 등록 완료:", medication.medicineInfo.name);
+  }
+
+  // 약물 인식 시뮬레이션 (시연용)
+  async simulateMedicineRecognition(
+    imageUri: string
+  ): Promise<RecognizedMedicineInfo> {
+    // 시연용 딜레이
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    return {
+      id: "huons-amoxicla-tab",
+      name: "휴온스아목시크라정",
+      code: "N0507034",
+      effect:
+        "아목시실린과 클라불란산 복합 제제로서 베타락타마제를 생성하는 내성균에 대해서도 효과를 나타내며, 광범위 항균 스펙트럼을 가진 항생제입니다.",
+      warning:
+        "임산부는 이 약의 순혈 중에 들어간 양이 보고되어 있어 분만시 용량을 제한해야 합니다. 신장기능이 저하된 환자들은 사용하지 말도록 합니다.",
+      sideEffect:
+        "일반적인 부작용으로 설사 또는 연변, 구역, 구토, 가스찬 복통, 과민반응이 나타날 수 있습니다. 때로는 간수치 상승, 혈소판 감소증이 나타날 수 있습니다.",
+      interaction:
+        "와파린과 병용시 혈액응고능 검사인 국제표준화비율(INR)의 변화가 보고되어 있어 주의해야 합니다. 경구용 항응고제와 함께 복용할 경우 혈액응고 시간을 정기적으로 모니터링해야 합니다.",
+      depositMethod:
+        "성인 및 12세 이상: 1회 1정, 1일 2회 12시간 간격으로 복용합니다. 식사와 함께 복용하면 위장장애를 줄일 수 있습니다.",
+      imageUri,
+    };
+  }
+
   //아예 삭제하기
   //
   //
@@ -258,4 +327,32 @@ export const mockStoreUtils = {
   resetAll: () => mockMedicineStore.resetAll(),
   cleanup: () => mockMedicineStore.cleanup(),
   addSample: () => mockMedicineStore.addSampleMedication(),
+
+  //ai 루트
+
+  // 인식된 약물로 샘플 추가
+  addRecognizedSample: async () => {
+    const sampleRecognition: RecognizedMedicineInfo = {
+      id: "sample-recognition-" + Date.now(),
+      name: "휴온스아목시크라정",
+      code: "N0507034",
+      effect: "광범위 항균 스펙트럼을 가진 항생제",
+      warning: "임산부, 신장기능 저하 환자 주의",
+      sideEffect: "설사, 구역, 구토 등",
+      interaction: "와파린과 상호작용 주의",
+      depositMethod: "1일 2회, 식사와 함께 복용",
+    };
+
+    await mockMedicineStore.addMedicationFromRecognition(sampleRecognition, {
+      startAt: new Date().toISOString().split("T")[0],
+      endAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
+      perDay: 2,
+      amount: 1,
+      takingType: "EVERY_DAY" as any,
+    });
+
+    console.log("🔍 인식된 샘플 약물 추가됨");
+  },
 };

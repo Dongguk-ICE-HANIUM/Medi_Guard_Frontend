@@ -103,10 +103,12 @@ const MedicineList = () => {
     const individual: Medication[] = [];
 
     medications.forEach((medication) => {
+      // AI로 인식된 약물("인식된 약물")은 그룹으로 묶지 않고 개별 약물로 표시
       if (
         medication.groupName &&
         medication.groupName.trim() !== "" &&
-        medication.groupId
+        medication.groupId &&
+        medication.groupName !== "인식된 약물"
       ) {
         if (!groups[medication.groupId]) {
           groups[medication.groupId] = {

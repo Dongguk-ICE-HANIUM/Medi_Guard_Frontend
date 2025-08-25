@@ -59,7 +59,8 @@
     "react-router-dom": "^7.6.3",
     "secure": "^0.0.1",
     "store": "^2.0.12",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "expo-camera": "~16.1.11"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

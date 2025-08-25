@@ -62,15 +62,32 @@ const TodayAllMedicineCard = ({
   const GroupedMedicationList = () => {
     return (
       <>
-        {/* 그룹 약물 */}
-        {Object.entries(groupMedications).map(([groupId, groupData]) => (
-          <GroupMedicineCard
-            key={groupId}
-            groupId={groupId}
-            groupName={groupData.name}
-            medications={groupData.medications}
-          />
-        ))}
+        {/* 그룹 약물 (인식된 약물은 제외하고 SingleMedicineCard로 표시) */}
+        {Object.entries(groupMedications).map(([groupId, groupData]) => {
+          // 인식된 약물 그룹은 개별 약물로 표시
+          if (groupData.name === "인식된 약물") {
+            return groupData.medications.map((medication) => (
+              <View key={medication.id} style={styles.medicationItem}>
+                <SingleMedicineCard
+                  medication={medication}
+                  selectedDate={selectedDate}
+                  targetDate={targetDate}
+                  showGroupDetail={true}
+                />
+              </View>
+            ));
+          }
+
+          // 다른 그룹은 GroupMedicineCard로 표시
+          return (
+            <GroupMedicineCard
+              key={groupId}
+              groupId={groupId}
+              groupName={groupData.name}
+              medications={groupData.medications}
+            />
+          );
+        })}
 
         {/* 개별 약물 */}
         {individualMedications.map((medication) => (
