@@ -6,32 +6,42 @@ import { StyleSheet, Text, View } from "react-native";
 
 interface userNameCardProps {
   name: string;
+  date?: Date;
 }
 
-export default function UserNameCard({ name }: userNameCardProps) {
+export default function UserNameCard({ name, date }: userNameCardProps) {
   return (
     <View style={styles.userNameCard}>
-      <EvilIcons
-        name="heart"
-        size={20}
-        color={colors.PINK}
-        style={styles.Icon}
-      />
-      <Text style={styles.textTitle}>
-        <Text style={styles.textDate}>{dayjs().format("M월 DD일")}</Text>
-        <Text style={styles.textUserName}> {name}</Text>님의 건강현황
-      </Text>
+      <View style={styles.content}>
+        <EvilIcons
+          name="heart"
+          size={20}
+          color={colors.PINK}
+          style={styles.Icon}
+        />
+        <Text style={styles.textTitle}>
+          <Text style={styles.textDate}>
+            {date ? dayjs(date).format("M월 DD일") : dayjs().format("M월 DD일")}
+          </Text>
+          <Text style={styles.textUserName}> {name}</Text>님의 건강현황
+        </Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   userNameCard: {
-    flexDirection: "row",
-    gap: 10,
+    justifyContent: "space-between",
+    width: "95%",
     backgroundColor: colors.WHITE,
     padding: 15,
+    borderRadius: 16,
+  },
+  content: {
+    flexDirection: "row",
     alignItems: "center",
+    gap: 10,
   },
   Icon: {},
   textTitle: {

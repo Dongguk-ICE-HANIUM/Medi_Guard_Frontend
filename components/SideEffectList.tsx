@@ -1,11 +1,11 @@
 import { colors } from "@/constants";
+import { useMedicineContext } from "@/context/MedicineContext";
 import { CreateSideEffectRequest } from "@/types/sideEffect";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Dimensions,
-  Modal,
   Pressable,
   StyleSheet,
   Text,
@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import AddIcon from "./../assets/icon/AddIcon.svg";
 import Button from "./Button";
+import CustomModal from "./CustomModal";
 import SideEffectItem from "./SideEffectItem";
 dayjs.locale("ko");
 
@@ -39,29 +40,10 @@ export default function SideEffectList({
   onUpdate,
 }: SideEffectListProps) {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [medicines, setMedicines] = useState<Medicine[]>([]);
+  const { medicines } = useMedicineContext();
   const [selectedMedicine, setSelectedMedicine] = useState<Medicine | null>(
     null
   );
-  // 약물 목록 가져오기
-  useEffect(() => {
-    loadInitialData();
-  }, []);
-
-  async function loadInitialData() {
-    try {
-      // 약물 목록 가져오는 api
-
-      // mock 데이터
-      setMedicines([
-        { id: 1, name: "타이레놀", date: "2025.01.15~2025.01.20" },
-        { id: 2, name: "애드빌", date: "2025.01.20~2025-01-29" },
-        { id: 3, name: "게보린", date: "2025.02.20~2025-02-29" },
-      ]);
-    } catch (error) {
-      console.error("데이터 로드 실패:", error);
-    }
-  }
 
   function handleCreateSideEffect() {
     setIsModalVisible(true);
@@ -100,53 +82,44 @@ export default function SideEffectList({
           style={styles.addNewMedicine}
           onPress={handleCreateSideEffect}
         >
-          <AddIcon width={18} height={18} />;
+          <AddIcon width={18} height={18} />
           <Text style={styles.text}>약물 추가하기</Text>
         </TouchableOpacity>
-        <Modal
+        <CustomModal
           visible={isModalVisible}
-          presentationStyle="overFullScreen"
-          transparent={true}
+          onClose={() => setIsModalVisible(false)}
         >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalDate}>
-                {dayjs().format("M월 DD일 dddd")}
+          <Text style={styles.modalDate}>
+            {dayjs().format("M월 DD일 dddd")}
+          </Text>
+          {medicines.map((medicine) => (
+            <Pressable
+              key={medicine.id}
+              style={[
+                styles.medicineItem,
+                selectedMedicine?.id === medicine.id && styles.selectedMedicine,
+              ]}
+              onPress={() => setSelectedMedicine(medicine)}
+            >
+              <Text style={{ fontWeight: "800", fontSize: 17 }}>
+                {medicine.name}
               </Text>
-              {medicines.map((medicine) => (
-                <Pressable
-                  key={medicine.id}
-                  style={[
-                    styles.medicineItem,
-                    selectedMedicine?.id === medicine.id &&
-                      styles.selectedMedicine,
-                  ]}
-                  onPress={() => setSelectedMedicine(medicine)}
-                >
-                  <Text style={{ fontWeight: "800", fontSize: 17 }}>
-                    {medicine.name}
-                  </Text>
-                  <Text style={{ fontSize: 10, paddingTop: 3 }}>
-                    {medicine.date}
-                  </Text>
-                </Pressable>
-              ))}
-              <View style={styles.buttonContainer}>
-                <Button
-                  text="취소"
-                  size="medium"
-                  color="gray"
-                  onPress={() => setIsModalVisible(false)}
-                />
-                <Button
-                  text="확인"
-                  size="medium"
-                  onPress={handleConfirmPress}
-                />
-              </View>
-            </View>
+              <Text style={{ fontSize: 10, paddingTop: 3 }}>
+                {medicine.date}
+              </Text>
+            </Pressable>
+          ))}
+
+          <View style={styles.buttonContainer}>
+            <Button
+              text="취소"
+              size="medium"
+              color="gray"
+              onPress={() => setIsModalVisible(false)}
+            />
+            <Button text="확인" size="medium" onPress={handleConfirmPress} />
           </View>
-        </Modal>
+        </CustomModal>
       </View>
     </View>
   );
@@ -164,27 +137,6 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 12,
     color: colors.TEXT_GRAY,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.16,
-    shadowRadius: 22,
-
-    backgroundColor: colors.WHITE,
-    borderRadius: 16,
-    width: width * 0.95,
-    height: "auto",
-    gap: 10,
-    padding: 10,
   },
   modalDate: {
     fontSize: 17,
