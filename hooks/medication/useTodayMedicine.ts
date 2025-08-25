@@ -27,13 +27,7 @@ const useTodayMedications = (selectedDate?: string): TodayMedicationsReturn => {
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(0, 0, 0, 0);
 
-      // 오늘 날짜 기준으로 미래인 경우 (복용 예정)
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      if (targetDate < today) {
-        return false; // 과거 날짜는 제외
-      }
+      // 과거 날짜도 포함하도록 수정 (복용 완료된 약물도 표시)
 
       // 복용 기간 내에 있거나 복용 시작일 이전인 경우 포함
       if (targetDate > endDate) {

@@ -1,5 +1,7 @@
 import { colors } from "@/constants";
 import { useMedicationList } from "@/hooks/medication/useMedicationQuery";
+import { useMedicationTaking } from "@/hooks/medication/useMedicationTaking";
+import { useAppointment } from "@/hooks/useAppointment";
 import { DayData } from "@/types/calendar";
 import { TagInfo } from "@/types/tags";
 import { convertBinaryToDays } from "@/utils/dateUtils";
@@ -84,7 +86,9 @@ export interface useCalendarReturn {
 export const generateCalendarDataFromMedications = (
   year: number,
   month: number,
-  medications: any[]
+  medications: any[],
+  appointments?: any[],
+  isFullyTaken?: (medication: any, dateString: string) => boolean
 ): DayData[] => {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const calendarData: DayData[] = [];
@@ -129,18 +133,23 @@ export const generateCalendarDataFromMedications = (
         let allMedicationsTaken = true;
 
         for (const medication of scheduledMedications) {
-          const takenDates = medication.takenDates || {};
-          const dateKey = dateString;
+          let medicationTaken = false;
 
-          // timeSlot을 이진수로 변환하여 체크된 개수 확인
-          const timeSlot = takenDates[dateKey] || 0;
-          const binaryString = timeSlot.toString(2);
-          const checkedCount = (binaryString.match(/1/g) || []).length;
+          if (isFullyTaken) {
+            // useMedicationTaking의 isFullyTaken 함수 사용
+            medicationTaken = isFullyTaken(medication, dateString);
+          } else {
+            // fallback: 기존 로직 사용
+            const takenDates = medication.takenDates || {};
+            const timeSlot = takenDates[dateString] || 0;
+            const binaryString = timeSlot.toString(2);
+            const checkedCount = (binaryString.match(/1/g) || []).length;
+            medicationTaken = checkedCount >= medication.perDay;
+          }
 
-          // perDay와 비교하여 복용 완료 여부 판단
-          if (checkedCount < medication.perDay) {
+          if (!medicationTaken) {
             allMedicationsTaken = false;
-            // break;
+            break;
           }
         }
 
@@ -151,11 +160,22 @@ export const generateCalendarDataFromMedications = (
       }
     }
 
+    // 해당 날짜에 진료가 있는지 확인
+    const hasAppointment =
+      appointments?.some((appointment) => {
+        const appointmentDate = new Date(appointment.datetime);
+        const appointmentDateString = appointmentDate
+          .toISOString()
+          .split("T")[0];
+        const currentDateString = currentDate.toISOString().split("T")[0];
+        return appointmentDateString === currentDateString;
+      }) || false;
+
     calendarData.push({
       didTakePill,
       hasSideEffect: false,
       isTakeScheduled,
-      isScheduled: false,
+      isScheduled: hasAppointment,
     });
   }
 
@@ -172,6 +192,13 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const { data: medications = [] } = useMedicationList();
+  const { history } = useAppointment();
+  const { isFullyTaken } = useMedicationTaking();
+
+  // 진료 데이터 자동 로드
+  useEffect(() => {
+    history.fetchAppointmentHistory();
+  }, [history.fetchAppointmentHistory]);
 
   const fetchCalendarData = useCallback(
     async (date: Date): Promise<void> => {
@@ -183,7 +210,9 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
         const calendarData = generateCalendarDataFromMedications(
           year,
           month,
-          medications
+          medications,
+          history.appointmentHistory,
+          isFullyTaken
         );
 
         setCalendarData(calendarData);
@@ -210,7 +239,9 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
         const newCalendarData = generateCalendarDataFromMedications(
           year,
           month,
-          medications
+          medications,
+          history.appointmentHistory,
+          isFullyTaken
         );
 
         setCalendarData(newCalendarData);
@@ -223,7 +254,7 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
         setLoading(false);
       }
     }
-  }, [medications, currentDate]);
+  }, [medications, currentDate, history.appointmentHistory, isFullyTaken]);
 
   const changeMonth = useCallback((direction: number) => {
     setCurrentDate((prev) => {

@@ -25,18 +25,22 @@ const SingleMedicineCard = ({
   isEditMode = false,
   onDelete,
 }: SingleMedicineCardProps) => {
-  // 복용 상태 계산 (오늘 날짜 기준)
+  // 복용 상태 계산 (선택된 날짜 기준)
   const medicationStatus = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    // targetDate가 있으면 사용, 없으면 오늘 날짜 사용
+    const targetDateForStatus = targetDate || today;
+    targetDateForStatus.setHours(0, 0, 0, 0);
 
     const startDate = new Date(medication.startAt);
     const endDate = new Date(medication.endAt);
     startDate.setHours(0, 0, 0, 0);
     endDate.setHours(0, 0, 0, 0);
 
-    const isCompleted = today > endDate;
-    const isScheduled = today < startDate;
+    const isCompleted = targetDateForStatus > endDate;
+    const isScheduled = targetDateForStatus < startDate;
 
     const totalDays =
       Math.ceil(
@@ -48,7 +52,8 @@ const SingleMedicineCard = ({
     const daysPassed = Math.max(
       0,
       Math.floor(
-        (today.getTime() - new Date(medication.startAt).getTime()) /
+        (targetDateForStatus.getTime() -
+          new Date(medication.startAt).getTime()) /
           (1000 * 60 * 60 * 24)
       )
     );
@@ -91,7 +96,9 @@ const SingleMedicineCard = ({
       <View style={styles.header}>
         <View style={styles.titleContainer}>
           <View style={styles.title}>
-            <Text style={styles.name}>{medication.medicineInfo.name}</Text>
+            <Text style={styles.name}>
+              {medication.medicineInfo.name || "휴온스아목시크라정"}
+            </Text>
             {/* 복용 상태 태그 */}
             {showGroupDetail && (
               <View

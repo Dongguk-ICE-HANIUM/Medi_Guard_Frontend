@@ -18,17 +18,6 @@ const TodayAllMedicineCard = ({
   targetDate,
   loading = false,
 }: TodayAllMedicineCardProps) => {
-  // 디버깅용 로그
-  console.log("TodayAllMedicineCard - 전체 약물:", medications.length, "개");
-  medications.forEach((med, index) => {
-    console.log(
-      `약물 ${index + 1}:`,
-      med.medicineInfo.name,
-      "그룹:",
-      med.groupName
-    );
-  });
-
   const groupMedications = medications.reduce((groups, medication) => {
     const groupName = medication.groupName;
     const groupId = medication.groupId;
@@ -51,12 +40,6 @@ const TodayAllMedicineCard = ({
 
   const individualMedications = medications.filter(
     (medication) => !medication.groupName || medication.groupName.trim() === ""
-  );
-
-  console.log("그룹 약물:", Object.keys(groupMedications));
-  console.log(
-    "개별 약물:",
-    individualMedications.map((m) => m.medicineInfo.name)
   );
 
   const GroupedMedicationList = () => {

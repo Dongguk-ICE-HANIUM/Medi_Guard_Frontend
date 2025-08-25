@@ -1,6 +1,7 @@
 import { mockMedicineStore } from "@/data/mockMedicineStore";
 import { Medication } from "@/types/medication";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { medicationKeys } from "./useMedicationQuery";
 
 export const useMedicationTaking = () => {
@@ -76,16 +77,16 @@ export const useMedicationTaking = () => {
     return (value & (1 << timeSlotIndex)) !== 0;
   };
 
-  const isFullyTaken = (
-    medication: Medication,
-    dateString: string
-  ): boolean => {
-    const takenDates = medication.takenDates || {};
-    const value = takenDates[dateString] || 0;
-    const perDay = medication.perDay > 0 ? medication.perDay : 2;
-    const expectedValue = (1 << perDay) - 1;
-    return (value & expectedValue) === expectedValue;
-  };
+  const isFullyTaken = useCallback(
+    (medication: Medication, dateString: string): boolean => {
+      const takenDates = medication.takenDates || {};
+      const value = takenDates[dateString] || 0;
+      const perDay = medication.perDay > 0 ? medication.perDay : 2;
+      const expectedValue = (1 << perDay) - 1;
+      return (value & expectedValue) === expectedValue;
+    },
+    []
+  );
 
   return {
     updateTakingStatus,

@@ -57,7 +57,7 @@ export default function PrecautionsScreen() {
       id: `med_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
       medicineInfo: {
         id: medicineData.id,
-        name: "아목시크라정", // 하드코딩
+        name: medicineData.name, // 하드코딩 제거, 실제 약물 이름 사용
         code: medicineData.code,
         effect: medicineData.effect,
         warning: medicineData.warning,
@@ -74,8 +74,8 @@ export default function PrecautionsScreen() {
       amount: parsedFormData.amount,
       isActive: true,
       isEssential: false,
-      groupName: "인식된 약물",
-      groupId: "group-1",
+      groupName: "", // AI 등록도 개별 약품으로 표시
+      groupId: "", // AI 등록도 개별 약품으로 표시
       notifiTakingList: [],
     };
 

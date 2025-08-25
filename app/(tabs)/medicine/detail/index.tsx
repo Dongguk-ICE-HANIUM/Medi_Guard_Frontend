@@ -113,6 +113,7 @@ const MedicationDetailPage = () => {
       <View style={styles.header}>
         <View style={styles.headerInfo}>
           <Text style={styles.name}>{drugDetail.medicineInfo.name}</Text>
+          <Text style={styles.name}>휴온스아목시크라정</Text>
         </View>
         <Switch
           value={isActive}
