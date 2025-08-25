@@ -18,6 +18,7 @@ interface AppointmentCardProps {
   onStartPress?: () => void;
 
   isToday?: boolean;
+  isCompleted?: boolean;
 }
 
 const AppointmentCard = ({
@@ -28,6 +29,7 @@ const AppointmentCard = ({
   onDetailPress,
   onStartPress,
   isToday = false,
+  isCompleted = false,
 }: AppointmentCardProps) => {
   const formatDateTime = formatAppointmentDisplay(dateTime);
   const timeUntil = getTimeUntilAppointment(dateTime);
@@ -54,7 +56,7 @@ const AppointmentCard = ({
             <Text
               style={[styles.rightContentText, isToday && styles.todayText]}
             >
-              진료 시작
+              {isCompleted ? "진료 종료" : "진료 시작"}
             </Text>
             <AntDesign name="right" size={18} color="black" />
           </TouchableOpacity>

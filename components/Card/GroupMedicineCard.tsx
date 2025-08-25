@@ -41,7 +41,7 @@ export default function GroupMedicineCard({
           {medications.map((medication) => (
             <View key={medication.id} style={styles.medicationRow}>
               <Text style={styles.medicationName}>
-                {medication.medicineInfo.name}
+                {medication.medicineInfo.name || "휴온스아목시크라정"}
               </Text>
               <Button
                 text="삭제"
