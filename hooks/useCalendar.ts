@@ -53,8 +53,12 @@ export const checkIfShouldTakeOnDate = (
       }
       return false;
     case "NEED":
-      //달력에 아예 표시X
-      return false;
+      if (medication.isActive) {
+        return true;
+      } else {
+        return false;
+      }
+
     default:
       return false;
   }
@@ -101,6 +105,9 @@ export const generateCalendarDataFromMedications = (
 
       if (currentDate < startDate || currentDate > endDate) {
         return false;
+      }
+      if (medication.takingType === "NEED") {
+        return medication.isActive;
       }
 
       const shouldTakeToday = checkIfShouldTakeOnDate(medication, currentDate);

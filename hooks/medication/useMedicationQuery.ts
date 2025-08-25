@@ -29,6 +29,7 @@ export const useMedicationList = () => {
       await mockDelay();
       const medications = await mockMedicineStore.getMedicationsList();
       console.log("약물 목록 조회 성공");
+
       return medications;
     },
     staleTime: 1000 * 60 * 5,

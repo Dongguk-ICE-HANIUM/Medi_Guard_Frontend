@@ -71,7 +71,7 @@ const useTodayMedications = (selectedDate?: string): TodayMedicationsReturn => {
       }
 
       if (medication.takingType === TakingType.NEED) {
-        return false;
+        return medication.isActive;
       }
 
       return checkIfShouldTakeOnDate(medication, targetDate);

@@ -98,12 +98,15 @@ const SingleMedicineCard = ({
                 style={[
                   styles.statusTag,
                   {
-                    backgroundColor:
-                      medicationStatus.status === "completed"
-                        ? colors.GREEN + "20"
-                        : medicationStatus.status === "scheduled"
-                        ? colors.YELLOW + "20"
-                        : colors.BLUE + "20",
+                    backgroundColor: !medication.isActive
+                      ? colors.LIGHT_GRAY + "20"
+                      : medication.takingType === "NEED"
+                      ? colors.LIGHT_GRAY + "20"
+                      : medicationStatus.status === "completed"
+                      ? colors.GREEN + "20"
+                      : medicationStatus.status === "scheduled"
+                      ? colors.YELLOW + "20"
+                      : colors.BLUE + "20",
                   },
                 ]}
               >
@@ -111,16 +114,23 @@ const SingleMedicineCard = ({
                   style={[
                     styles.statusText,
                     {
-                      color:
-                        medicationStatus.status === "completed"
-                          ? colors.GREEN
-                          : medicationStatus.status === "scheduled"
-                          ? colors.TAG_YELLOW
-                          : colors.BLUE,
+                      color: !medication.isActive
+                        ? colors.TEXT_GRAY
+                        : medication.takingType === "NEED"
+                        ? colors.TEXT_GRAY
+                        : medicationStatus.status === "completed"
+                        ? colors.GREEN
+                        : medicationStatus.status === "scheduled"
+                        ? colors.TAG_YELLOW
+                        : colors.BLUE,
                     },
                   ]}
                 >
-                  {medicationStatus.status === "completed"
+                  {!medication.isActive
+                    ? "보류"
+                    : medication.takingType === "NEED"
+                    ? "보류"
+                    : medicationStatus.status === "completed"
                     ? "복용 완료"
                     : medicationStatus.status === "scheduled"
                     ? "복용 예정"
@@ -150,12 +160,14 @@ const SingleMedicineCard = ({
         <ProgressBar medication={medication} selectedDate={selectedDate} />
       </View>
 
-      {/* 복용 중일때만 체크박스 보이게 */}
-      {medicationStatus.status === "taking" && (
-        <View style={styles.toggle}>
-          <Toggle medication={medication} selectedDate={selectedDate} />
-        </View>
-      )}
+      {/* 복용 중이거나 필요시 복용이 아니고, isActive가 true일 때만 체크박스 보이게 */}
+      {medication.isActive &&
+        medication.takingType !== "NEED" &&
+        medicationStatus.status === "taking" && (
+          <View style={styles.toggle}>
+            <Toggle medication={medication} selectedDate={selectedDate} />
+          </View>
+        )}
     </View>
   );
 };
