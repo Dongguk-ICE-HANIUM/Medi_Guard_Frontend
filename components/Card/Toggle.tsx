@@ -1,3 +1,5 @@
+//
+
 import { colors } from "@/constants";
 import { Medication } from "@/types/medication";
 import React from "react";
@@ -8,16 +10,26 @@ interface ToggleProps {
   medication: Medication;
   selectedDate?: string;
 }
+
 const Toggle = ({ medication, selectedDate }: ToggleProps) => {
+  const perDay = medication.perDay > 0 ? medication.perDay : 2;
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>복용 체크</Text>
-      <CheckBox medication={medication} selectedDate={selectedDate} />
+      <View style={styles.checkBoxContainer}>
+        {Array.from({ length: perDay }, (_, index) => (
+          <CheckBox
+            key={index}
+            medication={medication}
+            selectedDate={selectedDate}
+            timeSlotIndex={index}
+          />
+        ))}
+      </View>
     </View>
   );
 };
-
-export default Toggle;
 
 const styles = StyleSheet.create({
   container: {
@@ -38,4 +50,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
+  checkBoxContainer: {
+    flexDirection: "row",
+    gap: 8,
+  },
 });
+
+export default Toggle;

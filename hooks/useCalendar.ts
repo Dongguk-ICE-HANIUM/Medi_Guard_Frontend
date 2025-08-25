@@ -121,11 +121,9 @@ export const generateCalendarDataFromMedications = (
     const isFutureDate = currentDate > today;
 
     let didTakePill = false;
-    let isTakeScheduled = false;
+    let isTakeScheduled = scheduledMedications.length > 0; // 약물이 있을 때만 true
 
     if (scheduledMedications.length > 0) {
-      isTakeScheduled = true;
-
       if (isPastDate || isCurrentDate) {
         // 과거 날짜 또는 현재 날짜: takenDates에서 복용 상태 확인
         let allMedicationsTaken = true;

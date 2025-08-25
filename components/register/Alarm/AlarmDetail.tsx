@@ -1,15 +1,15 @@
 import { colors } from "@/constants";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 const AlarmDetail = () => {
   return (
     <View>
       <View style={styles.container}>
-        <Text style={styles.text}>오전 8 : 00</Text>
+        {/* <Text style={styles.text}>오전 8 : 00</Text>
       </View>
       <View style={styles.container}>
-        <Text style={styles.text}>오전 8 : 00</Text>
+        <Text style={styles.text}>오전 8 : 00</Text> */}
       </View>
     </View>
   );

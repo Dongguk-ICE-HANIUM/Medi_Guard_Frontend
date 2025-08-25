@@ -262,6 +262,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: colors.BLACK,
+    marginBottom: 10,
   },
   interactionItem: {
     marginBottom: 20,
@@ -318,7 +319,7 @@ const styles = StyleSheet.create({
   },
   warningItem: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     marginBottom: 8,
     paddingLeft: 5,
     gap: 10,

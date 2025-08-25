@@ -553,36 +553,60 @@ const registerForm = ({ onSubmit }: registerFormProps) => {
           console.error("편집 중 오류 발생:", error);
         }
       } else {
-        const medicationWithName: Medication = {
-          ...medication,
-          medicineInfo: {
-            ...medication.medicineInfo,
-            name: drugName,
-          },
-        };
-
-        const medicationData = encodeURIComponent(
-          JSON.stringify(medicationWithName)
-        );
-        const formData = encodeURIComponent(
-          JSON.stringify({
-            startDate: "", // 기본값 제거
-            endDate: "", // 기본값 제거
-            selectedTakingType: medication.takingType,
+        // 직접 등록: AI 로직을 거치지 않고 바로 저장
+        try {
+          const completeMedication: Medication = {
+            id: `med_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+            medicineInfo: {
+              id: `direct_${Date.now()}`,
+              name: drugName,
+              code: "",
+              effect: "",
+              warning: "",
+              sideEffect: "",
+              interaction: "",
+              depositMethod: "",
+            },
+            startAt: medication.startAt,
+            endAt: medication.endAt,
+            takingType: medication.takingType,
             interval: medication.interval,
-            specificDates: medication.specificDateList,
+            specificDateList: medication.specificDateList,
             perDay: medication.perDay,
             amount: medication.amount,
-          })
-        );
-        router.push({
-          pathname: "/medicine/register/interactionCheck",
-          params: {
-            recognizedMedicine: medicationData,
-            imageUri: params.imageUri ?? "",
-            formData: formData,
-          },
-        });
+            isActive: medication.isActive,
+            isEssential: medication.isEssential,
+            groupName: "",
+            groupId: "",
+            notifiTakingList: [],
+            takenDates: {},
+          };
+
+          // 직접 저장
+          await mockMedicineStore.addMedication(completeMedication);
+
+          // React Query 캐시 업데이트
+          queryClient.setQueryData(
+            ["medications", "list"],
+            (oldData: Medication[] | undefined) => {
+              if (!oldData) return [completeMedication];
+              return [...oldData, completeMedication];
+            }
+          );
+
+          queryClient.invalidateQueries({ queryKey: ["medications", "list"] });
+          queryClient.invalidateQueries({ queryKey: ["calendarDrugs"] });
+
+          Alert.alert("등록 완료", "약물이 성공적으로 등록되었습니다.", [
+            {
+              text: "확인",
+              onPress: () => router.navigate("/medicine"),
+            },
+          ]);
+        } catch (error) {
+          console.error("직접 등록 중 오류 발생:", error);
+          Alert.alert("오류", "약물 등록에 실패했습니다.");
+        }
       }
     } else {
       Alert.alert("입력 오류", "필수 입력 항목을 확인해주세요.");
