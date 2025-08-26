@@ -9,7 +9,9 @@ interface InfoRowProps {
 const InfoRow = ({ label, value }: InfoRowProps) => (
   <View style={styles.infoRow}>
     <Text style={styles.infoLabel}>{label}</Text>
-    <Text style={styles.infoValue}>{value}</Text>
+    <Text style={styles.infoValue}>
+      {value && value.trim() !== "" ? value : "정보 없음"}
+    </Text>
   </View>
 );
 

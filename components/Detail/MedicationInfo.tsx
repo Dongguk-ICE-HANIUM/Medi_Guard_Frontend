@@ -1,12 +1,12 @@
 import { colors } from "@/constants";
-import { DrugDetail } from "@/types/medication";
+import { Medication, TakingType } from "@/types/medication";
 import { formatDateStringDot } from "@/utils/dateUtils";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import InfoRow from "./InfoRow";
 
 interface MedicationInfoProps {
-  drugDetail: DrugDetail;
+  drugDetail: Medication;
 }
 
 const MedicationInfo = ({ drugDetail }: MedicationInfoProps) => (
@@ -24,7 +24,7 @@ const MedicationInfo = ({ drugDetail }: MedicationInfoProps) => (
     <InfoRow label="1일 복약 횟수" value={`${drugDetail.perDay}회`} />
     <InfoRow label="1회 복용량" value={`${drugDetail.amount}정`} />
     <NotificationList notifications={drugDetail.notifiTakingList} />
-    <InfoRow label="포함된 그룹" value={drugDetail.groupName} />
+    <InfoRow label="포함된 그룹" value={drugDetail.groupName || "x"} />
   </View>
 );
 
@@ -32,14 +32,14 @@ const MedicationInfo = ({ drugDetail }: MedicationInfoProps) => (
 const NotificationList = ({
   notifications,
 }: {
-  notifications: { id: string; time: string }[];
+  notifications: { id: string; time: string; isActive?: boolean }[];
 }) => (
   <View style={styles.infoRow}>
     <Text style={styles.infoLabel}>알림</Text>
     <View style={styles.notificationList}>
       {notifications.map((notification) => (
         <Text key={notification.id} style={styles.notificationTime}>
-          {notification.time}
+          {notification.time} {notification.isActive ? "(활성)" : "(비활성)"}
         </Text>
       ))}
     </View>
@@ -47,17 +47,17 @@ const NotificationList = ({
 );
 
 // 복용 주기 텍스트 변환 함수
-const getTakingTypeText = (takingType: string) => {
+const getTakingTypeText = (takingType: TakingType) => {
   switch (takingType) {
-    case "DAILY":
+    case TakingType.EVERY_DAY:
       return "매일";
-    case "SPECIFIC_INTERVAL":
+    case TakingType.PARTICULAR_INTERVAL:
       return "특정일 간격";
-    case "SPECIFIC_DAY":
+    case TakingType.PARTICULAR_DAY:
       return "특정 요일";
-    case "SPECIFIC_DATE":
+    case TakingType.SPECIFIC_DATE:
       return "특정 날짜";
-    case "NEED":
+    case TakingType.NEED:
       return "필요시 복용";
     default:
       return takingType;

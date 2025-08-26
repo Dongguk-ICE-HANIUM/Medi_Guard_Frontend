@@ -8,25 +8,16 @@ import SingleMedicineCard from "./SingleMedicineCard";
 interface TodayAllMedicineCardProps {
   medications: Medication[];
   selectedDate?: string;
+  targetDate?: Date;
   loading?: boolean;
 }
 
 const TodayAllMedicineCard = ({
   medications,
   selectedDate,
+  targetDate,
   loading = false,
 }: TodayAllMedicineCardProps) => {
-  // 디버깅용 로그
-  console.log("TodayAllMedicineCard - 전체 약물:", medications.length, "개");
-  medications.forEach((med, index) => {
-    console.log(
-      `약물 ${index + 1}:`,
-      med.medicineInfo.name,
-      "그룹:",
-      med.groupName
-    );
-  });
-
   const groupMedications = medications.reduce((groups, medication) => {
     const groupName = medication.groupName;
     const groupId = medication.groupId;
@@ -51,24 +42,35 @@ const TodayAllMedicineCard = ({
     (medication) => !medication.groupName || medication.groupName.trim() === ""
   );
 
-  console.log("그룹 약물:", Object.keys(groupMedications));
-  console.log(
-    "개별 약물:",
-    individualMedications.map((m) => m.medicineInfo.name)
-  );
-
   const GroupedMedicationList = () => {
     return (
       <>
-        {/* 그룹 약물 */}
-        {Object.entries(groupMedications).map(([groupId, groupData]) => (
-          <GroupMedicineCard
-            key={groupId}
-            groupId={groupId}
-            groupName={groupData.name}
-            medications={groupData.medications}
-          />
-        ))}
+        {/* 그룹 약물 (인식된 약물은 제외하고 SingleMedicineCard로 표시) */}
+        {Object.entries(groupMedications).map(([groupId, groupData]) => {
+          // 인식된 약물 그룹은 개별 약물로 표시
+          if (groupData.name === "인식된 약물") {
+            return groupData.medications.map((medication) => (
+              <View key={medication.id} style={styles.medicationItem}>
+                <SingleMedicineCard
+                  medication={medication}
+                  selectedDate={selectedDate}
+                  targetDate={targetDate}
+                  showGroupDetail={true}
+                />
+              </View>
+            ));
+          }
+
+          // 다른 그룹은 GroupMedicineCard로 표시
+          return (
+            <GroupMedicineCard
+              key={groupId}
+              groupId={groupId}
+              groupName={groupData.name}
+              medications={groupData.medications}
+            />
+          );
+        })}
 
         {/* 개별 약물 */}
         {individualMedications.map((medication) => (
@@ -76,6 +78,7 @@ const TodayAllMedicineCard = ({
             <SingleMedicineCard
               medication={medication}
               selectedDate={selectedDate}
+              targetDate={targetDate}
               showGroupDetail={true}
             />
           </View>
@@ -116,7 +119,7 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 30,
   },
   emptyText: {},
 });

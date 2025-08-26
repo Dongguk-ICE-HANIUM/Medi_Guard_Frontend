@@ -52,8 +52,20 @@ export default function TreatScreen() {
   const filteredHistory = useMemo(() => {
     if (!history.appointmentHistory.length) return [];
 
+    // 오늘의 진료에 표시되는 scheduleId를 제외
+    const todayScheduleId = todayNext.nextAppointment?.scheduleId;
+
+    let filteredData = history.appointmentHistory;
+
+    // 오늘의 진료에 표시되는 카드는 진료 이력에서 제외
+    if (todayScheduleId) {
+      filteredData = filteredData.filter(
+        (item) => item.scheduleId !== todayScheduleId
+      );
+    }
+
     if (!filterStartDate || !filterEndDate) {
-      return history.appointmentHistory;
+      return filteredData;
     }
 
     const startDate = new Date(filterStartDate);
@@ -62,11 +74,16 @@ export default function TreatScreen() {
     startDate.setHours(0, 0, 0, 0);
     endDate.setHours(23, 59, 59, 999);
 
-    return history.appointmentHistory.filter((item) => {
+    return filteredData.filter((item) => {
       const itemDate = new Date(item.datetime);
       return itemDate >= startDate && itemDate <= endDate;
     });
-  }, [history.appointmentHistory, filterStartDate, filterEndDate]);
+  }, [
+    history.appointmentHistory,
+    filterStartDate,
+    filterEndDate,
+    todayNext.nextAppointment,
+  ]);
 
   const periodText = useMemo(() => {
     const startFormatted = formatDateStringKor(filterStartDate);
@@ -178,6 +195,10 @@ export default function TreatScreen() {
                 type="start"
                 onStartPress={handleStartPress}
                 isToday={todayNext.nextAppointment.isToday}
+                isCompleted={
+                  currentSchedule.currentScheduleId ===
+                  todayNext.nextAppointment?.scheduleId
+                }
               />
             ) : (
               <View style={styles.emptyContainer}>
@@ -226,63 +247,63 @@ export default function TreatScreen() {
               </View>
             )}
           </View>
-        </ScrollView>
 
-        {totalPages > 1 && (
-          <View style={styles.fixedPaginationContainer}>
-            <TouchableOpacity
-              style={[
-                styles.paginationButton,
-                currentPage === 1 && styles.disabledButton,
-              ]}
-              onPress={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <FontAwesome5
-                name="chevron-left"
-                size={14}
-                color={currentPage === 1 ? colors.TEXT_GRAY : colors.PINK}
-              />
-            </TouchableOpacity>
-
-            {getPageNumbers().map((page) => (
+          {totalPages > 1 && (
+            <View style={styles.paginationContainer}>
               <TouchableOpacity
-                key={page}
                 style={[
-                  styles.pageNumberButton,
-                  currentPage === page && styles.activePageButton,
+                  styles.paginationButton,
+                  currentPage === 1 && styles.disabledButton,
                 ]}
-                onPress={() => handlePageChange(page)}
+                onPress={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
               >
-                <Text
-                  style={[
-                    styles.pageNumberText,
-                    currentPage === page && styles.activePageText,
-                  ]}
-                >
-                  {page}
-                </Text>
+                <FontAwesome5
+                  name="chevron-left"
+                  size={11}
+                  color={currentPage === 1 ? colors.TEXT_GRAY : colors.PINK}
+                />
               </TouchableOpacity>
-            ))}
 
-            <TouchableOpacity
-              style={[
-                styles.paginationButton,
-                currentPage === totalPages && styles.disabledButton,
-              ]}
-              onPress={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <FontAwesome5
-                name="chevron-right"
-                size={14}
-                color={
-                  currentPage === totalPages ? colors.TEXT_GRAY : colors.PINK
-                }
-              />
-            </TouchableOpacity>
-          </View>
-        )}
+              {getPageNumbers().map((page) => (
+                <TouchableOpacity
+                  key={page}
+                  style={[
+                    styles.pageNumberButton,
+                    currentPage === page && styles.activePageButton,
+                  ]}
+                  onPress={() => handlePageChange(page)}
+                >
+                  <Text
+                    style={[
+                      styles.pageNumberText,
+                      currentPage === page && styles.activePageText,
+                    ]}
+                  >
+                    {page}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+
+              <TouchableOpacity
+                style={[
+                  styles.paginationButton,
+                  currentPage === totalPages && styles.disabledButton,
+                ]}
+                onPress={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                <FontAwesome5
+                  name="chevron-right"
+                  size={11}
+                  color={
+                    currentPage === totalPages ? colors.TEXT_GRAY : colors.PINK
+                  }
+                />
+              </TouchableOpacity>
+            </View>
+          )}
+        </ScrollView>
       </View>
 
       <CalendarModal
@@ -352,18 +373,18 @@ const styles = StyleSheet.create({
   },
 
   //페이지네이션
-  fixedPaginationContainer: {
+  paginationContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 7,
+    // marginTop: 3,
     marginBottom: 15,
     gap: 8,
   },
   paginationButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: colors.WHITE,
     justifyContent: "center",
     alignItems: "center",
@@ -383,9 +404,9 @@ const styles = StyleSheet.create({
     borderColor: colors.TEXT_GRAY + "30",
   },
   pageNumberButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: colors.WHITE,
     justifyContent: "center",
     alignItems: "center",

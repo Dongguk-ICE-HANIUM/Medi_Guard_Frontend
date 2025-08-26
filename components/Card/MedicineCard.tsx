@@ -25,7 +25,6 @@ export default function MedicineCard({ date }: MedicineCardProps) {
               medicineInfo: { name: "타이레놀" },
             }}
             selectedDate={dayjs().format("YYYY-MM-DD")}
-            showGroupDetail={true}
           />
           <SingleMedicineCard
             medication={{
@@ -35,7 +34,6 @@ export default function MedicineCard({ date }: MedicineCardProps) {
               medicineInfo: { name: "애드빌" },
             }}
             selectedDate={dayjs().format("YYYY-MM-DD")}
-            showGroupDetail={true}
           />
           <SingleMedicineCard
             medication={{
@@ -45,7 +43,6 @@ export default function MedicineCard({ date }: MedicineCardProps) {
               medicineInfo: { name: "게보린" },
             }}
             selectedDate={dayjs().format("YYYY-MM-DD")}
-            showGroupDetail={true}
           />
         </View>
       </View>

@@ -1,8 +1,8 @@
-import { removeDrugFromGroup } from "@/api/medicine";
 import Button from "@/components/Button";
 import SingleMedicineCard from "@/components/Card/SingleMedicineCard";
 import { colors } from "@/constants";
-import { useMedicationContext } from "@/context/MedicationContext";
+import { mockMedicineStore } from "@/data/mockMedicineStore";
+import { useMedicationList } from "@/hooks/medication/useMedicationQuery";
 import { AntDesign } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useMemo, useState } from "react";
@@ -17,7 +17,7 @@ import {
 
 export default function GroupDetailPage() {
   const params = useLocalSearchParams<{ groupId?: string }>();
-  const { medications } = useMedicationContext();
+  const { data: medications = [] } = useMedicationList();
   const groupId = params.groupId || "";
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -57,7 +57,10 @@ export default function GroupDetailPage() {
         style: "destructive",
         onPress: async () => {
           try {
-            await removeDrugFromGroup(medicationId);
+            await mockMedicineStore.updateMedication(medicationId, {
+              groupName: undefined,
+              groupId: undefined,
+            });
             // 성공적으로 제거됨
             console.log("약물이 그룹에서 제거되었습니다:", medicationId);
           } catch (error) {

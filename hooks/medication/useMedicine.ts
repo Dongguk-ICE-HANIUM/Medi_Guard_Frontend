@@ -1,7 +1,13 @@
-import { useMedicationContext } from "@/context/MedicationContext";
 import { Drug, DrugGroup } from "@/types/medication";
 import { formatDateSlash } from "@/utils/dateUtils";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
+import {
+  medicationKeys,
+  useCalendarDrugs,
+  useMedicationGroupList,
+  useMedicationStatus,
+} from "./useMedicationQuery";
 
 export interface useMedicineReturn {
   drugGroups: DrugGroup[];
@@ -33,14 +39,11 @@ const isDateInRange = (
 };
 
 const useMedicine = (): useMedicineReturn => {
-  const {
-    drugGroups: allDrugGroups,
-    allDrugs,
-    loading: contextLoading,
-    error: contextError,
-    fetchAllDrugs,
-    fetchDrugGroups,
-  } = useMedicationContext();
+  const { data: allDrugGroups = [], refetch: refetchDrugGroups } =
+    useMedicationGroupList();
+  const { data: allDrugs = [], refetch: refetchDrugs } = useCalendarDrugs();
+  const { loading, error } = useMedicationStatus();
+  const queryClient = useQueryClient();
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
@@ -53,7 +56,9 @@ const useMedicine = (): useMedicineReturn => {
       return isDateInRange(selectedDate, drug.startDate, drug.endDate);
     });
 
-    console.log(`${selectedDate} 필터링 결과: ${filtered.length}개 약물`);
+    console.log(
+      `${selectedDate}에 해당하는 약물 필터링 결과: ${filtered.length}개`
+    );
     return filtered;
   }, [selectedDate, allDrugs]);
 
@@ -86,8 +91,13 @@ const useMedicine = (): useMedicineReturn => {
   // 데이터 새로고침
   const refetch = useCallback(async () => {
     console.log("약물 데이터 새로고침");
-    await Promise.all([fetchDrugGroups(), fetchAllDrugs()]);
-  }, [fetchDrugGroups, fetchAllDrugs]);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: medicationKeys.groups() }),
+      queryClient.invalidateQueries({
+        queryKey: medicationKeys.calendarDrugs(),
+      }),
+    ]);
+  }, [queryClient]);
 
   // Date 객체로 약물 조회
   const getDrugsForCalendarDate = useCallback(
@@ -114,8 +124,8 @@ const useMedicine = (): useMedicineReturn => {
     drugGroups: filteredDrugGroups,
     individualDrugs: filteredDrugs,
 
-    loading: contextLoading,
-    error: contextError,
+    loading,
+    error: error?.message || null,
     selectedDate,
 
     filterByDate,

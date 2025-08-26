@@ -11,7 +11,7 @@ interface GroupMedicineCardProps {
   medications: Medication[];
   onPress?: () => void;
   isEditMode?: boolean;
-  onDelete?: (groupId: string) => void;
+  onDelete?: (medicationId: string) => void;
 }
 
 export default function GroupMedicineCard({
@@ -37,12 +37,22 @@ export default function GroupMedicineCard({
     <View style={styles.groupCard}>
       <Text style={styles.groupCardTitle}>{groupName}</Text>
       {isEditMode ? (
-        <Button
-          text="삭제"
-          size="small"
-          color="gray"
-          onPress={() => onDelete?.(groupId)}
-        />
+        <View style={styles.editButtons}>
+          {medications.map((medication) => (
+            <View key={medication.id} style={styles.medicationRow}>
+              <Text style={styles.medicationName}>
+                {medication.medicineInfo.name || "휴온스아목시크라정"}
+              </Text>
+              <Button
+                text="삭제"
+                size="small"
+                color="gray"
+                onPress={() => onDelete?.(medication.id)}
+                style={styles.deleteButton}
+              />
+            </View>
+          ))}
+        </View>
       ) : (
         <Button size="small" icon="right" onPress={handlePress} />
       )}
@@ -73,5 +83,22 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: colors.BLACK,
     paddingLeft: 10,
+  },
+  editButtons: {
+    flexDirection: "column",
+    gap: 5,
+  },
+  deleteButton: {
+    width: "100%",
+  },
+  medicationRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  medicationName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: colors.BLACK,
   },
 });

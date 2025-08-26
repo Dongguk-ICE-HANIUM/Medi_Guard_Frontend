@@ -8,10 +8,10 @@ import SpecificDate from "./SpecificDate";
 interface TakingCycleDetailsProps {
   takingType: TakingType;
   interval?: number;
-  particularDate?: string[];
+  specificDateList?: string[];
   selectedDays?: string[];
   onIntervalChange?: (interval: number) => void;
-  onParticularDateChange?: (dates: string[]) => void;
+  onSpecificDateListChange?: (dates: string[]) => void;
   onSelectedDaysChange?: (days: string[]) => void;
   onIsActiveChange?: (isActive: boolean) => void;
   errors?: string[];
@@ -23,10 +23,10 @@ interface TakingCycleDetailsProps {
 const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
   takingType,
   interval = 1,
-  particularDate = [],
+  specificDateList = [],
   selectedDays = [],
   onIntervalChange,
-  onParticularDateChange,
+  onSpecificDateListChange,
   onSelectedDaysChange,
   onIsActiveChange,
   errors = [],
@@ -141,8 +141,8 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
         </Text>
       )}
       <SpecificDate
-        dates={particularDate}
-        onChange={(dates) => onParticularDateChange?.(dates)}
+        dates={specificDateList}
+        onChange={(dates) => onSpecificDateListChange?.(dates)}
         startAt={startAt}
         endAt={endAt}
       />
@@ -151,9 +151,9 @@ const TakingCycleDetails: React.FC<TakingCycleDetailsProps> = ({
 
   const renderDetails = () => {
     switch (takingType) {
-      case TakingType.SPECIFIC_INTERVAL:
+      case TakingType.PARTICULAR_INTERVAL:
         return renderSpecificInterval();
-      case TakingType.SPECIFIC_DAY:
+      case TakingType.PARTICULAR_DAY:
         return renderSpecificDay();
       case TakingType.SPECIFIC_DATE:
         return renderSpecificDate();
