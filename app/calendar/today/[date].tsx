@@ -3,6 +3,7 @@ import EmotionCard from "@/components/Card/EmotionCard";
 import MedicineCard from "@/components/Card/MedicineCard";
 import TreatmentCard from "@/components/Card/TreatmentCard";
 import UserNameCard from "@/components/Card/UserNameCard";
+import { AppointmentProvider } from "@/context/AppointmentContext";
 import { MedicineProvider } from "@/context/MedicineContext";
 import { useLocalSearchParams } from "expo-router";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -12,15 +13,17 @@ export default function TodayCalendar() {
   return (
     <View>
       <ScrollView showsVerticalScrollIndicator={false} bounces={true}>
-        <MedicineProvider>
-          <View style={styles.header}>
-            <UserNameCard name="송민교" />
-          </View>
-          <CalendarCard />
-          <TreatmentCard />
-          <EmotionCard />
-          <MedicineCard />
-        </MedicineProvider>
+        <AppointmentProvider>
+          <MedicineProvider>
+            <View style={styles.header}>
+              <UserNameCard name="송민교" />
+            </View>
+            <CalendarCard />
+            <TreatmentCard />
+            <EmotionCard />
+            <MedicineCard />
+          </MedicineProvider>
+        </AppointmentProvider>
       </ScrollView>
     </View>
   );

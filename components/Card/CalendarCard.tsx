@@ -8,12 +8,14 @@ import { useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import Button from "../Button";
 import Calendar from "../Calendar/Calendar";
+import CalendarCheckbox, { Status } from "../CalendarCheckbox";
 import CustomModal from "../CustomModal";
 import Tag from "../tag/Tag";
 
 export default function CalendarCard() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isGuideVisible, setIsGuideVisible] = useState(false);
+  const [status, setStatus] = useState<Status>("taking");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const { medicines } = useMedicineContext();
 
@@ -98,7 +100,8 @@ export default function CalendarCard() {
                 {medicines.map((medicine) => (
                   <View key={medicine.id} style={styles.modalContentMedicine}>
                     <Text style={styles.medicineName}>{medicine.name}</Text>
-                    <Text>{medicine.date}</Text>
+                    <Text style={{ fontSize: 12 }}>{medicine.date}</Text>
+                    <CalendarCheckbox status={status} onChange={setStatus} />
                   </View>
                 ))}
               </View>
@@ -161,10 +164,11 @@ const styles = StyleSheet.create({
     fontSize: 17,
   },
   modalContentMedicine: {
+    alignItems: "center",
+    justifyContent: "center",
     flexDirection: "row",
-    gap: 25,
-    paddingVertical: 15,
-    marginVertical: 5,
+    gap: 10,
+    paddingVertical: 10,
     padding: 5,
     borderRadius: 10,
 
@@ -173,8 +177,7 @@ const styles = StyleSheet.create({
   },
   medicineName: {
     fontWeight: "500",
-    minWidth: 50,
-    fontSize: 16,
+    fontSize: 14,
   },
 
   medicineItem: {
