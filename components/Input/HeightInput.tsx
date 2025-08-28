@@ -8,6 +8,11 @@ function HeightInput() {
     <Controller
       name="height"
       control={control}
+      rules={{
+        validate: (height: number) => {
+          if (height > 250 || height < 100) return "다시 입력해주세요";
+        },
+      }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <Input
           label="키"

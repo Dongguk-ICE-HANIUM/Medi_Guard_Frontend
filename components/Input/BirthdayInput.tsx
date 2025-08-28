@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import Input from "./Input";
@@ -18,6 +19,9 @@ function BirthdayInput() {
       rules={{
         validate: (data: number) => {
           if (String(data).length === 0) return "필수 입력 항목";
+
+          const today = dayjs();
+          if (dayjs(data).isAfter(today)) return "잘못된 생년월일 입니다";
         },
       }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (

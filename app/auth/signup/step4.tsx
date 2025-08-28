@@ -8,12 +8,16 @@ import { SignupFormValues } from "@/types/auth";
 import { SocialLoginRequest } from "@/types/social";
 import { useLocalSearchParams } from "expo-router";
 import { FormProvider, useForm } from "react-hook-form";
-import { StyleSheet, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import Toast from "react-native-toast-message";
 
 export default function Step4Screen() {
   const { updateSignupData, signupData } = useSignupContext();
   const { signupMutation, socialLoginMutation } = useAuth();
+  const { isSocialSignup, userId } = useLocalSearchParams<{
+    isSocialSignup?: string;
+    userId?: string;
+  }>();
 
   const signupForm = useForm<SignupFormValues>({
     defaultValues: {
@@ -31,8 +35,12 @@ export default function Step4Screen() {
     },
   });
 
-  const { isSocialSignup, bearerToken, userId } = useLocalSearchParams();
   const onSubmit = async (formValues: SignupFormValues) => {
+    // 사용자 ID 검증
+    if (isSocialSignup === "true" && !userId) {
+      Alert.alert("알림", "잘못된 접근입니다.");
+      return;
+    }
     updateSignupData({
       allergyList: formValues.allergyList,
       diseaseList: formValues.diseaseList,
@@ -46,15 +54,16 @@ export default function Step4Screen() {
 
     if (isSocialSignup === "true") {
       const socialData: SocialLoginRequest = {
+        userId: userId as string,
         name: completeSignupData.name,
         birthday: completeSignupData.birthday,
         height: completeSignupData.height,
         weight: completeSignupData.weight,
-        feeding: completeSignupData.feeding,
-        pregnant: completeSignupData.pregnant,
         dueDate: completeSignupData.dueDate,
-        allergyList: completeSignupData.allergyList,
-        diseaseList: completeSignupData.diseaseList,
+        pregnancyWeek: completeSignupData.pregnant,
+        feeding: completeSignupData.feeding,
+        // allergyList: completeSignupData.allergyList,
+        // diseaseList: completeSignupData.diseaseList,
       };
 
       socialLoginMutation.mutate(socialData);
