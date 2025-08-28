@@ -11,8 +11,7 @@ function PregnantInput() {
       rules={{
         required: "필수 입력 항목",
         validate: (data: number) => {
-          const num = Number(data);
-          if (isNaN(num) || num <= 0) return "잘못된 임신주차";
+          if (data < 0 || data > 50) return "잘못된 임신주차";
         },
       }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (

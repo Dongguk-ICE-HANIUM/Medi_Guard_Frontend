@@ -9,6 +9,11 @@ function WeightInput() {
     <Controller
       name="weight"
       control={control}
+      rules={{
+        validate: (weight: number) => {
+          if (weight < 30 || weight > 200) return "다시 입력해주세요";
+        },
+      }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <Input
           label="몸무게"
