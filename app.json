@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mediguard",
+    "scheme": "com.dgu.MediGuard",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "backgroundColor": "#ffffff",
@@ -15,14 +15,23 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.dgu.MediGuard",
       "infoPlist": {
-        "NSFaceIDUsageDescription": "이 앱은 안전한 로그인을 위해 Face ID를 사용합니다."
+        "NSFaceIDUsageDescription": "이 앱은 안전한 로그인을 위해 Face ID를 사용합니다.",
+        "KAKAO_APP_KEY": "9b1878ed023f9fe90b323586f8d7493d",
+        "KAKAO_APP_SCHEME": "kakao9b1878ed023f9fe90b323586f8d7493d",
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["kakao9b1878ed023f9fe90b323586f8d7493d"]
+          },
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.700573267904-du9htj8c2g5bpd44o34oh79g55lvsdt6"
+            ]
+          }
+        ],
+        "LSApplicationQueriesSchemes": ["kakaokompassauth", "kakaolink"]
       }
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
       "edgeToEdgeEnabled": true,
       "permissions": [
         "android.permission.USE_BIOMETRIC",
@@ -30,7 +39,7 @@
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT"
       ],
-      "package": "com.anonymous.MediGuard"
+      "package": "com.dgu.MediGuard"
     },
     "web": {
       "bundler": "metro",
@@ -39,15 +48,6 @@
     },
     "plugins": [
       "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ],
       "expo-secure-store",
       [
         "expo-local-authentication",
