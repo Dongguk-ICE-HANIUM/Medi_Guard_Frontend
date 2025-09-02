@@ -153,12 +153,12 @@ const styles = StyleSheet.create({
   },
   header: {
     position: "absolute",
-    top: 60,
+    top: 20,
     left: 0,
     right: 0,
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     zIndex: 10,
   },
   closeButton: {
@@ -171,10 +171,11 @@ const styles = StyleSheet.create({
   },
   guide: {
     position: "absolute",
-    top: height * 0.25,
+    top: "50%",
     left: width * 0.1,
     right: width * 0.1,
     alignItems: "center",
+    transform: [{ translateY: -height * 0.15 }],
   },
   guideFrame: {
     width: width * 0.8,
@@ -220,7 +221,7 @@ const styles = StyleSheet.create({
     color: colors.WHITE,
     fontSize: 16,
     textAlign: "center",
-    marginTop: 20,
+    marginTop: 50,
     backgroundColor: "rgba(0,0,0,0.5)",
     paddingHorizontal: 15,
     paddingVertical: 8,
@@ -228,10 +229,12 @@ const styles = StyleSheet.create({
   },
   controls: {
     position: "absolute",
-    bottom: 80,
+    bottom: 30,
     left: 0,
     right: 0,
+
     alignItems: "center",
+    paddingHorizontal: 10,
   },
   controlsRow: {
     flexDirection: "row",
@@ -265,5 +268,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
+    marginRight: 10,
   },
 });

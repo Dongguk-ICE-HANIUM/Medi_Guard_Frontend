@@ -377,7 +377,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Modal,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 export interface registerFormProps {
   selected?: MedicineInfo;
@@ -408,6 +416,7 @@ const registerForm = ({ onSubmit }: registerFormProps) => {
   const [recogInfo, setRecogInfo] = useState<RecognizedMedicineInfo | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(false);
   const isEdit = params.mode === "edit" && !!params.drugId;
 
   useEffect(() => {
@@ -493,97 +502,109 @@ const registerForm = ({ onSubmit }: registerFormProps) => {
     const { isValid } = validateForm();
 
     if (isValid) {
-      if (onSubmit) onSubmit(medication);
+      setIsLoading(true);
 
-      if (isEdit && params.drugId) {
-        try {
-          const updatedMedication = await mockMedicineStore.updateMedication(
-            params.drugId,
-            {
-              startAt: medication.startAt,
-              endAt: medication.endAt,
-              takingType: medication.takingType,
+      try {
+        if (onSubmit) onSubmit(medication);
+
+        if (isEdit && params.drugId) {
+          try {
+            const updatedMedication = await mockMedicineStore.updateMedication(
+              params.drugId,
+              {
+                startAt: medication.startAt,
+                endAt: medication.endAt,
+                takingType: medication.takingType,
+                interval: medication.interval,
+                specificDateList: medication.specificDateList,
+                perDay: medication.perDay,
+                amount: medication.amount,
+                groupName: medication.groupName,
+                isActive: medication.isActive,
+                isEssential: medication.isEssential,
+              }
+            );
+
+            if (updatedMedication) {
+              queryClient.setQueryData(
+                ["medications", "detail", params.drugId],
+                updatedMedication
+              );
+
+              queryClient.setQueryData(
+                ["medications", "list"],
+                (oldData: Medication[] | undefined) => {
+                  if (!oldData) return [updatedMedication];
+                  return oldData.map((med) =>
+                    med.id === params.drugId ? updatedMedication : med
+                  );
+                }
+              );
+
+              queryClient.setQueryData(
+                ["calendarDrugs"],
+                (oldData: any[] | undefined) => {
+                  if (!oldData) return [];
+                  return oldData.map((drug) =>
+                    drug.id === params.drugId
+                      ? {
+                          ...drug,
+                          name: updatedMedication.medicineInfo.name,
+                          startDate: updatedMedication.startAt,
+                          endDate: updatedMedication.endAt,
+                          timeSlot: updatedMedication.perDay,
+                        }
+                      : drug
+                  );
+                }
+              );
+            }
+
+            router.back();
+          } catch (error) {
+            console.error("편집 중 오류 발생:", error);
+          }
+        } else {
+          // 직접 등록: AI 로직을 거쳐서 상호작용과 주의사항 페이지 표시
+          const medicationWithName: Medication = {
+            ...medication,
+            medicineInfo: {
+              ...medication.medicineInfo,
+              name: drugName,
+            },
+          };
+
+          const medicationData = encodeURIComponent(
+            JSON.stringify(medicationWithName)
+          );
+          const formData = encodeURIComponent(
+            JSON.stringify({
+              startDate: medication.startAt || "",
+              endDate: medication.endAt || "",
+              selectedTakingType: medication.takingType,
               interval: medication.interval,
-              specificDateList: medication.specificDateList,
+              specificDates: medication.specificDateList,
               perDay: medication.perDay,
               amount: medication.amount,
-              groupName: medication.groupName,
-              isActive: medication.isActive,
-              isEssential: medication.isEssential,
-            }
+            })
           );
+          // 버퍼링을 위한 지연
+          await new Promise((resolve) => setTimeout(resolve, 1000));
 
-          if (updatedMedication) {
-            queryClient.setQueryData(
-              ["medications", "detail", params.drugId],
-              updatedMedication
-            );
-
-            queryClient.setQueryData(
-              ["medications", "list"],
-              (oldData: Medication[] | undefined) => {
-                if (!oldData) return [updatedMedication];
-                return oldData.map((med) =>
-                  med.id === params.drugId ? updatedMedication : med
-                );
-              }
-            );
-
-            queryClient.setQueryData(
-              ["calendarDrugs"],
-              (oldData: any[] | undefined) => {
-                if (!oldData) return [];
-                return oldData.map((drug) =>
-                  drug.id === params.drugId
-                    ? {
-                        ...drug,
-                        name: updatedMedication.medicineInfo.name,
-                        startDate: updatedMedication.startAt,
-                        endDate: updatedMedication.endAt,
-                        timeSlot: updatedMedication.perDay,
-                      }
-                    : drug
-                );
-              }
-            );
-          }
-
-          router.back();
-        } catch (error) {
-          console.error("편집 중 오류 발생:", error);
+          router.push({
+            pathname: "/medicine/register/interactionCheck",
+            params: {
+              recognizedMedicine: medicationData,
+              imageUri: "", // 직접 등록이므로 빈 문자열
+              formData: formData,
+            },
+          });
         }
-      } else {
-        // 직접 등록: AI 로직을 거쳐서 상호작용과 주의사항 페이지 표시
-        const medicationWithName: Medication = {
-          ...medication,
-          medicineInfo: {
-            ...medication.medicineInfo,
-            name: drugName,
-          },
-        };
-
-        const medicationData = encodeURIComponent(
-          JSON.stringify(medicationWithName)
-        );
-        const formData = encodeURIComponent(
-          JSON.stringify({
-            startDate: medication.startAt || "",
-            endDate: medication.endAt || "",
-            selectedTakingType: medication.takingType,
-            interval: medication.interval,
-            specificDates: medication.specificDateList,
-            perDay: medication.perDay,
-            amount: medication.amount,
-          })
-        );
-        router.push({
-          pathname: "/medicine/register/interactionCheck",
-          params: {
-            recognizedMedicine: medicationData,
-            imageUri: "", // 직접 등록이므로 빈 문자열
-            formData: formData,
-          },
-        });
+      } catch (error) {
+        console.error("등록 중 오류 발생:", error);
+        Alert.alert("오류", "등록 중 오류가 발생했습니다.");
+      } finally {
+        setIsLoading(false);
       }
     } else {
       Alert.alert("입력 오류", "필수 입력 항목을 확인해주세요.");
@@ -694,21 +715,39 @@ const registerForm = ({ onSubmit }: registerFormProps) => {
     {
       id: "button",
       component: (
-        <Button text={isEdit ? "저장" : "다음"} onPress={handleSubmit} />
+        <Button
+          text={isLoading ? "로딩 중..." : isEdit ? "저장" : "다음"}
+          onPress={handleSubmit}
+          disabled={isLoading}
+        />
       ),
     },
   ];
 
   return (
-    <FlatList
-      data={getFormSections()}
-      renderItem={({ item }) => item.component}
-      keyExtractor={(item) => item.id}
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.contentContainer}
-      ListHeaderComponent={header}
-    />
+    <>
+      {/* 로딩 모달 */}
+      <Modal visible={isLoading} transparent={true} animationType="fade">
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingContent}>
+            <ActivityIndicator size="large" color={colors.PINK} />
+            <Text style={styles.loadingText}>
+              복용 중인 약물과 상호작용 위험이 있는지{"\n"}분석 중입니다.
+            </Text>
+          </View>
+        </View>
+      </Modal>
+
+      <FlatList
+        data={getFormSections()}
+        renderItem={({ item }) => item.component}
+        keyExtractor={(item) => item.id}
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+        ListHeaderComponent={header}
+      />
+    </>
   );
 };
 
@@ -759,5 +798,35 @@ const styles = StyleSheet.create({
   recognizedCode: {
     fontSize: 14,
     color: colors.TEXT_GRAY,
+  },
+  // 로딩 모달 스타일
+  loadingOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingContent: {
+    backgroundColor: colors.WHITE,
+    borderRadius: 20,
+    padding: 30,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    maxWidth: 300,
+  },
+  loadingText: {
+    marginTop: 15,
+    fontSize: 14,
+    color: colors.BLACK,
+    fontWeight: "600",
+    textAlign: "center",
+    lineHeight: 20,
   },
 });

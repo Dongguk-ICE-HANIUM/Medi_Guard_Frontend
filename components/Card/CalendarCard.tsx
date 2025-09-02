@@ -1,4 +1,5 @@
 import { colors } from "@/constants";
+import useTodayMedications from "@/hooks/medication/useTodayMedicine";
 import { Octicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import { router } from "expo-router";
@@ -6,23 +7,20 @@ import { useState } from "react";
 import { Dimensions, Modal, StyleSheet, Text, View } from "react-native";
 import Button from "../Button";
 import Calendar from "../Calendar/Calendar";
+import TodayAllMedicineCard from "./TodayAllMedicineCard";
 
 export default function CalendarCard() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
+  // 선택된 날짜의 약물 목록 가져오기
+  const selectedDateString = selectedDate?.toISOString().split("T")[0];
+  const { scheduledMedications, targetDate } =
+    useTodayMedications(selectedDateString);
+
   const handleCalendarButton = () => {
-    if (!selectedDate) return;
-
-    const today = dayjs().format("YYYY-MM-DD");
-    const formatted = dayjs(selectedDate).format("YYYY-MM-DD");
-
-    if (dayjs(formatted).isBefore(today))
-      router.push(`/calendar/past/${formatted}`);
-    else if (dayjs(formatted).isSame(today))
-      router.push(`/calendar/today/${formatted}`);
-    else router.push(`/calendar/future/${formatted}`);
-
+    const formatted = dayjs().format("YYYY-MM-DD");
+    router.push(`/calendar/today/${formatted}`);
     setIsModalVisible(false);
   };
 
@@ -50,6 +48,18 @@ export default function CalendarCard() {
                 <Text style={styles.modalDate}>
                   {dayjs(selectedDate).format("M월 DD일 dddd")}
                 </Text>
+
+                {/* 약물 목록 */}
+                {selectedDate && (
+                  <View style={styles.medicineListContainer}>
+                    <TodayAllMedicineCard
+                      medications={scheduledMedications}
+                      selectedDate={selectedDateString}
+                      targetDate={targetDate}
+                    />
+                  </View>
+                )}
+
                 <View style={styles.buttonContainer}>
                   <Button
                     text="취소"
@@ -135,5 +145,9 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     gap: 5,
+  },
+  medicineListContainer: {
+    maxHeight: 300,
+    marginVertical: 10,
   },
 });
