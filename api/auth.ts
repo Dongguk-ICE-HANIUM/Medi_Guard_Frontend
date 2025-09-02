@@ -6,6 +6,9 @@ import {
   SignupResponse,
 } from "@/types/api";
 import {
+  appleLoginRequest,
+  appleLoginResponse,
+  googleLoginResponse,
   kakaoLoginResponse,
   SocialLoginRequest,
   SocialLoginResponse,
@@ -30,7 +33,7 @@ export async function postLogin(body: LoginRequest): Promise<LoginResponse> {
 export async function postSocialLogin(
   body: SocialLoginRequest
 ): Promise<SocialLoginResponse> {
-  const { data } = await axiosInstance.post(`/api/user/${userId}`, body);
+  const { data } = await axiosInstance.post("api/auth/social/signup", body);
   return data;
 }
 
@@ -39,13 +42,19 @@ export async function postKakaoLogin(): Promise<kakaoLoginResponse> {
   return data;
 }
 
-export async function postGoogleLogin(): Promise<void> {
-  const { data } = await axiosInstance.post("/api/auth/google/login");
+export async function postGoogleLogin(
+  accessToken: string
+): Promise<googleLoginResponse> {
+  const { data } = await axiosInstance.post("/api/auth/google/login", {
+    accessToken,
+  });
   return data;
 }
 
-export async function postAppleLogin(): Promise<void> {
-  const { data } = await axiosInstance.post("/api/auth/apple/login");
+export async function postAppleLogin(
+  value: appleLoginRequest
+): Promise<appleLoginResponse> {
+  const { data } = await axiosInstance.post("api/auth/apple/login", value);
   return data;
 }
 

@@ -6,7 +6,7 @@ import usePatchSideEffect from "@/hooks/queries/useUpdateSideEffect";
 import { CreateSideEffectRequest } from "@/types/sideEffect";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import Button from "../Button";
 import SideEffectList from "../SideEffectList";
 
@@ -39,6 +39,7 @@ export default function SideEffectCard() {
   // 수정 및 저장 버튼 함수
   function handleSaveButton() {
     setIsEditing(false);
+    Alert.alert("알림", "저장되었습니다.");
     refetch();
   }
 

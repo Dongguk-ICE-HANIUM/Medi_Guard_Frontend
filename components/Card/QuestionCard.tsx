@@ -1,7 +1,7 @@
 import { colors } from "@/constants";
 import { question, QuestionType } from "@/types/question";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import Button from "../Button";
 import QuestionList from "../QuestionList";
 
@@ -66,6 +66,7 @@ export default function QuestionCard() {
 
   function handleSaveButton() {
     setIsEditing(false);
+    Alert.alert("알림", "저장되었습니다.");
 
     // const updatedQuestions: UpdateQuestionRequest = {
     //   questionList: localQuestions,

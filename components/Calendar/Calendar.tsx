@@ -92,6 +92,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
         ]}
         onPress={() => {
           setSelectedDate(cellDate);
+
           if (hasMedication) {
             onDateSelect?.(cellDate);
           }

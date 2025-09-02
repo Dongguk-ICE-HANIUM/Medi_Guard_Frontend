@@ -7,10 +7,8 @@ export default function UserInfoCard() {
   return (
     <View style={styles.userInfoCard}>
       <UserNameCard name="송민교" />
-      <View style={styles.body}>
-        <DueDateCard />
-        <PregnancyCard />
-      </View>
+      <DueDateCard />
+      <PregnancyCard />
     </View>
   );
 }
@@ -18,10 +16,7 @@ export default function UserInfoCard() {
 const styles = StyleSheet.create({
   userInfoCard: {
     gap: 10,
-  },
-  body: {
     justifyContent: "center",
     alignItems: "center",
-    gap: 10,
   },
 });

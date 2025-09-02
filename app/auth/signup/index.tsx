@@ -35,6 +35,7 @@ export default function SignupScreen() {
         type: "error",
         text1: "알림",
         text2: "이메일 중복확인을 해주세요",
+        visibilityTime: 1000,
       });
       return;
     }

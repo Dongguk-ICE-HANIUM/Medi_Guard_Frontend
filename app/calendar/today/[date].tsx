@@ -1,13 +1,37 @@
+import CalendarCard from "@/components/Card/CalendarCard";
 import EmotionCard from "@/components/Card/EmotionCard";
+import MedicineCard from "@/components/Card/MedicineCard";
+import TreatmentCard from "@/components/Card/TreatmentCard";
+import UserNameCard from "@/components/Card/UserNameCard";
+import { AppointmentProvider } from "@/context/AppointmentContext";
+import { MedicineProvider } from "@/context/MedicineContext";
 import { useLocalSearchParams } from "expo-router";
-import { Text, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 export default function TodayCalendar() {
   const { date } = useLocalSearchParams();
   return (
     <View>
-      <Text>{date}</Text>
-      <EmotionCard />
+      <ScrollView showsVerticalScrollIndicator={false} bounces={true}>
+        <AppointmentProvider>
+          <MedicineProvider>
+            <View style={styles.header}>
+              <UserNameCard name="송민교" />
+            </View>
+            <CalendarCard />
+            <TreatmentCard />
+            <EmotionCard />
+            <MedicineCard />
+          </MedicineProvider>
+        </AppointmentProvider>
+      </ScrollView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  header: {
+    alignItems: "center",
+    marginTop: 10,
+  },
+});

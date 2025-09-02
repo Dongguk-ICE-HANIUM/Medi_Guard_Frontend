@@ -1,6 +1,19 @@
-import { getMe, postLogin, postSignup, postSocialLogin } from "@/api/auth";
+import {
+  getMe,
+  postAppleLogin,
+  postGoogleLogin,
+  postLogin,
+  postSignup,
+  postSocialLogin,
+} from "@/api/auth";
 import queryClient from "@/api/queryClient";
 import { queryKey } from "@/constants";
+import { LoginResponse } from "@/types/api";
+import {
+  appleLoginResponse,
+  googleLoginResponse,
+  SocialLoginResponse,
+} from "@/types/social";
 import { deleteSecureStore, saveSecureStore } from "@/utils/secureStore";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
@@ -30,7 +43,7 @@ function useSignup() {
 function useLogin() {
   return useMutation({
     mutationFn: postLogin,
-    onSuccess: async ({ result }) => {
+    onSuccess: async ({ result }: LoginResponse) => {
       const accessToken = result!.accessToken;
       await saveSecureStore("accessToken", accessToken);
 
@@ -45,9 +58,12 @@ function useLogin() {
 function useSocialLogin() {
   return useMutation({
     mutationFn: postSocialLogin,
-    onSuccess: async ({ result }) => {
-      const accessToken = result!.accessToken;
-      await saveSecureStore("accessToken", accessToken);
+    onSuccess: async ({ result }: SocialLoginResponse) => {
+      if (!result) {
+        console.error("소셜 로그인 실패: result없음");
+      }
+      await saveSecureStore("accessToken", result!.accessToken);
+      await saveSecureStore("refreshToken", result!.refreshToken);
 
       router.replace("/");
     },
@@ -57,11 +73,69 @@ function useSocialLogin() {
   });
 }
 
+function useGoogleLogin() {
+  return useMutation({
+    mutationFn: postGoogleLogin,
+    onSuccess: async ({ result }: googleLoginResponse) => {
+      if (!result) {
+        console.error("구글 로그인 실패: result 없음");
+        return;
+      }
+
+      if (result.isSignUpNeeded) {
+        router.replace({
+          pathname: "/auth/signup",
+          params: {
+            isSocialSignup: "true",
+            userId: result.userId,
+          },
+        });
+      } else if (result?.jwtDto) {
+        await saveSecureStore("accessToken", result.jwtDto.accessToken);
+        await saveSecureStore("refreshToken", result.jwtDto.refreshToken);
+        router.replace("/");
+      } else {
+        // 비활성화된 기존 사용자 (토큰 없음)
+        // router.replace("/auth/activate");
+      }
+
+      console.log("구글 로그인 성공");
+    },
+    onError: (error) => {
+      console.error("구글 로그인 실패:", error);
+    },
+  });
+}
+
+function useAppleLogin() {
+  return useMutation({
+    mutationFn: postAppleLogin,
+    onSuccess: async ({ result }: appleLoginResponse) => {
+      await saveSecureStore("accessToken", result!.jwtDto.accessToken);
+      await saveSecureStore("refreshToken", result!.jwtDto.refreshToken);
+
+      if (result?.isSignUpNeeded) router.replace("/auth/signup");
+      else if (result?.jwtDto) {
+        await saveSecureStore("accessToken", result.jwtDto.accessToken);
+        await saveSecureStore("refreshToken", result.jwtDto.refreshToken);
+        router.replace("/");
+      } else {
+        // 비활성화된 기존 사용자 (토큰 없음)
+        // router.replace("/auth/activate");
+      }
+
+      console.log("애플 로그인 성공");
+    },
+  });
+}
+
 function useAuth() {
   const { data } = useGetMe();
   const loginMutation = useLogin();
   const signupMutation = useSignup();
   const socialLoginMutation = useSocialLogin();
+  const googleLoginMutation = useGoogleLogin();
+  const appleLoginMutation = useAppleLogin();
 
   const logout = () => {
     deleteSecureStore("accessToken");
@@ -76,6 +150,8 @@ function useAuth() {
     signupMutation,
     logout,
     socialLoginMutation,
+    googleLoginMutation,
+    appleLoginMutation,
   };
 }
 

@@ -5,7 +5,7 @@ import {
   SignupResponse,
 } from "@/types/api";
 import { SignupFormValues } from "@/types/auth";
-import axios, { isAxiosError } from "axios";
+import axios from "axios";
 
 const transformSignupData = (signupData: SignupFormValues): SignupRequest => {
   return {
@@ -16,14 +16,14 @@ const transformSignupData = (signupData: SignupFormValues): SignupRequest => {
     height: signupData.height,
     weight: signupData.weight,
     dueDate: signupData.dueDate,
-    pregnant: signupData.pregnant,
+    pregnancyWeek: signupData.pregnant,
     feeding: signupData.feeding,
-    allergyList: signupData.allergy
-      ? signupData.allergy.map((item: any) => item.name)
-      : [],
-    diseaseList: signupData.disease
-      ? signupData.disease.map((item: any) => item.id.toString())
-      : [],
+    // allergyList: signupData.allergyList
+    //   ? signupData.allergyList.map((item: any) => item.name)
+    //   : [],
+    // diseaseList: signupData.disease
+    //   ? signupData.disease.map((item: any) => item.id.toString())
+    //   : [],
   };
 };
 
@@ -44,53 +44,6 @@ export const signupApi = async (
       refreshToken: "mock_refresh_token_" + Date.now(),
     },
   };
-};
-
-// 실제 API (백엔드 완성되면 사용)
-export const signupApiReal = async (
-  signupData: SignupFormValues
-): Promise<SignupResponse> => {
-  try {
-    const response = await axios.post("http://api/user", signupData, {
-      timeout: 1000,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data: SignupResponse = response.data;
-
-    if (data.errorCode !== null) throw new Error(data.message);
-
-    return data;
-  } catch (error: any) {
-    if (isAxiosError(error)) {
-      if (error.response) {
-        // 서버에서 응답은 받았지만 에러상태 (400, 500)
-        const errorData = error.response.data;
-        throw new Error(
-          errorData?.message || `서버 에러: ${error.response.status}`
-        );
-      } else if (error.request) {
-        return {
-          errorCode: "NETWORK_ERROR",
-          message: "네트워크 연결을 확인해주세요",
-          result: null,
-        };
-      } else {
-        return {
-          errorCode: "REQUEST_ERROR",
-          message: "요청 중 오류가 발생했습니다",
-          result: null,
-        };
-      }
-    } else {
-      return {
-        errorCode: "UNKNOWN_ERROR",
-        message: error.message || "알 수 없는 오류",
-        result: null,
-      };
-    }
-  }
 };
 
 export const signup = signupApi;

@@ -1,6 +1,7 @@
 import CalendarCard from "@/components/Card/CalendarCard";
 import NextTreatCard from "@/components/Card/NextTreatCard";
 import UserInfoCard from "@/components/Card/UserInfoCard";
+import { MedicineProvider } from "@/context/MedicineContext";
 import { useRouter } from "expo-router";
 import { useSearchParams } from "expo-router/build/hooks";
 import { useEffect } from "react";
@@ -26,14 +27,16 @@ export default function HomeScreen() {
 
   return (
     <ScrollView bounces={true}>
-      <View style={{ flex: 1 }}>
-        <SafeAreaView>
-          <UserInfoCard />
-          <NextTreatCard />
-          <CalendarCard />
-        </SafeAreaView>
-        <Toast />
-      </View>
+      <MedicineProvider>
+        <View style={{ flex: 1 }}>
+          <SafeAreaView>
+            <UserInfoCard />
+            <NextTreatCard />
+            <CalendarCard />
+          </SafeAreaView>
+          <Toast />
+        </View>
+      </MedicineProvider>
     </ScrollView>
   );
 }
