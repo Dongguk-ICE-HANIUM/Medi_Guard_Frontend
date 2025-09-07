@@ -1,4 +1,4 @@
-import { deleteSecureStore, getSecureStore } from "@/utils/secureStore";
+import { deleteSecureStore } from "@/utils/secureStore";
 import axios, { AxiosInstance } from "axios";
 
 const apiClient: AxiosInstance = axios.create({
@@ -13,8 +13,13 @@ const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   async (config) => {
     try {
-      const token = await getSecureStore("refreshToken");
+      // const token = await getSecureStore("refreshToken");
+      //
+      //임시 토큰 구현
+      //
+      const token = process.env.EXPO_PUBLIC_ACCESS_TOKEN;
       if (token) config.headers.Authorization = `Bearer ${token}`;
+      console.log("임시 토큰 사용 중  / 꼭 수정하기");
     } catch (error) {
       console.error("Token 가져오기 오류: ", error);
     }
