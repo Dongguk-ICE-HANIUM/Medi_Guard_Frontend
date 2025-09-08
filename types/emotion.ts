@@ -1,5 +1,4 @@
 import { ApiResponse } from "./api";
-import { QuestionType } from "./question";
 
 export enum emotionType {
   VERY_HAPPY = "VERY_HAPPY",
@@ -9,16 +8,8 @@ export enum emotionType {
   ANGRY = "ANGRY",
 }
 
-export interface GetEmotionRequest {
-  //request variable
-  id: string;
-  date: string;
-  description: string;
-  emotion: emotionType;
-  questionType: QuestionType;
-}
-
-interface GetEmotionResult {
+export interface GetEmotionResult {
+  calendarId: string;
   emotion: emotionType;
   description: string;
 }
@@ -27,14 +18,12 @@ export interface CreateEmotionRequest {
   date: string;
   description: string;
   emotion: emotionType;
-  questionType: QuestionType;
 }
 
 export interface UpdateEmotionRequest {
   calendarId: string;
   description: string;
   emotion: emotionType;
-  questionType: QuestionType;
 }
 
 export type GetEmotionResponse = ApiResponse<GetEmotionResult>;

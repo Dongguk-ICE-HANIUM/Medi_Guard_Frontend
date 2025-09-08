@@ -12,6 +12,39 @@ export enum QuestionType {
   PATIENT_CONCERNS = "PATIENT_CONCERNS", // 환자 우려사항
 }
 
+export const randomQuestion: question[] = [
+  {
+    id: "1",
+    type: QuestionType.DAILY_LIFE,
+    answer: "일상생활을 하는데 불편함이 있나요?",
+  },
+  {
+    id: "2",
+    type: QuestionType.PATIENT_CONCERNS,
+    answer: "걱정되는 부분이나 추가적으로 알고 싶은 정보가 있나요?",
+  },
+  {
+    id: "3",
+    type: QuestionType.PATIENT_CONCERNS,
+    answer: "진료시 담당의사에게 하고 싶은 질문은 무엇일까요?",
+  },
+  {
+    id: "4",
+    type: QuestionType.PHYSICAL_SYMPTOMS,
+    answer: "몸에 불편한 증상이 있나요?",
+  },
+  {
+    id: "5",
+    type: QuestionType.MOOD_STATUS,
+    answer: "요즘 기분은 어떠신가요?",
+  },
+  {
+    id: "6",
+    type: QuestionType.FETAL_MOVEMENT,
+    answer: "태아의 움직임은 어떤가요?",
+  },
+];
+
 export interface question {
   id: string;
   type: QuestionType;

@@ -1,18 +1,13 @@
 import {
   CreateEmotionRequest,
   EmotionResponse,
-  GetEmotionRequest,
   GetEmotionResponse,
   UpdateEmotionRequest,
 } from "@/types/emotion";
 import axiosInstance from "./axios";
 
-async function getEmotion(
-  variables: GetEmotionRequest
-): Promise<GetEmotionResponse> {
-  const { data } = await axiosInstance.get(
-    `/api/calendar?date=${variables.date}`
-  );
+async function getEmotion(date: string): Promise<GetEmotionResponse> {
+  const { data } = await axiosInstance.get(`/api/calendar?date=${date}`);
 
   return data;
 }

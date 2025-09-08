@@ -13,3 +13,5 @@ function useUpdateEmotion() {
     },
   });
 }
+
+export default useUpdateEmotion;

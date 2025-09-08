@@ -3,6 +3,7 @@ import EmotionCard from "@/components/Card/EmotionCard";
 import QuestionCard from "@/components/Card/QuestionCard";
 import SideEffectCard from "@/components/Card/SideEffectCard";
 import { MedicineProvider } from "@/context/MedicineContext";
+import dayjs from "dayjs";
 import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -12,7 +13,7 @@ export default function MyScreen() {
       <MedicineProvider>
         <SafeAreaView>
           <CalendarCard />
-          <EmotionCard />
+          <EmotionCard date={dayjs().format("YYYY-MM-DD")} />
           <SideEffectCard />
           <QuestionCard />
         </SafeAreaView>
