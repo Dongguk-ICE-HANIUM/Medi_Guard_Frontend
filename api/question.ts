@@ -4,6 +4,7 @@ import {
   questionResponse,
   UpdateQuestionRequest,
 } from "@/types/question";
+import dayjs from "dayjs";
 import axiosInstance from "./axios";
 
 async function getQuestion(date: string): Promise<GetQuestionResponse> {
@@ -15,7 +16,11 @@ async function getQuestion(date: string): Promise<GetQuestionResponse> {
 async function createQuestion(
   body: CreateQuestionRequest
 ): Promise<questionResponse> {
-  const { data } = await axiosInstance.post("/api/calendar", body);
+  const today = dayjs().format("YYYY-MM-DD");
+  const { data } = await axiosInstance.post(
+    `/api/calendar?date=${today}`,
+    body
+  );
 
   return data;
 }

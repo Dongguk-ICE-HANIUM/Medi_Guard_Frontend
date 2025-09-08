@@ -3,9 +3,9 @@ import useCreateSideEffect from "@/hooks/queries/useCreateSideEffect";
 import useDeleteSideEffect from "@/hooks/queries/useDeleteSideEffect";
 import useGetSideEffect from "@/hooks/queries/useGetSideEffect";
 import usePatchSideEffect from "@/hooks/queries/useUpdateSideEffect";
-import { CreateSideEffectRequest } from "@/types/sideEffect";
+import { CreateSideEffectRequest, sideEffectItem } from "@/types/sideEffect";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import Button from "../Button";
 import SideEffectList from "../SideEffectList";
@@ -14,11 +14,15 @@ export default function SideEffectCard() {
   const [isEditing, setIsEditing] = useState(false);
   const { refetch, data } = useGetSideEffect();
   // 서버구현 전까지 로컬에서 관리, 그후에 useGetSideEffect에서 data 받아와서 useState에 복사해서 관리
-  const [sideEffects, setSideEffects] = useState<CreateSideEffectRequest[]>([]);
-
+  const [sideEffects, setSideEffects] = useState<sideEffectItem[]>([]);
   const createSideEffect = useCreateSideEffect();
   const deleteSideEffect = useDeleteSideEffect();
   const updateSideEffect = usePatchSideEffect();
+
+  useEffect(() => {
+    if (data?.result?.sideEffectList)
+      setSideEffects(data.result.sideEffectList);
+  }, [data]);
 
   // SideEffectList에 props로 넘겨줄 함수들
   function handleAdd(newItem: CreateSideEffectRequest) {

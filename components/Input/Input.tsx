@@ -13,7 +13,7 @@ import {
 interface InputFieldProps extends TextInputProps {
   label?: string;
   variant?: "icon" | "basic";
-  size?: "small" | "full";
+  size?: "small" | "full" | "auto";
   iconName?: keyof typeof Ionicons.glyphMap;
   iconColor?: string;
   error?: string;
@@ -36,6 +36,8 @@ function Input({
     switch (size) {
       case "small":
         return [baseStyle, { width: 173, marginRight: 8 }];
+      case "auto":
+        return [baseStyle, { flex: 1, marginRight: 8 }];
       default:
         return baseStyle;
     }

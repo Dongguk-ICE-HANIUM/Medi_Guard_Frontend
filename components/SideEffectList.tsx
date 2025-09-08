@@ -1,6 +1,6 @@
 import { colors } from "@/constants";
 import { useMedicineContext } from "@/context/MedicineContext";
-import { CreateSideEffectRequest } from "@/types/sideEffect";
+import { CreateSideEffectRequest, sideEffectItem } from "@/types/sideEffect";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import { useState } from "react";
@@ -26,7 +26,7 @@ interface Medicine {
 
 interface SideEffectListProps {
   isEditing: boolean;
-  sideEffects: CreateSideEffectRequest[];
+  sideEffects: sideEffectItem[];
   onAdd: (newItem: CreateSideEffectRequest) => void;
   onRemove: (id: string) => void;
   onUpdate: (id: string, description: string) => void;
