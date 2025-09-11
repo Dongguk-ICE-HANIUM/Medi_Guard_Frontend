@@ -15,7 +15,7 @@ async function getEmotion(date: string): Promise<GetEmotionResponse> {
 async function createEmotion(
   body: CreateEmotionRequest
 ): Promise<EmotionResponse> {
-  const { data } = await axiosInstance.post("/api/calendar", body);
+  const { data } = await axiosInstance.post(`/api/calendar`, body);
 
   return data;
 }
