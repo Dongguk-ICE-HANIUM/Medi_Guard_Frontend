@@ -11,6 +11,9 @@ function useUpdateEmotion() {
         queryKey: [queryKey.EMOTION],
       });
     },
+    onError: (error) => {
+      console.error("Emotion update error", error);
+    },
   });
 }
 

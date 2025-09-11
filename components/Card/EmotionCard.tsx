@@ -1,4 +1,3 @@
-import { getEmotion } from "@/api/emotion";
 import { colors } from "@/constants";
 import useCreateEmotion from "@/hooks/queries/emotion/useCreateEmotion";
 import useGetEmotion from "@/hooks/queries/emotion/useGetEmotion";
@@ -38,9 +37,16 @@ export default function EmotionCard({ date }: EmotionCardProps) {
   const { data: emotionData } = useGetEmotion(date);
 
   useEffect(() => {
+    console.log("[EmotionCard] props.date:", date);
+    console.log("[EmotionCard] emotionData:", emotionData);
+
     if (emotionData?.result) {
+      console.log("[EmotionCard] API result:", emotionData.result);
+
       setTodayEmotion(emotionData.result);
       setDescription(emotionData.result.description);
+
+      console.log("[EmotionCard] API emotion:", emotionData.result.emotion);
     }
   }, [emotionData]);
 
@@ -64,10 +70,10 @@ export default function EmotionCard({ date }: EmotionCardProps) {
   function handleEmotion(emotion: Emotion) {
     setSelectedEmotion(emotion);
   }
+
   const handleSaveButton = async () => {
     const today = dayjs().format("YYYY-MM-DD");
     setIsEditable(false);
-    Alert.alert("알림", "저장되었습니다");
 
     if (!todayEmotion) {
       const newEmotion: CreateEmotionRequest = {
@@ -76,9 +82,7 @@ export default function EmotionCard({ date }: EmotionCardProps) {
         emotion: selectedEmotion!.emotion,
       };
       createEmotion.mutate(newEmotion);
-
-      const created = await getEmotion(today);
-      setTodayEmotion(created.result);
+      Alert.alert("알림", "저장되었습니다");
     } else {
       const updatedEmotion: UpdateEmotionRequest = {
         ...todayEmotion,
@@ -86,13 +90,12 @@ export default function EmotionCard({ date }: EmotionCardProps) {
         emotion: selectedEmotion!.emotion,
       };
       updateEmotion.mutate(updatedEmotion);
-      setTodayEmotion(updatedEmotion);
+      Alert.alert("알림", "수정되었습니다");
     }
   };
 
   function handleEditButton() {
     setIsEditable(true);
-    Alert.alert("알림", "수정되었습니다");
   }
 
   return (

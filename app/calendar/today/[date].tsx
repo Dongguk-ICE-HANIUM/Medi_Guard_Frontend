@@ -1,7 +1,5 @@
 import CalendarCard from "@/components/Card/CalendarCard";
 import EmotionCard from "@/components/Card/EmotionCard";
-import MedicineCard from "@/components/Card/MedicineCard";
-import TreatmentCard from "@/components/Card/TreatmentCard";
 import UserNameCard from "@/components/Card/UserNameCard";
 import { AppointmentProvider } from "@/context/AppointmentContext";
 import { MedicineProvider } from "@/context/MedicineContext";
@@ -19,9 +17,9 @@ export default function TodayCalendar() {
               <UserNameCard name="송민교" />
             </View>
             <CalendarCard />
-            <TreatmentCard />
-            <EmotionCard />
-            <MedicineCard />
+            {/* <TreatmentCard /> */}
+            <EmotionCard date={date as string} />
+            {/* <MedicineCard /> */}
           </MedicineProvider>
         </AppointmentProvider>
       </ScrollView>
