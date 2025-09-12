@@ -5,6 +5,8 @@ import {
   CreateMedicationResponse,
   DrugDetailResponse,
   Medication,
+  UpdateMedicationRequest,
+  UpdateMedicationResponse,
 } from "@/types/medication";
 import apiClient from "./apiClient";
 
@@ -142,23 +144,6 @@ export const fetchHealthApi = async (): Promise<
   }
 };
 
-//환자 약물 상세 조회
-export const fetchPatientDrugDetail = async (
-  patientDrugId: string
-): Promise<DrugDetailResponse> => {
-  try {
-    const response = await apiClient.get<DrugDetailResponse>(
-      `/api/patient-drug/${patientDrugId}`
-    );
-    console.log("환자 약물 상세 조회 성공:", response.data);
-    return response.data;
-  } catch (error: any) {
-    console.error("환자 약물 상세 조회 실패:", error);
-    throw new Error(
-      error?.response?.data?.message || "환자 약물 상세 조회에 실패했습니다."
-    );
-  }
-};
 //환자 약물 등록
 export const registerPatientDrug = async (
   requestData: CreateMedicationRequest
@@ -177,6 +162,79 @@ export const registerPatientDrug = async (
     );
   }
 };
+
+//환자 약물 상세 조회
+export const fetchPatientDrugDetail = async (
+  patientDrugId: string
+): Promise<DrugDetailResponse> => {
+  try {
+    const response = await apiClient.get<DrugDetailResponse>(
+      `api/patient-drug/${patientDrugId}`
+    );
+    console.log("환자 약물 상세 조회 성공:", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("환자 약물 상세 조회 실패:", error);
+    throw new Error(
+      error?.response?.data?.message || "환자 약물 상세 조회에 실패했습니다."
+    );
+  }
+};
+
+//환자 약물 삭제
+export const deletePatientDrug = async (patientDrugId: string) => {
+  try {
+    const response = await apiClient.delete(
+      `/api/patient-drug/${patientDrugId}`
+    );
+    console.log("환자 약물 삭제 성공:", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("환자 약물 삭제 실패:", error);
+    throw new Error(
+      error?.response?.data?.message || "환자 약물 삭제에 실패했습니다."
+    );
+  }
+};
+
+//환자 약물 활성화 상태 변경
+export const togglePatientDrugActive = async (
+  patientDrugId: string,
+  statusData: UpdateMedicationRequest
+): Promise<UpdateMedicationResponse> => {
+  try {
+    const response = await apiClient.patch(
+      `/api/patient-drug/${patientDrugId}`,
+      statusData
+    );
+    console.log("환자 약물 활성화 상태 변경 성공:", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("환자 약물 활성화 상태 변경 실패:", error);
+    throw new Error(
+      error?.response?.data?.message ||
+        "환자 약물 활성화 상태 변경에 실패했습니다."
+    );
+  }
+};
+
+//환자 약물에서 약물 그룹 연결 해제
+export const releasePatientDrugFromGroup = async (patientDrugId: string) => {
+  try {
+    const response = await apiClient.patch(
+      `/api/patient-drug/${patientDrugId}/release`
+    );
+    console.log("환자 약물에서 약물 그룹 연결 해제 성공:", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("환자 약물에서 약물 그룹 연결 해제 실패:", error);
+    throw new Error(
+      error?.response?.data?.message ||
+        "환자 약물에서 약물 그룹 연결 해제에 실패했습니다."
+    );
+  }
+};
+
 //약물 그룹 조회
 export const fetchDrugGroupsReal = async (): Promise<
   ApiResponse<{ drugGroupList: { id: string; name: string }[] }>
@@ -192,40 +250,6 @@ export const fetchDrugGroupsReal = async (): Promise<
     throw new Error(
       error?.response?.data?.message || "약물 그룹 조회에 실패했습니다."
     );
-  }
-};
-
-// 약물 상세 정보 조회
-export const fetchDrugDetailReal = async (
-  patientDrugId: string
-): Promise<DrugDetailResponse> => {
-  try {
-    console.log(`약물 상세 정보 요청: ${patientDrugId}`);
-
-    const response = await apiClient.get<DrugDetailResponse>(
-      `/api/patient-drug/${patientDrugId}`
-    );
-
-    console.log("약물 상세 정보 조회 성공:", response.data);
-    return response.data;
-  } catch (error: any) {
-    console.error("약물 상세 정보 조회 실패:", error);
-
-    // 에러 응답 처리
-    if (error?.response?.data) {
-      return {
-        errorCode: error.response.data.errorCode || "UNKNOWN_ERROR",
-        message:
-          error.response.data.message || "약물 상세 정보 조회에 실패했습니다.",
-        result: null,
-      };
-    }
-
-    return {
-      errorCode: "UNKNOWN_ERROR",
-      message: "알 수 없는 오류가 발생했습니다.",
-      result: null,
-    };
   }
 };
 
@@ -267,26 +291,6 @@ export const registerDrugReal = async (
 };
 
 // 기존 Mock 함수들...
-// 약물 활성화 상태 변경
-export const toggleMedicationActive = async (
-  id: string,
-  isActive: boolean
-): Promise<{ errorCode: string | null; message: string }> => {
-  await mockDelay();
-  console.log(`약물 활성화 상태 변경: ${id} -> ${isActive}`);
-
-  // Mock 데이터 업데이트
-  const drugDetail = await mockMedicineStore.getMedication(id);
-  if (drugDetail) {
-    await mockMedicineStore.updateMedication(id, { isActive });
-    console.log("약물 활성화 상태 업데이트 완료:", isActive);
-  }
-
-  return {
-    errorCode: null,
-    message: "OK",
-  };
-};
 
 // 약물 정보 업데이트
 export const updateDrugDetail = async (

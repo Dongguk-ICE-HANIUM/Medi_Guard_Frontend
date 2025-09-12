@@ -81,7 +81,7 @@ export default function MedicineScreen() {
             text="전체 복용약 보기"
             icon="next"
             onPress={() => {
-              router.push("/medicine/medicineList");
+              router.push("/medicine/MedicineList");
             }}
           />
           <NavigationCard

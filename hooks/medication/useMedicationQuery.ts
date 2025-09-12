@@ -1,3 +1,4 @@
+import { fetchPatientDrugDetail } from "@/api/medicine";
 import { mockMedicineStore, mockStoreUtils } from "@/data/mockMedicineStore";
 import {
   CreateMedicationRequest,
@@ -273,20 +274,19 @@ export const useDeleteMedication = () => {
 
 //약물 상세 조회
 export const useMedicationDetail = (id: string) => {
+  console.log("[Hook] useMedicationDetail id =", id);
+
   return useQuery({
     queryKey: medicationKeys.detail(id),
     queryFn: async (): Promise<Medication> => {
-      await mockDelay();
-      console.log("약물 상세 조회 요청: ", id);
+      const medication = await fetchPatientDrugDetail(id);
 
-      const medication = await mockMedicineStore.getMedication(id);
-
-      if (!medication) {
+      if (!medication.result) {
         throw new Error("약물을 찾을 수 없습니다.");
       }
 
-      console.log("약물 상세 조회 성공", medication.medicineInfo.name);
-      return medication;
+      console.log("약물 상세 조회 성공", medication.result.medicineInfo.name);
+      return medication.result;
     },
     enabled: !!id,
     staleTime: 1000 * 60 * 5,
