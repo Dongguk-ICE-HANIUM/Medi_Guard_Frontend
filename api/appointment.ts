@@ -2,180 +2,114 @@ import {
   AppointmentDetailResponse,
   AppointmentHistoryResponse,
   NextAppointmentResponse,
+  SaveAppointmentRequest,
+  SaveAppointmentResponse,
   StartConsultationResponse,
 } from "@/types/doctor";
+import apiClient from "./apiClient";
 
-// mock 데이터
-const mockNextAppointment: NextAppointmentResponse = {
-  errorCode: null,
-  message: "OK",
-  result: {
-    scheduleId: 1,
-    doctorName: "이진우교수",
-    hospitalName: "서울대병원",
-    time: "2025-08-25T15:30:00",
-    isToday: true,
-  },
-};
 
-const mockAppointmentHistory: AppointmentHistoryResponse = {
-  errorCode: null,
-  message: "OK",
-  result: {
-    scheduleList: [
-      {
-        scheduleId: 1,
-        doctorName: "이진우교수",
-        hospitalName: "서울대병원",
-        datetime: "2025-08-25T15:30:00",
-      },
-      {
-        scheduleId: 2,
-        doctorName: "김철수교수",
-        hospitalName: "서울대병원",
-        datetime: "2025-08-12T10:00:00",
-      },
-      {
-        scheduleId: 3,
-        doctorName: "김철수교수",
-        hospitalName: "서울대병원",
-        datetime: "2025-08-2T10:00:00",
-      },
-      {
-        scheduleId: 4,
-        doctorName: "최민수교수",
-        hospitalName: "서울대병원",
-        datetime: "2025-04-30T14:00:00",
-      },
-      {
-        scheduleId: 5,
-        doctorName: "정영희교수",
-        hospitalName: "연세대병원",
-        datetime: "2025-03-15T09:00:00",
-      },
-      {
-        scheduleId: 6,
-        doctorName: "정영희교수",
-        hospitalName: "연세대병원",
-        datetime: "2025-03-01T15:30:00",
-      },
-    ],
-  },
-};
+//예정된 진료 저장
+export const saveAppointment = async(appointmentData : SaveAppointmentRequest) : Promise<SaveAppointmentResponse>=>{
+  try{
+    const response = await apiClient.post<SaveAppointmentResponse>('/api/schedules', appointmentData);
+    console.log('새로운 진료 생성 성공', response.data);
+    return response.data;
+  }catch(error : any){
+    console.error('새로운 진료 생성 실패', error);
+    
+    if(error?.response?.data){
+      return { errorCode : error.response.data.errorCode || 'UNKNOWN_ERROR',
+      message: error.response.data.message || '알수없는 오류가 발생했습니다.',
+      result: null
+      }
+    }
+    return { errorCode: 'UNKNOWN_ERROR', message: '알 수 없는 오류가 발생했습니다.', result: null };
+}
+}
 
-const mockStartConsultation: StartConsultationResponse = {
-  errorCode: null,
-  message: "OK",
-  result: {
-    code: "356214",
-  },
-};
+//오늘(다음)의 진료 일정 조회
+export const getNextAppointment = async (): Promise<NextAppointmentResponse> => {
+  try{
+    const response = await apiClient.get<NextAppointmentResponse>('/api/appointment/today');
+    console.log('다음 진료 조회 성공', response.data);
+    return response.data;
 
-const mockAppointmentDetails: { [key: number]: AppointmentDetailResponse } = {
-  1: {
-    errorCode: null,
-    message: "OK",
-    result: {
-      scheduleId: 1,
-      doctorName: "이진우교수",
-      hospitalName: "서울대병원",
-      datetime: "2025-08-25T14:00:00",
-      symptom: "복통이 있음, 어지러움 동반",
-      diagnosis: "태아성장 상태 정상, 철분제 복용 시작 권장",
-      guidance:
-        "철분제는 다음 주부터 하루 1회 식후 복용하시고, 충분한 수면을 취하시기 바랍니다. 또한 규칙적인 식사와 함께 복용하시면 더욱 효과적입니다. 복용 후 30분 정도는 누워있지 마시고, 가벼운 산책을 권장합니다.",
-      warning: "무리가 되는 운동 금지",
-      isToday: true,
-    },
-  },
-  2: {
-    errorCode: null,
-    message: "OK",
-    result: {
-      scheduleId: 2,
-      doctorName: "김철수교수",
-      hospitalName: "서울대병원",
-      datetime: "2025-04-27T10:00:00",
-      symptom: "입덧 심화, 식욕부진",
-      diagnosis: "임신 초기 정상적인 증상, 영양제 처방",
-      guidance:
-        "소량씩 자주 섭취하시고, 생강차가 도움이 될 수 있습니다. 특히 아침에 일어나자마자 가벼운 간식을 드시고, 식사 시간을 정해두시면 입덧 증상이 완화될 수 있습니다. 탈수 방지를 위해 충분한 수분 섭취도 중요합니다.",
-      warning: "탈수 증상 발생 시 즉시 병원 방문",
-      isToday: false,
-    },
-  },
-  3: {
-    errorCode: null,
-    message: "OK",
-    result: {
-      scheduleId: 3,
-      doctorName: "박영희교수",
-      hospitalName: "서울아산병원",
-      datetime: "2025-04-10T10:00:00",
-      symptom: "요통, 다리 부종",
-      diagnosis: "임신 중기 일반적 증상, 압박스타킹 착용 권장",
-      guidance:
-        "적절한 휴식과 다리 올리기, 가벼운 스트레칭을 권장합니다. 특히 압박스타킹은 아침에 일어나자마자 착용하시고, 취침 전에 벗으시면 됩니다. 다리 부종이 심할 때는 소금 섭취를 줄이고, 다리를 심장보다 높게 올려두시면 도움이 됩니다.",
-      warning: "심한 부종 시 즉시 연락",
-      isToday: false,
-    },
-  },
-  4: {
-    errorCode: null,
-    message: "OK",
-    result: {
-      scheduleId: 4,
-      doctorName: "최민수교수",
-      hospitalName: "삼성서울병원",
-      datetime: "2025-03-30T14:00:00",
-      symptom: "정기검진",
-      diagnosis: "모든 수치 정상, 건강한 임신 진행 중",
-      guidance:
-        "현재 상태가 매우 좋습니다. 균형잡힌 식단과 적절한 운동을 지속해주세요. 특히 단백질이 풍부한 식품과 신선한 채소, 과일을 충분히 섭취하시고, 하루 30분 정도의 가벼운 산책이나 임신 요가를 권장합니다. 규칙적인 생활 리듬을 유지하시면 더욱 건강한 임신을 유지할 수 있습니다.",
-      warning: "특별한 주의사항 없음",
-      isToday: false,
-    },
-  },
-};
+  } catch (error : any) {
+    console.error('다음 진료 조회 실패', error);
 
-//api 호출
-export const mockAppointmentApi = {
-  //다음 진료 예정 조회
-  getNextAppointment: async (): Promise<NextAppointmentResponse> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(mockNextAppointment);
-      }, 800);
-    });
-  },
-  //진료 이력 조회
-  getAppointmentHistory: async (): Promise<AppointmentHistoryResponse> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(mockAppointmentHistory);
-      }, 1000);
-    });
-  },
+    if(error?.response?.data){
+      return { errorCode : error.response.data.errorCode || 'UNKNOWN_ERROR',
+      message: error.response.data.message || '알수없는 오류가 발생했습니다.',
+      result: null
+      }
+    }
 
-  //진료 시작
-  startConsultation: (
-    scheduleId: number
-  ): Promise<StartConsultationResponse> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(mockStartConsultation);
-      }, 600);
-    });
-  },
+    return { errorCode: 'UNKNOWN_ERROR', message: '알 수 없는 오류가 발생했습니다.', result: null };
+  
+  }
+}
+ 
+//완료된 진료 이력 조회
+export const getAppointmentHistory = async (): Promise<AppointmentHistoryResponse> => {
+  try{
+    const response = await apiClient.get<AppointmentHistoryResponse>('/api/schedules?page=${pageNumber}');
+    console.log('진료 이력 조회 성공', response.data);
+    return response.data;
+  }catch(error : any){
+    console.error('진료 이력 조회 실패', error);
 
-  //진료 상세 조회
-  getAppointmentDetail: (
-    scheduleId: number
-  ): Promise<AppointmentDetailResponse> => {
-    return new Promise((resolve) => {
-      const detail =
-        mockAppointmentDetails[scheduleId] || mockAppointmentDetails[1];
-      setTimeout(() => resolve(detail), 700);
-    });
-  },
-};
+    if(error?.response?.data){
+      return { errorCode : error.response.data.errorCode || 'UNKNOWN_ERROR',
+      message: error.response.data.message || '알수없는 오류가 발생했습니다.',
+      result: null
+      }
+    }
+
+    return { errorCode: 'UNKNOWN_ERROR', message: '알 수 없는 오류가 발생했습니다.', result: null };
+
+  }
+}
+
+//진료 시작
+export const startConsultation = async (scheduleId: string): Promise<StartConsultationResponse> => {
+  try{
+    const response = await apiClient.post<StartConsultationResponse>(`/api/schedules/${scheduleId}`);
+    console.log('진료 시작 성공', response.data);
+    return response.data;
+  }catch(error : any){
+    console.error('진료 시작 실패', error);
+
+    if(error?.response?.data){
+      return { errorCode : error.response.data.errorCode || 'UNKNOWN_ERROR',
+      message: error.response.data.message || '알수없는 오류가 발생했습니다.',
+      result: null
+      };
+    }
+
+    return { errorCode: 'UNKNOWN_ERROR', message: '알 수 없는 오류가 발생했습니다.', result: null };
+  }
+}
+
+//진료 이력 상세보기
+export const getAppointmentDetail = async (scheduleId : string): Promise<AppointmentDetailResponse> => {
+  try{
+    const response = await apiClient.get<AppointmentDetailResponse>(`/api/schedules/${scheduleId}`);
+    console.log('진료 상세 조회 성공', response.data);
+    return response.data; 
+  }catch(error : any){
+    console.error('진료 상세 조회 실패', error);
+
+    if(error?.response?.data){
+      return { errorCode : error.response.data.errorCode || 'UNKNOWN_ERROR',
+      message: error.response.data.message || '알수없는 오류가 발생했습니다.',
+      result: null
+      };
+    }
+
+    return { errorCode: 'UNKNOWN_ERROR', message: '알 수 없는 오류가 발생했습니다.', result: null };
+  }
+}
+
+//코드 인증 확인
+

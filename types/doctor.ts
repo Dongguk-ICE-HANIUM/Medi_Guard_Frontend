@@ -2,7 +2,7 @@ import { ApiResponse } from "./api";
 
 //진료 기본 정보
 export interface AppointmentBase {
-  scheduleId: number;
+  scheduleId: string;
   doctorName: string;
   hospitalName: string;
 }
@@ -33,7 +33,7 @@ export interface StartConsultationResult {
 
 export type StartConsultationResponse = ApiResponse<StartConsultationResult>;
 
-//진료 이력 상세보기
+//진료 내용 상세보기
 export interface AppointmentDetail extends AppointmentBase {
   datetime: string;
   symptom: string;
@@ -51,3 +51,19 @@ export interface FormattedDateTime {
   dayOfWeek: string;
   isToday: boolean;
 }
+
+//예정된 진료 일정
+export interface ScheduledAppointment {
+  scheduleList: AppointmentHistoryItem[];
+}
+
+export type ScheduledAppointmentResponse = ApiResponse<ScheduledAppointment>;
+
+//진료 예약 저장 (추후 삭제)
+export interface SaveAppointmentRequest{
+  scheduleTime : string;
+}
+
+export type SaveAppointmentResponse = ApiResponse<SaveAppointmentRequest>;
+
+//의사 코드 8자리

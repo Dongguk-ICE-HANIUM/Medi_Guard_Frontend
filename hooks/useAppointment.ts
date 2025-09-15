@@ -1,228 +1,169 @@
-import { mockAppointmentApi } from "@/api/appointment";
-import { useCallback } from "react";
-import { useAppointmentContext } from "../context/AppointmentContext";
+import { getAppointmentDetail, getAppointmentHistory, getNextAppointment, saveAppointment, startConsultation } from "@/api/appointment";
+import { SaveAppointmentRequest } from "@/types/doctor";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { create } from 'zustand';
 
-//다음 진료
-export const useNextAppointment = () => {
-  const { state, dispatch } = useAppointmentContext();
-
-  const fetchNextAppointment = useCallback(async () => {
-    dispatch({ type: "FETCH_NEXT_APPOINTMENT" });
-
-    try {
-      const response = await mockAppointmentApi.getNextAppointment();
-
-      if (response.errorCode) {
-        dispatch({
-          type: "FETCH_NEXT_APPOINTMENT_ERROR",
-          payload: response.message,
-        });
-        return;
-      }
-
-      if (response.result) {
-        dispatch({
-          type: "FETCH_NEXT_APPOINTMENT_SUCCESS",
-          payload: response.result,
-        });
-      } else {
-        dispatch({
-          type: "FETCH_NEXT_APPOINTMENT_ERROR",
-          payload: "데이터를 찾을 수 없습니다.",
-        });
-      }
-    } catch (error) {
-      dispatch({
-        type: "FETCH_NEXT_APPOINTMENT_ERROR",
-        payload: error instanceof Error ? error.message : "알 수 없는 오류",
-      });
-    }
-  }, [dispatch]);
-
-  return {
-    nextAppointment: state.nextAppointment,
-    loading: state.nextLoading,
-    error: state.nextError,
-    fetchNextAppointment,
-  };
+export const appointmentQueryKeys = {
+  all : ['appointment'] as const,
+  nextAppointment: () => [...appointmentQueryKeys.all, 'next'] as const,
+  history: () => [...appointmentQueryKeys.all, 'history'] as const,
+  detail: (scheduleId: string) => [...appointmentQueryKeys.all, 'detail', scheduleId] as const,
+  startConsultation: (scheduleId: string) => [...appointmentQueryKeys.all, 'start', scheduleId] as const,
 };
 
-//진료 이력
-export const useAppointmentHistory = () => {
-  const { state, dispatch } = useAppointmentContext();
-
-  const fetchAppointmentHistory = useCallback(async () => {
-    dispatch({ type: "FETCH_HISTORY" });
-
-    try {
-      const response = await mockAppointmentApi.getAppointmentHistory();
-
-      if (response.errorCode) {
-        dispatch({ type: "FETCH_HISTORY_ERROR", payload: response.message });
-        return;
-      }
-
-      if (response.result) {
-        dispatch({
-          type: "FETCH_HISTORY_SUCCESS",
-          payload: response.result.scheduleList,
-        });
-      } else {
-        dispatch({
-          type: "FETCH_HISTORY_ERROR",
-          payload: "데이터를 찾을 수 없습니다.",
-        });
-      }
-    } catch (error) {
-      dispatch({
-        type: "FETCH_HISTORY_ERROR",
-        payload: error instanceof Error ? error.message : "알 수 없는 오류",
-      });
-    }
-  }, [dispatch]);
+//쿼리 무효화 유틸리티 훅
+export const useRefreshAppointmentData = () => {
+  const queryClient = useQueryClient();
 
   return {
-    appointmentHistory: state.historyList,
-    loading: state.historyLoading,
-    error: state.historyError,
-    fetchAppointmentHistory,
-  };
-};
-
-//진료 상세
-export const useAppointmentDetail = () => {
-  const { state, dispatch } = useAppointmentContext();
-
-  const fetchAppointmentDetail = useCallback(
-    async (scheduleId: number) => {
-      dispatch({ type: "FETCH_DETAIL" });
-
-      try {
-        const response = await mockAppointmentApi.getAppointmentDetail(
-          scheduleId
-        );
-
-        if (response.errorCode) {
-          dispatch({ type: "FETCH_DETAIL_ERROR", payload: response.message });
-        } else if (response.result) {
-          dispatch({ type: "FETCH_DETAIL_SUCCESS", payload: response.result });
-        } else {
-          dispatch({
-            type: "FETCH_DETAIL_ERROR",
-            payload: "데이터를 찾을 수 없습니다.",
-          });
-        }
-      } catch (error) {
-        dispatch({
-          type: "FETCH_DETAIL_ERROR",
-          payload:
-            error instanceof Error
-              ? error.message
-              : "알 수 없는 오류가 발생했습니다.",
-        });
-      }
+    refreshAll: () => {
+      queryClient.invalidateQueries({ queryKey: appointmentQueryKeys.all });
     },
-    [dispatch]
-  );
-
-  const clearAppointmentDetail = useCallback(() => {
-    dispatch({ type: "CLEAR_DETAIL" });
-  }, [dispatch]);
-
-  return {
-    appointmentDetail: state.appointmentDetail,
-    loading: state.appointmentDetailLoading,
-    error: state.appointmentDetailError,
-    fetchAppointmentDetail,
-    clearAppointmentDetail,
+    refreshNext: () => {
+      queryClient.invalidateQueries({ queryKey: appointmentQueryKeys.nextAppointment() });
+    },
+    refreshHistory: () => {
+      queryClient.invalidateQueries({ queryKey: appointmentQueryKeys.history() });
+    },
+    refreshDetail: (scheduleId: string) => {
+      queryClient.invalidateQueries({ queryKey: appointmentQueryKeys.detail(scheduleId) });
+    },
   };
+};
+
+//예정된 진료 저장
+export const useSaveAppointment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (appointmentData: SaveAppointmentRequest) => {
+      const response = await saveAppointment(appointmentData);
+      if (response.errorCode) {
+        throw new Error(response.message);
+      }
+      if (!response.result) {
+        throw new Error("데이터를 찾을 수 없습니다.");
+      }
+      return response.result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey:appointmentQueryKeys.nextAppointment()});
+    },
+    onError: (error) => {
+      console.error("진료 저장 실패:", error);
+    },  
+  })
+};
+
+//오늘(다음)의 진료 일정 조회
+export const useNextAppointment = () => {
+  return useQuery({
+    queryKey: appointmentQueryKeys.nextAppointment(),
+    queryFn : async () => {
+      const response = await getNextAppointment();
+
+      if(response.errorCode){
+        throw new Error(response.message);
+      }
+      if(!response.result){
+        throw new Error("데이터를 찾을 수 없습니다.");
+      }
+      return response.result;
+    },
+    staleTime: 5 * 60 * 1000,
+    retry : 2, 
+  });
+};
+  
+//완료된 진료 이력 조회
+export const useAppointmentHistory = () => {
+  return useQuery({
+    queryKey: appointmentQueryKeys.history(),
+    queryFn: async () => {
+      const response = await getAppointmentHistory();
+
+      if (response.errorCode) {
+        throw new Error(response.message);
+      }
+      if (!response.result) {
+        throw new Error("데이터를 찾을 수 없습니다.");
+      }
+      return response.result.scheduleList;
+    },
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  })
 };
 
 //진료 시작
 export const useStartConsultation = () => {
-  const { state, dispatch } = useAppointmentContext();
+  const queryClient = useQueryClient();
 
-  const startConsultation = useCallback(
-    async (scheduleId: number) => {
-      dispatch({ type: "START_CONSULTATION" });
+  return useMutation({
+    mutationFn: async (scheduleId: string) => {
+      const response = await startConsultation(scheduleId);
 
-      try {
-        const response = await mockAppointmentApi.startConsultation(scheduleId);
-
-        if (response.errorCode) {
-          dispatch({
-            type: "START_CONSULTATION_ERROR",
-            payload: response.message,
-          });
-        } else if (response.result) {
-          dispatch({
-            type: "START_CONSULTATION_SUCCESS",
-            payload: response.result.code,
-          });
-        } else {
-          dispatch({
-            type: "START_CONSULTATION_ERROR",
-            payload: "데이터를 찾을 수 없습니다.",
-          });
-        }
-      } catch (error) {
-        dispatch({
-          type: "START_CONSULTATION_ERROR",
-          payload:
-            error instanceof Error
-              ? error.message
-              : "알 수 없는 오류가 발생했습니다.",
-        });
+      if (response.errorCode) {
+        throw new Error(response.message);
       }
+      if (!response.result) {
+        throw new Error("데이터를 찾을 수 없습니다.");
+      }
+      return response.result;
     },
-    [dispatch]
-  );
-
-  const clearConsultationCode = useCallback(() => {
-    dispatch({ type: "CLEAR_CONSULTATION_CODE" });
-  }, [dispatch]);
-
-  return {
-    consultationCode: state.consultationCode,
-    loading: state.consultationLoading,
-    error: state.consultationError,
-    startConsultation,
-    clearConsultationCode,
-  };
+    onSuccess: (data, scheduleId) => {
+      queryClient.invalidateQueries({ queryKey: appointmentQueryKeys.detail(scheduleId) });
+      queryClient.invalidateQueries({ queryKey: appointmentQueryKeys.nextAppointment() });
+    },
+    onError: (error) => {
+      console.error("진료 시작 실패:", error);
+    }
+  });
 };
 
-// 현재 진행 중인 진료 관리
-export const useCurrentSchedule = () => {
-  const { state, dispatch } = useAppointmentContext();
+//진료 이력 상세보기
+export const useAppointmentDetail = (scheduleId: string, enabled : boolean = true) => {
+  return useQuery({
+    queryKey: appointmentQueryKeys.detail(scheduleId),
+    queryFn: async () => {
+      const response = await getAppointmentDetail(scheduleId);
 
-  const setCurrentScheduleId = useCallback((scheduleId: number) => {
-    dispatch({ type: "SET_CURRENT_SCHEDULE_ID", payload: scheduleId });
-  }, [dispatch]);
+      if (response.errorCode) {
+        throw new Error(response.message);
+      }
+      if (!response.result) {
+        throw new Error("데이터를 찾을 수 없습니다.");
+      }
+      return response.result;
+    },
+    enabled: enabled && scheduleId !== '',
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  });
+}
 
-  const clearCurrentScheduleId = useCallback(() => {
-    dispatch({ type: "CLEAR_CURRENT_SCHEDULE_ID" });
-  }, [dispatch]);
+//코드 인증 확인
 
-  return {
-    currentScheduleId: state.currentScheduleId,
-    setCurrentScheduleId,
-    clearCurrentScheduleId,
-  };
-};
 
-// 통합
-export const useAppointment = () => {
-  const todayNext = useNextAppointment();
-  const history = useAppointmentHistory();
-  const detail = useAppointmentDetail();
-  const consultation = useStartConsultation();
-  const currentSchedule = useCurrentSchedule();
 
-  return {
-    todayNext,
-    history,
-    detail,
-    consultation,
-    currentSchedule,
-  };
-};
+
+
+
+
+// 현재 진행 중인 진료 상태 관리
+interface CurrentScheduleStore {
+  currentScheduleId: string | null;
+  consultationCode : string | null;
+  setCurrentScheduleId: (id:string | null) => void;
+  setConsultationCode : (code : string) => void;
+  clearCurrentSchedule: () => void;
+}
+
+export const useCurrentScheduleStore = create<CurrentScheduleStore>((set) => ({
+  currentScheduleId: null,
+  consultationCode : null,
+  setCurrentScheduleId: (id) => set({ currentScheduleId: id }),
+  setConsultationCode : (code) => set({ consultationCode : code}),
+  clearCurrentSchedule: () => set({ currentScheduleId: null, consultationCode : null }),
+}));
+

@@ -17,7 +17,7 @@ import {
 } from "react-native";
 
 export default function TreatScreen() {
-  const { todayNext, history, consultation, currentSchedule } =
+  const { nextAppointment, history, consultation, currentSchedule } =
     useAppointment();
   const [isModal, setIsModal] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState<string>("");
@@ -26,9 +26,9 @@ export default function TreatScreen() {
   const ITEMS_PER_PAGE = 4;
 
   useEffect(() => {
-    todayNext.fetchNextAppointment();
+    nextAppointment.fetchNextAppointment();
     history.fetchAppointmentHistory();
-  }, [todayNext.fetchNextAppointment, history.fetchAppointmentHistory]);
+  }, [nextAppointment.fetchNextAppointment, history.fetchAppointmentHistory]);
 
   //진료 이력 필터링
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function TreatScreen() {
     if (!history.appointmentHistory.length) return [];
 
     // 오늘의 진료에 표시되는 scheduleId를 제외
-    const todayScheduleId = todayNext.nextAppointment?.scheduleId;
+    const todayScheduleId = nextAppointment.nextAppointment?.scheduleId;
 
     let filteredData = history.appointmentHistory;
 
@@ -82,7 +82,7 @@ export default function TreatScreen() {
     history.appointmentHistory,
     filterStartDate,
     filterEndDate,
-    todayNext.nextAppointment,
+    nextAppointment.nextAppointment,
   ]);
 
   const periodText = useMemo(() => {
@@ -139,11 +139,11 @@ export default function TreatScreen() {
   };
 
   const handleStartPress = () => {
-    if (todayNext.nextAppointment) {
-      consultation.startConsultation(todayNext.nextAppointment.scheduleId);
+    if (nextAppointment.nextAppointment) {
+      consultation.startConsultation(nextAppointment.nextAppointment.scheduleId);
       // 현재 진행 중인 진료 ID 설정
       currentSchedule.setCurrentScheduleId(
-        todayNext.nextAppointment.scheduleId
+        nextAppointment.nextAppointment.scheduleId
       );
       // 진료 시작 페이지로 이동
       router.push("/treat/consultation");
@@ -158,7 +158,7 @@ export default function TreatScreen() {
     router.push("/treat/consultation/result");
   };
 
-  if (todayNext.loading && history.loading) {
+  if (nextAppointment.loading && history.loading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
@@ -179,25 +179,25 @@ export default function TreatScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>오늘의 진료</Text>
 
-            {todayNext.loading ? (
+            {nextAppointment.loading ? (
               <View style={styles.sectionLoading}>
                 <ActivityIndicator size="small" color="#FF6B6B" />
               </View>
-            ) : todayNext.error ? (
+            ) : nextAppointment.error ? (
               <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>오류: {todayNext.error}</Text>
+                <Text style={styles.errorText}>오류: {nextAppointment.error}</Text>
               </View>
-            ) : todayNext.nextAppointment ? (
+            ) : nextAppointment.nextAppointment ? (
               <AppointmentCard
-                dateTime={todayNext.nextAppointment.time}
-                hospitalName={todayNext.nextAppointment.hospitalName}
-                doctorName={todayNext.nextAppointment.doctorName}
+                dateTime={nextAppointment.nextAppointment.time}
+                hospitalName={nextAppointment.nextAppointment.hospitalName}
+                doctorName={nextAppointment.nextAppointment.doctorName}
                 type="start"
                 onStartPress={handleStartPress}
-                isToday={todayNext.nextAppointment.isToday}
+                isToday={nextAppointment.nextAppointment.isToday}
                 isCompleted={
                   currentSchedule.currentScheduleId ===
-                  todayNext.nextAppointment?.scheduleId
+                  nextAppointment.nextAppointment?.scheduleId
                 }
               />
             ) : (
