@@ -27,6 +27,22 @@ export default function TreatLayout() {
           ),
         }}
       />
+            <Stack.Screen
+        name="add"
+        options={{
+          headerShown: true,
+          title: "진료 등록",
+          contentStyle: {
+            paddingHorizontal: 13,
+            backgroundColor: colors.BG_COLOR,
+          },
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="chevron-back" size={24} color={"black"} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </Stack>
   );
 }
