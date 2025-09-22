@@ -3,39 +3,38 @@ import { ResultSection } from "@/components/consultation/ResultSection";
 import { colors } from "@/constants";
 import {
   useAppointmentDetail,
-  useCurrentSchedule,
+  useCurrentScheduleStore,
 } from "@/hooks/useAppointment";
 import { formatAppointmentDate, formatDateStringKor } from "@/utils/dateUtils";
 import { router } from "expo-router";
-import React, { useEffect } from "react";
+import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const result = () => {
-  const { currentScheduleId } = useCurrentSchedule();
-  const { appointmentDetail, loading, error, fetchAppointmentDetail } =
-    useAppointmentDetail();
+  const { currentScheduleId } = useCurrentScheduleStore();
+  const { data: appointmentDetail, isLoading: loading, error } = useAppointmentDetail(
+      currentScheduleId || '', 
+      !!currentScheduleId 
+    );
 
-  useEffect(() => {
-    console.log("currentScheduleId:", currentScheduleId);
-    if (currentScheduleId) {
-      fetchAppointmentDetail(currentScheduleId);
-    }
-  }, [currentScheduleId, fetchAppointmentDetail]);
 
   const goTreatHome = () => {
     router.replace("/treat");
   };
 
   const parseSymptoms = (symptomString: string) => {
+    if (!symptomString) return [];
     return symptomString.split(",").map((s) => s.trim());
   };
 
   const parseDiagnosis = (diagnosisString: string) => {
+    if(!diagnosisString) return [];
     return diagnosisString.split(",").map((d) => d.trim());
   };
 
   const parseGuidance = (guidanceString: string) => {
+    if(!guidanceString) return [];
     return guidanceString.split(",").map((g) => g.trim());
   };
 
@@ -54,7 +53,7 @@ const result = () => {
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>
-            {error || "진료 결과를 찾을 수 없습니다."}
+            {error?.message || "진료 결과를 찾을 수 없습니다."}
           </Text>
           <Text style={styles.debugText}>
             currentScheduleId: {currentScheduleId}, loading:{" "}
@@ -70,9 +69,9 @@ const result = () => {
       <View style={styles.contentContainer}>
         <View style={styles.header}>
           <Text style={styles.date}>
-            {formatDateStringKor(appointmentDetail.datetime)}
+            {formatDateStringKor(appointmentDetail.dateTime)}
             {!appointmentDetail.isToday &&
-              ` ${formatAppointmentDate(appointmentDetail.datetime).time}`}
+              ` ${formatAppointmentDate(appointmentDetail.dateTime).time}`}
           </Text>
           <Text style={styles.title}>
             {appointmentDetail.isToday

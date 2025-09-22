@@ -43,7 +43,7 @@ export default function TreatScreen() {
 
   const appointmentHistory = historyResponse?.content || [];
   const totalPages = historyResponse?.totalPage || 1;
-  const totalCount = historyResponse?.totalItems || 0;
+  const totalCount = historyResponse?.totalElements|| 0;
   const hasNext = historyResponse?.hasNext || false;
 
   //진료 이력 필터링 (페이지네이션 + 날짜)
@@ -207,14 +207,16 @@ export default function TreatScreen() {
                 }
               />
             ) : (
-              <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>예정된 진료가 없습니다.</Text>
+          <View style={styles.emptyMainContainer}>
+                <FontAwesome5 name="calendar-times" size={48} color={colors.TEXT_GRAY} />
+                <Text style={styles.emptyMainText}>아직 진료 이력이 없습니다</Text>
+                <Text style={styles.emptySubText}>첫 번째 진료를 등록해보세요</Text>
                 <TouchableOpacity 
-                  style={styles.addButton}
+                  style={styles.addMainButton}
                   onPress={handleAddAppointment}
                 >
-                  <FontAwesome5 name="plus" size={16} color={colors.WHITE} />
-                  <Text style={styles.addButtonText}>진료 추가</Text>
+                  <FontAwesome5 name="plus" size={18} color={colors.WHITE} />
+                  <Text style={styles.addMainButtonText}>진료 등록하기</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -234,7 +236,7 @@ export default function TreatScreen() {
               </TouchableOpacity>
             )}
 
-                        {/* 로딩 상태 표시 - 페이지 변경시에도 표시 */}
+            {/* 로딩 상태 표시 - 페이지 변경시에도 표시 */}
             {historyLoading || historyFetching ? (
               <View style={styles.sectionLoading}>
                 <ActivityIndicator size="small" color="#FF6B6B" />
@@ -248,16 +250,14 @@ export default function TreatScreen() {
               </View>
             ) : totalCount === 0 ? (
               // 진료 이력이 아예 없을 때
-              <View style={styles.emptyMainContainer}>
-                <FontAwesome5 name="calendar-times" size={48} color={colors.TEXT_GRAY} />
-                <Text style={styles.emptyMainText}>아직 진료 이력이 없습니다</Text>
-                <Text style={styles.emptySubText}>첫 번째 진료를 등록해보세요</Text>
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>예정된 진료가 없습니다.</Text>
                 <TouchableOpacity 
-                  style={styles.addMainButton}
+                  style={styles.addButton}
                   onPress={handleAddAppointment}
                 >
-                  <FontAwesome5 name="plus" size={18} color={colors.WHITE} />
-                  <Text style={styles.addMainButtonText}>진료 등록하기</Text>
+                  <FontAwesome5 name="plus" size={16} color={colors.WHITE} />
+                  <Text style={styles.addButtonText}>진료 추가</Text>
                 </TouchableOpacity>
               </View>
             ) : filteredHistory.length > 0 ? (
@@ -265,7 +265,7 @@ export default function TreatScreen() {
                 {filteredHistory.map((appointment) => (
                   <AppointmentCard
                     key={appointment.scheduleId}
-                    dateTime={appointment.time} // datetime → time 필드로 변경
+                    dateTime={appointment.time} 
                     hospitalName={appointment.hospitalName}
                     doctorName={appointment.doctorName}
                     type="detail"
@@ -277,16 +277,7 @@ export default function TreatScreen() {
               </View>
             ) : (
               // 필터링 결과가 없을 때
-              <View style={styles.emptyContainer}>
                 <Text style={styles.emptyText}>해당 기간에 진료 이력이 없습니다.</Text>
-                <TouchableOpacity 
-                  style={styles.addButton}
-                  onPress={handleAddAppointment}
-                >
-                  <FontAwesome5 name="plus" size={16} color={colors.WHITE} />
-                  <Text style={styles.addButtonText}>진료 추가</Text>
-                </TouchableOpacity>
-              </View>
             )}
           </View>
 

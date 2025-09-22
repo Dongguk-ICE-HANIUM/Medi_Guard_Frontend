@@ -24,7 +24,7 @@ export interface AppointmentHistoryResult {
   content: AppointmentHistoryItem[];
   currentPage: number;
   totalPage: number;
-  totalItems: number;
+  totalElements: number;
   hasNext: boolean;
 }
 
@@ -39,7 +39,7 @@ export type StartConsultationResponse = ApiResponse<StartConsultationResult>;
 
 //진료 내용 상세보기
 export interface AppointmentDetail extends AppointmentBase {
-  datetime: string;
+  dateTime: string;
   symptom: string;
   diagnosis: string;
   guidance: string;

@@ -32,11 +32,11 @@ export const saveAppointment = async(appointmentData : SaveAppointmentRequest) :
 export const getNextAppointment = async (): Promise<NextAppointmentResponse> => {
   try{
     const response = await apiClient.get<NextAppointmentResponse>('/api/appointment/today');
-    console.log('다음 진료 조회 성공', response.data);
+    console.log('오늘의 진료 조회 성공', response.data);
     return response.data;
 
   } catch (error : any) {
-    console.error('다음 진료 조회 실패', error);
+    console.error('오늘의 진료 조회 실패', error);
 
     if(error?.response?.data){
       return { errorCode : error.response.data.errorCode || 'UNKNOWN_ERROR',
