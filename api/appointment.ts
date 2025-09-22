@@ -51,9 +51,9 @@ export const getNextAppointment = async (): Promise<NextAppointmentResponse> => 
 }
  
 //완료된 진료 이력 조회
-export const getAppointmentHistory = async (): Promise<AppointmentHistoryResponse> => {
+export const getAppointmentHistory = async (pageNumber : number = 1): Promise<AppointmentHistoryResponse> => {
   try{
-    const response = await apiClient.get<AppointmentHistoryResponse>('/api/schedules?page=${pageNumber}');
+    const response = await apiClient.get<AppointmentHistoryResponse>(`/api/schedules?page=${pageNumber}`);
     console.log('진료 이력 조회 성공', response.data);
     return response.data;
   }catch(error : any){

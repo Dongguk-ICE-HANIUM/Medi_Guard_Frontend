@@ -1,4 +1,3 @@
-import { AppointmentProvider } from "@/context/AppointmentContext";
 import { CalendarProvider } from "@/context/CalendarContext";
 import { MedicineProvider } from "@/context/MedicineContext";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -24,7 +23,6 @@ const queryClient = new QueryClient({
 export default function TabLayout() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AppointmentProvider>
         <MedicineProvider>
           <CalendarProvider>
             <Tabs screenOptions={{ headerShown: false }}>
@@ -93,10 +91,22 @@ export default function TabLayout() {
                   ),
                 }}
               />
+              <Tabs.Screen
+                name="add"
+                options={{
+                  title: "진료 등록",
+                  tabBarIcon: ({ color, focused }) => (
+                    <Ionicons
+                      name={focused ? "menu" : "menu-outline"}
+                      size={24}
+                      color={color}
+                    />
+                  ),
+                }}
+              />
             </Tabs>
           </CalendarProvider>
         </MedicineProvider>
-      </AppointmentProvider>
     </QueryClientProvider>
   );
 }

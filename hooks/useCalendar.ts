@@ -1,11 +1,11 @@
 import { colors } from "@/constants";
 import { useMedicationList } from "@/hooks/medication/useMedicationQuery";
 import { useMedicationTaking } from "@/hooks/medication/useMedicationTaking";
-import { useAppointment } from "@/hooks/useAppointment";
+import { useAppointmentHistory } from "@/hooks/useAppointment";
 import { DayData } from "@/types/calendar";
 import { TagInfo } from "@/types/tags";
 import { convertBinaryToDays } from "@/utils/dateUtils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 // 복용 주기에 따라 해당 날짜에 약을 먹어야 하는지 확인하는 함수
 export const checkIfShouldTakeOnDate = (
@@ -16,7 +16,7 @@ export const checkIfShouldTakeOnDate = (
   startDate.setHours(0, 0, 0, 0);
 
   // 복용 시작일 이전인 경우도 true 반환 (복용 예정으로 표시)
-  // if (targetDate < startDate) {
+  // if (targetDate < startDate) 
   //   return false;
   // }
 
@@ -163,7 +163,7 @@ export const generateCalendarDataFromMedications = (
     // 해당 날짜에 진료가 있는지 확인
     const hasAppointment =
       appointments?.some((appointment) => {
-        const appointmentDate = new Date(appointment.datetime);
+        const appointmentDate = new Date(appointment.time);
         const appointmentDateString = appointmentDate
           .toISOString()
           .split("T")[0];
@@ -192,13 +192,8 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const { data: medications = [] } = useMedicationList();
-  const { history } = useAppointment();
+  const { data: appointmentHistory = { content: [] } } = useAppointmentHistory(1);
   const { isFullyTaken } = useMedicationTaking();
-
-  // 진료 데이터 자동 로드
-  useEffect(() => {
-    history.fetchAppointmentHistory();
-  }, [history.fetchAppointmentHistory]);
 
   const fetchCalendarData = useCallback(
     async (date: Date): Promise<void> => {
@@ -211,7 +206,7 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
           year,
           month,
           medications,
-          history.appointmentHistory,
+          appointmentHistory.content,
           isFullyTaken
         );
 
@@ -225,12 +220,11 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
         setLoading(false);
       }
     },
-    [medications]
+    [medications, appointmentHistory.content, isFullyTaken]
   );
 
   // medications 데이터가 변경될 때마다 캘린더 데이터 다시 계산
   useEffect(() => {
-    if (medications.length > 0) {
       setLoading(true);
       setError(null);
       try {
@@ -240,7 +234,7 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
           year,
           month,
           medications,
-          history.appointmentHistory,
+          appointmentHistory.content,
           isFullyTaken
         );
 
@@ -253,12 +247,12 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
       } finally {
         setLoading(false);
       }
-    }
-  }, [medications, currentDate, history.appointmentHistory, isFullyTaken]);
+
+  }, [medications.length, currentDate.getFullYear(), currentDate.getMonth()]);
 
   const changeMonth = useCallback((direction: number) => {
     setCurrentDate((prev) => {
-      const newDate = new Date(prev);
+      const newDate = new Date(prev); 
       newDate.setMonth(prev.getMonth() + direction);
       return newDate;
     });
@@ -281,12 +275,24 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
 
   // hooks/useCalendar.ts - getTagsForDay 함수 최종 수정
 
+  // today를 컴포넌트 레벨에서 한 번만 계산
+  const today = useMemo(() => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }, []);
+
   const getTagsForDay = useCallback(
     (dayIndex: number): TagInfo[] => {
-      const daystatus = getDayStatus(dayIndex);
+      if (!calendarData || dayIndex < 1 || dayIndex > calendarData.length) {
+        return [];
+      }
+
+      const daystatus = calendarData[dayIndex - 1];
       if (!daystatus) {
         return [];
       }
+
       const tags: TagInfo[] = [];
 
       // 복용 상태 태그 (우선순위: 복용 > 미복용 > 예정)
@@ -298,23 +304,13 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
             color: colors.BLUE,
           });
         } else {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-
-          // ✅ 수정: dayIndex가 이제 실제 날짜이므로 그대로 사용
+          // targetDate 계산을 간소화
           const targetDate = new Date(
             currentDate.getFullYear(),
             currentDate.getMonth(),
-            dayIndex // dayIndex=24 → 8월 24일
+            dayIndex
           );
           targetDate.setHours(0, 0, 0, 0);
-
-          // ✅ 확인용 로그
-          console.log(`✅ 최종 수정된 날짜 계산:
-            - dayIndex (실제 날짜): ${dayIndex}
-            - targetDate: ${targetDate.toISOString().split("T")[0]}
-            - today: ${today.toISOString().split("T")[0]}
-            - 일치: ${targetDate.getTime() === today.getTime()}`);
 
           if (targetDate < today) {
             tags.push({
@@ -329,7 +325,6 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
               color: colors.YELLOW,
             });
           } else {
-            // 오늘인데 복용하지 않음
             tags.push({
               type: "pillMissed",
               label: "미복용",
@@ -357,7 +352,7 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
 
       return tags;
     },
-    [getDayStatus, currentDate]
+    [calendarData, currentDate, today]
   );
 
   const refreshData = useCallback((): void => {

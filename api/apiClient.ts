@@ -1,4 +1,4 @@
-import { deleteSecureStore, getSecureStore } from "@/utils/secureStore";
+import { deleteSecureStore } from "@/utils/secureStore";
 import axios, { AxiosInstance } from "axios";
 
 const apiClient: AxiosInstance = axios.create({
@@ -13,8 +13,15 @@ const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   async (config) => {
     try {
-      const token = await getSecureStore("refreshToken");
-      if (token) config.headers.Authorization = `Bearer ${token}`;
+      // 개발용 토큰 상수
+      const devToken = process.env.EXPO_PUBLIC_ACCESS_TOKEN;
+      if (devToken) {
+        config.headers.Authorization = `Bearer ${devToken}`;
+        return config;
+      }
+      //실제
+      // const token = await getSecureStore("refreshToken");
+      // if (token) config.headers.Authorization = `Bearer ${token}`;
     } catch (error) {
       console.error("Token 가져오기 오류: ", error);
     }

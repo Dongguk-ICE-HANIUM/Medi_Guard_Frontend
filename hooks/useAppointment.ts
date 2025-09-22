@@ -6,7 +6,7 @@ import { create } from 'zustand';
 export const appointmentQueryKeys = {
   all : ['appointment'] as const,
   nextAppointment: () => [...appointmentQueryKeys.all, 'next'] as const,
-  history: () => [...appointmentQueryKeys.all, 'history'] as const,
+  history: (page : number) => [...appointmentQueryKeys.all, 'history', page] as const,
   detail: (scheduleId: string) => [...appointmentQueryKeys.all, 'detail', scheduleId] as const,
   startConsultation: (scheduleId: string) => [...appointmentQueryKeys.all, 'start', scheduleId] as const,
 };
@@ -22,8 +22,8 @@ export const useRefreshAppointmentData = () => {
     refreshNext: () => {
       queryClient.invalidateQueries({ queryKey: appointmentQueryKeys.nextAppointment() });
     },
-    refreshHistory: () => {
-      queryClient.invalidateQueries({ queryKey: appointmentQueryKeys.history() });
+    refreshHistory: (pageNumber: number) => {
+      queryClient.invalidateQueries({ queryKey: appointmentQueryKeys.history(pageNumber) });
     },
     refreshDetail: (scheduleId: string) => {
       queryClient.invalidateQueries({ queryKey: appointmentQueryKeys.detail(scheduleId) });
@@ -76,11 +76,11 @@ export const useNextAppointment = () => {
 };
   
 //완료된 진료 이력 조회
-export const useAppointmentHistory = () => {
+export const useAppointmentHistory = (page : number = 1) => {
   return useQuery({
-    queryKey: appointmentQueryKeys.history(),
+    queryKey: appointmentQueryKeys.history(page),
     queryFn: async () => {
-      const response = await getAppointmentHistory();
+      const response = await getAppointmentHistory(page);
 
       if (response.errorCode) {
         throw new Error(response.message);
@@ -88,7 +88,7 @@ export const useAppointmentHistory = () => {
       if (!response.result) {
         throw new Error("데이터를 찾을 수 없습니다.");
       }
-      return response.result.scheduleList;
+      return response.result;
     },
     staleTime: 5 * 60 * 1000,
     retry: 2,

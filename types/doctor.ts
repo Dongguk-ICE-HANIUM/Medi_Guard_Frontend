@@ -16,12 +16,16 @@ export type NextAppointmentResponse = ApiResponse<NextAppointment>;
 
 //진료 이력 아이템
 export interface AppointmentHistoryItem extends AppointmentBase {
-  datetime: string;
+  time: string;
 }
 
 //진료 이력 조회
 export interface AppointmentHistoryResult {
-  scheduleList: AppointmentHistoryItem[];
+  content: AppointmentHistoryItem[];
+  currentPage: number;
+  totalPage: number;
+  totalItems: number;
+  hasNext: boolean;
 }
 
 export type AppointmentHistoryResponse = ApiResponse<AppointmentHistoryResult>;
