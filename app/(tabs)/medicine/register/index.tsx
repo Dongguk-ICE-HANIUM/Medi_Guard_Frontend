@@ -9,7 +9,7 @@ const Register = () => {
 
   const handleNext = () => {
     if (selectedMethod === "direct") {
-      router.push("/medicine/register/registerForm");
+      router.push("/medicine/register/listSearch");
     } else if (selectedMethod === "ai") {
       router.push("/medicine/register/camera");
     }
