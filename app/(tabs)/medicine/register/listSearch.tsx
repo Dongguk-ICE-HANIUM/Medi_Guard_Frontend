@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: '#F8F9FA',
+        backgroundColor: colors.WHITE,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
      searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#F8F9FA',
+        backgroundColor: colors.LIGHT_GRAY + '70',
         borderRadius: 12,
         paddingHorizontal: 16,
         paddingVertical: 12,
