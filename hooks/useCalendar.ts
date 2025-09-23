@@ -278,12 +278,12 @@ export const useCalendar = (initialDate?: Date): useCalendarReturn => {
           );
           targetDate.setHours(0, 0, 0, 0);
 
-          // ✅ 확인용 로그
-          console.log(`✅ 최종 수정된 날짜 계산:
-            - dayIndex (실제 날짜): ${dayIndex}
-            - targetDate: ${targetDate.toISOString().split("T")[0]}
-            - today: ${today.toISOString().split("T")[0]}
-            - 일치: ${targetDate.getTime() === today.getTime()}`);
+          // // ✅ 확인용 로그
+          // console.log(`✅ 최종 수정된 날짜 계산:
+          //   - dayIndex (실제 날짜): ${dayIndex}
+          //   - targetDate: ${targetDate.toISOString().split("T")[0]}
+          //   - today: ${today.toISOString().split("T")[0]}
+          //   - 일치: ${targetDate.getTime() === today.getTime()}`);
 
           if (targetDate < today) {
             tags.push({
