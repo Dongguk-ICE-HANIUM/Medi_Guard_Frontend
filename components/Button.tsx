@@ -19,7 +19,6 @@ function Button({
   ...props
 }: ButtonProps) {
   const handlePress = (event: any) => {
-    console.log("Button pressed:", { text, icon, onPress: !!onPress });
     if (onPress) {
       onPress(event);
     }
