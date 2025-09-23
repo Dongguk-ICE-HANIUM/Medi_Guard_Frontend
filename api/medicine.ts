@@ -13,118 +13,6 @@ import apiClient from "./apiClient";
 //  Mock 데이터 (서버 API 시뮬레이션)
 const mockDelay = () => new Promise((resolve) => setTimeout(resolve, 500));
 
-// //
-// //Mock 데이터
-// //
-
-// // 약물 그룹 목록 조회
-// export const fetchDrugGroups = async (): Promise<
-//   ApiResponse<{ drugGroupList: { id: string; name: string }[] }>
-// > => {
-//   await mockDelay();
-//   console.log("약물 그룹 데이터 로딩");
-
-//   const drugGroups = await mockMedicineStore.getDrugGroups();
-//   return {
-//     errorCode: null,
-//     message: "OK",
-//     result: { drugGroupList: drugGroups },
-//   };
-// };
-
-// // 전체 약물 목록 조회
-// export const fetchAllDrugs = async (): Promise<
-//   ApiResponse<{
-//     drugList: {
-//       id: string;
-//       calendarDrugId: string;
-//       name: string;
-//       startDate: string;
-//       endDate: string;
-//       timeSlot: number;
-//       takenDaysCount: number;
-//       missedDaysCount: number;
-//     }[];
-//   }>
-// > => {
-//   await mockDelay();
-//   console.log("전체 약물 데이터 로딩");
-
-//   const calendarDrugs = await mockMedicineStore.getCalendarDrugs();
-//   return {
-//     errorCode: null,
-//     message: "OK",
-//     result: { drugList: calendarDrugs },
-//   };
-// };
-
-// // 약물 상세 정보 조회
-// export const fetchDrugDetail = async (
-//   patientDrugId: string
-// ): Promise<DrugDetailResponse> => {
-//   await mockDelay();
-//   console.log(`약물 상세 정보 요청: ${patientDrugId}`);
-
-//   // Mock 데이터에서 해당 ID의 약물 정보 반환
-//   const drugDetail: Medication | undefined =
-//     await mockMedicineStore.getMedication(patientDrugId);
-
-//   if (drugDetail) {
-//     console.log("약물 상세 정보 조회 성공:", drugDetail);
-//     return {
-//       errorCode: null,
-//       message: "OK",
-//       result: drugDetail,
-//     };
-//   } else {
-//     console.log("약물을 찾을 수 없음:", patientDrugId);
-//     return {
-//       errorCode: "NOT_FOUND",
-//       message: "약물을 찾을 수 없습니다.",
-//       result: null,
-//     };
-//   }
-// };
-
-// // 약물 등록
-// export const registerDrug = async (
-//   requestData: CreateMedicationRequest
-// ): Promise<CreateMedicationResponse> => {
-//   await mockDelay();
-//   console.log("약물 등록 요청:", requestData);
-
-//   const mockResponse: CreateMedicationResponse = {
-//     errorCode: null,
-//     message: "OK",
-//     result: {
-//       id: "mock_drug_id_" + Date.now(),
-//       ...requestData,
-//       medicineInfo: {
-//         id: "mock_medicine_info_id_" + Date.now(),
-//         name: requestData.name,
-//         code:
-//           "N" +
-//           Math.floor(Math.random() * 100000)
-//             .toString()
-//             .padStart(5, "0"),
-//         effect: "약물 효과",
-//         warning: "주의사항",
-//         sideEffect: "부작용",
-//         interaction: "상호작용",
-//         depositMethod: "복용법",
-//       },
-//       notifiTakingList: [],
-//       isActive: true,
-//       isEssential: false,
-//       groupName: "새로 등록된 약물",
-//       groupId: requestData.groupId || "mock_group_id",
-//     },
-//   };
-
-//   console.log("약물 등록 성공 (Mock):", mockResponse);
-//   return mockResponse;
-// };
-
 // ===== 실제 API 호출 함수들=====
 //health api 불러오기
 export const fetchHealthApi = async (): Promise<
@@ -153,7 +41,8 @@ export const registerPatientDrug = async (
       `/api/patient-drug`,
       requestData
     );
-    console.log("환자 약물 등록 성공:", response.data);
+    console.log("환자 약물 등록 성공:", requestData);
+    
     return response.data;
   } catch (error: any) {
     console.error("환자 약물 등록 실패:", error);
@@ -162,6 +51,7 @@ export const registerPatientDrug = async (
     );
   }
 };
+
 
 //환자 약물 상세 조회
 export const fetchPatientDrugDetail = async (
@@ -256,39 +146,6 @@ export const fetchDrugGroupsReal = async (): Promise<
 //
 //API 연동
 //
-// 약물 등록 API (실제 API)
-export const registerDrugReal = async (
-  requestData: CreateMedicationRequest
-): Promise<CreateMedicationResponse> => {
-  try {
-    console.log("약물 등록 요청:", requestData);
-
-    const response = await apiClient.post<CreateMedicationResponse>(
-      "/api/patient-drug",
-      requestData
-    );
-
-    console.log("약물 등록 성공:", response.data);
-    return response.data;
-  } catch (error: any) {
-    console.error("약물 등록 실패:", error);
-
-    // 에러 응답 처리
-    if (error?.response?.data) {
-      return {
-        errorCode: error.response.data.errorCode || "UNKNOWN_ERROR",
-        message: error.response.data.message || "약물 등록에 실패했습니다.",
-        result: null,
-      };
-    }
-
-    return {
-      errorCode: "UNKNOWN_ERROR",
-      message: "알 수 없는 오류가 발생했습니다.",
-      result: null,
-    };
-  }
-};
 
 // 기존 Mock 함수들...
 

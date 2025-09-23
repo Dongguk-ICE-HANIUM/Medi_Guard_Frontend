@@ -1,4 +1,4 @@
-import { fetchPatientDrugDetail } from "@/api/medicine";
+import { fetchPatientDrugDetail, registerPatientDrug } from "@/api/medicine";
 import { mockMedicineStore, mockStoreUtils } from "@/data/mockMedicineStore";
 import {
   CreateMedicationRequest,
@@ -45,43 +45,28 @@ export const useAddMedication = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: CreateMedicationRequest): Promise<Medication> => {
-      await mockDelay();
-      console.log("약물 등록 요청: ", data);
+    mutationFn: async (data: CreateMedicationRequest): Promise<CreateMedicationRequest> => {
+      try {
+        const response = await registerPatientDrug(data);
 
-      const newMedication: Medication = {
-        id: `med_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-        medicineInfo: {
-          id: `info_${Date.now()}`,
-          name: data.name,
-          code: `N${Math.floor(Math.random() * 100000)
-            .toString()
-            .padStart(5, "0")}`,
-          effect: "약물 효과에 대한 상세 설명",
-          warning: "복용 시 주의사항을 확인해 주세요",
-          sideEffect: "일반적인 부작용이 나타날 수 있습니다",
-          interaction: "다른 약물과의 상호작용을 주의하세요",
-          depositMethod: "의사 또는 약사의 지시에 따라 복용하세요",
-        },
-        startAt: data.startAt,
-        endAt: data.endAt,
-        takingType: data.takingType,
-        interval: data.interval,
-        specificDateList: data.specificDateList,
-        perDay: data.perDay,
-        amount: data.amount,
-        isActive: true,
-        isEssential: false,
-        groupName: "새로 등록된 약물",
-        groupId: data.groupId || "group-1",
-        notifiTakingList: [],
-      };
+      if(typeof response === 'string'){
+        console.log('서버가 빈문자열 반환, 성공으로 처리');
+        return data;
+      }
 
-      await mockMedicineStore.addMedication(newMedication);
-      return newMedication;
+      if (response.errorCode) {
+          throw new Error(response.message || "약물 등록에 실패했습니다.");
+      }
+
+      return response.result || data;
+ 
+       }catch(error){
+        console.error("약물 등록 실패", error);
+        throw error;
+       }
     },
     onSuccess: (newMedication) => {
-      console.log("약물 등록 성공", newMedication.medicineInfo.name);
+      console.log("약물 등록 성공", newMedication.name);
 
       // 캐시 즉시 업데이트
       queryClient.setQueryData(
@@ -90,6 +75,26 @@ export const useAddMedication = () => {
           return oldData ? [...oldData, newMedication] : [newMedication];
         }
       );
+
+      // CreateMedicationRequest에는 id가 없으므로 임시 ID 생성
+  const tempId = Date.now().toString(); // 또는 uuid 등 사용
+  
+  console.log("약물 등록 성공", newMedication.name);
+
+  // 캐시 즉시 업데이트
+  queryClient.setQueryData(
+    medicationKeys.lists(),
+    (oldData: Medication[] | undefined) => {
+      const medicationWithId = {
+        id: tempId, // 임시 ID 추가
+        ...newMedication,
+        medicineInfo: { name: newMedication.name }, // 필요한 필드들 추가
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      return oldData ? [...oldData, medicationWithId] : [medicationWithId];
+    }
+  );
 
       // 다른 관련 쿼리들 무효화
       queryClient.invalidateQueries({ queryKey: medicationKeys.lists() });
@@ -101,9 +106,9 @@ export const useAddMedication = () => {
         medicationKeys.calendarDrugs(),
         (oldData: Drug[] | undefined) => {
           const newCalendarDrug: Drug = {
-            id: newMedication.id,
-            calendarDrugId: newMedication.id,
-            name: newMedication.medicineInfo.name,
+            id: tempId,
+            calendarDrugId: tempId,
+            name: newMedication.name,
             startDate: newMedication.startAt,
             endDate: newMedication.endAt,
             timeSlot: newMedication.perDay,
@@ -113,16 +118,13 @@ export const useAddMedication = () => {
           return oldData ? [...oldData, newCalendarDrug] : [newCalendarDrug];
         }
       );
-
-      setTimeout(() => {
         Alert.alert(
           "등록 완료",
-          `${newMedication.medicineInfo.name} 등록되었습니다.`,
+          `약물이 성공적으로 등록되었습니다.`,
           [{ text: "확인" }]
         );
-      }, 1000);
     },
-    onError: (error) => {
+    onError: (error : any ) => {
       console.error("약물 등록 실패", error);
       Alert.alert("등록 실패", "약물 등록에 실패했습니다.", [{ text: "확인" }]);
     },

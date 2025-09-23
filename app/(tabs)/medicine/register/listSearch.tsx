@@ -54,7 +54,7 @@ const listSearch = () => {
 
         router.push({
             pathname : '/medicine/register/registerForm',
-            params : { medicineId : selectedMedicine.id, medicineName : selectedMedicine.name }
+            params : { drugId : selectedMedicine.id, drugName : selectedMedicine.name }
         })
     }
 

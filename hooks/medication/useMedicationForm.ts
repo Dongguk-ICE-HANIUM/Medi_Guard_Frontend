@@ -1,4 +1,4 @@
-import { Medication, MedicineInfo, TakingType } from "@/types/medication";
+import { CreateMedicationRequest, TakingType } from "@/types/medication";
 import { convertBinaryToDays, convertDaysToBinary } from "@/utils/dateUtils";
 import { useState } from "react";
 
@@ -7,7 +7,9 @@ const VALID_DAYS = ["월", "화", "수", "목", "금", "토", "일"] as const;
 const MAX_INTERVAL = 365;
 
 // 기본값
-const MEDICATION_DEFAULTS: Omit<Medication, "id" | "medicineInfo"> = {
+const MEDICATION_DEFAULTS = {
+  drugId : "",
+  name : "",
   startAt: "",
   endAt: "",
   takingType: TakingType.UNSELECTED,
@@ -15,14 +17,15 @@ const MEDICATION_DEFAULTS: Omit<Medication, "id" | "medicineInfo"> = {
   specificDateList: [],
   perDay: 1,
   amount: 1.0,
-  isActive: true,
-  isEssential: false,
-  groupName: "",
-  notifiTakingList: [],
+  // isActive: true,
+  // isEssential: false,
+  // groupName: "",
+  groupId : "",
+  // notifiTakingList: [],
 };
 
 type ExtraErrorKeys = "dateRange" | "takingTypeRequired";
-export type FieldKey = keyof Medication | ExtraErrorKeys;
+export type FieldKey = keyof CreateMedicationRequest | ExtraErrorKeys;
 
 const isDateInRange = (
   dateStr: string,
@@ -35,7 +38,7 @@ const isDateInRange = (
   const endDate = new Date(endAt);
   return date >= startDate && date <= endDate;
 };
-const requireDateRange = (med: Medication): string[] => {
+const requireDateRange = (med: CreateMedicationRequest): string[] => {
   const errors: string[] = [];
   if (!med.startAt || !med.endAt) {
     errors.push("복용 기간을 설정해주세요.");
@@ -43,7 +46,7 @@ const requireDateRange = (med: Medication): string[] => {
   return errors;
 };
 
-const requireTakingType = (med: Medication): string[] => {
+const requireTakingType = (med: CreateMedicationRequest): string[] => {
   const errors: string[] = [];
   if (!med.takingType || med.takingType === TakingType.UNSELECTED) {
     errors.push("복용 주기를 선택해주세요.");
@@ -51,17 +54,9 @@ const requireTakingType = (med: Medication): string[] => {
   return errors;
 };
 
-// 초기 약물 데이터 생성
-export const createInitialMedication = (
-  medicineInfo: MedicineInfo
-): Medication => ({
-  ...MEDICATION_DEFAULTS,
-  id: medicineInfo.id,
-  medicineInfo: medicineInfo,
-});
 
 // 약물데이터 유효성 검사
-export const validateField = (med: Medication, field: FieldKey): string[] => {
+export const validateField = (med: CreateMedicationRequest, field: FieldKey): string[] => {
   const errors: string[] = [];
 
   switch (field) {
@@ -107,59 +102,31 @@ export const validateField = (med: Medication, field: FieldKey): string[] => {
       }
       break;
 
-    case "medicineInfo":
-    case "notifiTakingList":
-      // 이 필드들은 유효성 검사가 필요하지 않음
-      break;
-
     default:
-      // 다른 필드들에 대한 기본 검사
       break;
   }
   return errors;
 };
 
-export const validateMedication = (med: Medication): string[] => {
-  const byField = (Object.keys(med) as (keyof Medication)[]).flatMap((field) =>
-    validateField(med, field)
-  );
 
-  const cross = [
-    ...validateField(med, "dateRange"),
-    ...validateField(med, "takingTypeRequired"),
-  ];
-  return [...byField, ...cross];
-};
 
 export const useMedicationForm = (
-  selected: MedicineInfo,
-  initialValues?: Partial<Medication>
+  drugId : string,
+  drugName : string,
+  initialValues?: Partial<CreateMedicationRequest>
 ) => {
-  const [medication, setMedication] = useState<Medication>(() => {
-    //임시 id 때문에 (고유 id가 없어서)
-    // 임시 ID인 경우 고유한 ID로 변경 (컴포넌트 마운트 시 한 번만 실행)
-    let medicineInfoWithUniqueId = selected;
-
-    if (selected.id.startsWith("temp-")) {
-      // 이미 고유한 ID가 있는지 확인
-      if (selected.id === "temp-default") {
-        medicineInfoWithUniqueId = {
-          ...selected,
-          id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        };
-      } else {
-        // 이미 고유한 ID가 있으면 그대로 사용
-        medicineInfoWithUniqueId = selected;
-      }
+  const [medication, setMedication] = useState<CreateMedicationRequest>(() => {
+    const baseForm = {
+      ...MEDICATION_DEFAULTS,
+      drugId,
+      name : drugName,
     }
-    //
-
-    const baseMedication = createInitialMedication(medicineInfoWithUniqueId);
-    if (initialValues) {
-      return { ...baseMedication, ...initialValues };
+    if(initialValues){
+      return {...baseForm, ...initialValues};
     }
-    return baseMedication;
+    return baseForm;
   });
+
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [submitted, setSubmitted] = useState(false);
 
@@ -175,12 +142,12 @@ export const useMedicationForm = (
     updateField("interval", binaryValue ?? 0);
   };
 
-  const updateField = <K extends keyof Medication>(
+  const updateField = <K extends keyof CreateMedicationRequest>(
     field: K,
-    value: Medication[K]
+    value: CreateMedicationRequest[K]
   ) => {
-    setMedication((prevMedication) => {
-      const next = { ...prevMedication, [field]: value };
+    setMedication((prev) => {
+      const next = { ...prev, [field]: value };
 
       if (field === "takingType") {
         if (value === TakingType.PARTICULAR_DAY) {
@@ -227,7 +194,7 @@ export const useMedicationForm = (
     const allErrors: Record<string, string[]> = {};
     let isValid = true;
 
-    (Object.keys(medication) as (keyof Medication)[]).forEach((field) => {
+    (Object.keys(medication) as (keyof CreateMedicationRequest)[]).forEach((field) => {
       const fieldErrors = validateField(medication, field);
       if (fieldErrors.length > 0) {
         isValid = false;
@@ -263,3 +230,4 @@ export const useMedicationForm = (
     isValid: Object.values(errors).every((e) => e.length === 0),
   };
 };
+

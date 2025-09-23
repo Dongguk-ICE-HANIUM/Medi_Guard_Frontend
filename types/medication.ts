@@ -9,6 +9,15 @@ export enum TakingType {
   NEED = "NEED",
 }
 
+//약물 등록
+export interface registerPatientDrug {
+  drugId: string; 
+  name: string;
+  startAt :string;
+  endAt : string;
+  takingType: TakingType;
+}
+
 // API로 받아오는 약물 기본 정보
 export interface MedicineInfo {
   id: string;
@@ -105,7 +114,7 @@ export type CreateMedicationRequest = Pick<
   name: string;
 };
 
-export type CreateMedicationResponse = ApiResponse<Medication>;
+export type CreateMedicationResponse = ApiResponse<CreateMedicationRequest>;
 
 //patch. 약물 수정 요청
 export type UpdateMedicationRequest = Partial<
