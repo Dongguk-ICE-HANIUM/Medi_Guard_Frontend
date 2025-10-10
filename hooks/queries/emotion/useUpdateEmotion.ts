@@ -15,6 +15,9 @@ function useUpdateEmotion(date: string) {
     onError: (error) => {
       console.log("오늘의 기분 수정 실패", error);
     },
+    onError: (error) => {
+      console.error("Emotion update error", error);
+    },
   });
 }
 

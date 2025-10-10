@@ -53,6 +53,7 @@ export async function postGoogleLogin(
   const { data } = await axiosInstance.post("/api/auth/google/login", {
     accessToken,
   });
+
   return data;
 }
 

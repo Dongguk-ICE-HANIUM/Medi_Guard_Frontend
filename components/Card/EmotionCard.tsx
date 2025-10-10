@@ -37,9 +37,16 @@ export default function EmotionCard({ date }: EmotionCardProps) {
   const { data: emotionData, refetch } = useGetEmotion(date);
 
   useEffect(() => {
+    console.log("[EmotionCard] props.date:", date);
+    console.log("[EmotionCard] emotionData:", emotionData);
+
     if (emotionData?.result) {
+      console.log("[EmotionCard] API result:", emotionData.result);
+
       setTodayEmotion(emotionData.result);
       setDescription(emotionData.result.description);
+
+      console.log("[EmotionCard] API emotion:", emotionData.result.emotion);
     }
   }, [emotionData]);
 
@@ -63,6 +70,7 @@ export default function EmotionCard({ date }: EmotionCardProps) {
   function handleEmotion(emotion: Emotion) {
     setSelectedEmotion(emotion);
   }
+
   const handleSaveButton = async () => {
     const today = dayjs().format("YYYY-MM-DD");
     setIsEditable(false);
