@@ -1,4 +1,3 @@
-import { getEmotion } from "@/api/emotion";
 import { colors } from "@/constants";
 import useCreateEmotion from "@/hooks/queries/emotion/useCreateEmotion";
 import useGetEmotion from "@/hooks/queries/emotion/useGetEmotion";
@@ -33,9 +32,9 @@ export default function EmotionCard({ date }: EmotionCardProps) {
   );
   const [description, setDescription] = useState("");
   const [isEditable, setIsEditable] = useState(false);
-  const createEmotion = useCreateEmotion();
-  const updateEmotion = useUpdateEmotion();
-  const { data: emotionData } = useGetEmotion(date);
+  const createEmotion = useCreateEmotion(date);
+  const updateEmotion = useUpdateEmotion(dayjs().format("YYYY-MM-DD"));
+  const { data: emotionData, refetch } = useGetEmotion(date);
 
   useEffect(() => {
     if (emotionData?.result) {
@@ -67,7 +66,6 @@ export default function EmotionCard({ date }: EmotionCardProps) {
   const handleSaveButton = async () => {
     const today = dayjs().format("YYYY-MM-DD");
     setIsEditable(false);
-    Alert.alert("알림", "저장되었습니다");
 
     if (!todayEmotion) {
       const newEmotion: CreateEmotionRequest = {
@@ -77,22 +75,27 @@ export default function EmotionCard({ date }: EmotionCardProps) {
       };
       createEmotion.mutate(newEmotion);
 
-      const created = await getEmotion(today);
-      setTodayEmotion(created.result);
+      // 형식 달라서 refetch로 조회 후 저장
+      const created = await refetch();
+      setTodayEmotion(created!.data!.result);
+
+      Alert.alert("알림", "저장되었습니다");
     } else {
-      const updatedEmotion: UpdateEmotionRequest = {
+      const updatedEmotion: UpdateEmotionRequest & { date: string } = {
         ...todayEmotion,
         description: description,
         emotion: selectedEmotion!.emotion,
+        date,
       };
       updateEmotion.mutate(updatedEmotion);
       setTodayEmotion(updatedEmotion);
+
+      Alert.alert("알림", "수정되었습니다");
     }
   };
 
   function handleEditButton() {
     setIsEditable(true);
-    Alert.alert("알림", "수정되었습니다");
   }
 
   return (

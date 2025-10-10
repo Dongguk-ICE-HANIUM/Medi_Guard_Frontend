@@ -9,7 +9,6 @@ export enum emotionType {
 }
 
 export interface GetEmotionResult {
-  calendarId: string;
   emotion: emotionType;
   description: string;
 }
@@ -21,7 +20,6 @@ export interface CreateEmotionRequest {
 }
 
 export interface UpdateEmotionRequest {
-  calendarId: string;
   description: string;
   emotion: emotionType;
 }

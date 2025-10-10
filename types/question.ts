@@ -1,52 +1,63 @@
 import { ApiResponse } from "./api";
 
 export enum QuestionType {
-  PHYSICAL_SYMPTOMS = "PHYSICAL_SYMPTOMS", // 신체 증상 및 태아 상태
-  FETAL_MOVEMENT = "FETAL_MOVEMENT", // 태아 움직임
-  MEDICATION_COMPLIANCE = "MEDICATION_COMPLIANCE", // 약물 복용 준수
-  MEDICATION_SIDE_EFFECTS = "MEDICATION_SIDE_EFFECTS", // 약물 부작용
-  MOOD_STATUS = "MOOD_STATUS", // 기분 상태
-  MENTAL_HEALTH = "MENTAL_HEALTH", // 정신 건강
-  DAILY_LIFE = "DAILY_LIFE", // 일상생활
-  FAMILY_SUPPORT = "FAMILY_SUPPORT", // 가족 지원
-  PATIENT_CONCERNS = "PATIENT_CONCERNS", // 환자 우려사항
+  PHYSICAL_SYMPTOMS = "PHYSICAL_SYMPTOMS",
+  FETAL_MOVEMENT = "FETAL_MOVEMENT",
+  MEDICATION_COMPLIANCE = "MEDICATION_COMPLIANCE",
+  MEDICATION_SIDE_EFFECTS = "MEDICATION_SIDE_EFFECTS",
+  MOOD_STATUS = "MOOD_STATUS",
+  MENTAL_HEALTH = "MENTAL_HEALTH",
+  DAILY_LIFE = "DAILY_LIFE",
+  FAMILY_SUPPORT = "FAMILY_SUPPORT",
+  PATIENT_CONCERNS = "PATIENT_CONCERNS",
 }
 
-export const randomQuestion: question[] = [
+export const randomQuestion = [
   {
     id: "1",
     type: QuestionType.DAILY_LIFE,
-    answer: "일상생활을 하는데 불편함이 있나요?",
+    text: "일상생활을 하는데 불편함이 있나요?",
   },
   {
     id: "2",
     type: QuestionType.PATIENT_CONCERNS,
-    answer: "걱정되는 부분이나 추가적으로 알고 싶은 정보가 있나요?",
+    text: "걱정되는 부분이나 추가적으로 알고 싶은 정보가 있나요?",
   },
   {
     id: "3",
     type: QuestionType.PATIENT_CONCERNS,
-    answer: "진료시 담당의사에게 하고 싶은 질문은 무엇일까요?",
+    text: "진료시 담당의사에게 하고 싶은 질문은 무엇일까요?",
   },
   {
     id: "4",
     type: QuestionType.PHYSICAL_SYMPTOMS,
-    answer: "몸에 불편한 증상이 있나요?",
+    text: "몸에 불편한 증상이 있나요?",
   },
   {
     id: "5",
     type: QuestionType.MOOD_STATUS,
-    answer: "요즘 기분은 어떠신가요?",
+    text: "요즘 기분은 어떠신가요?",
   },
   {
     id: "6",
     type: QuestionType.FETAL_MOVEMENT,
-    answer: "태아의 움직임은 어떤가요?",
+    text: "태아의 움직임은 어떤가요?",
   },
 ];
 
 export interface question {
   id: string;
+  type: QuestionType;
+  answer: string;
+}
+
+export interface QuestionTemplate {
+  id: string;
+  type: QuestionType;
+  text: string;
+}
+
+export interface Answer {
   type: QuestionType;
   answer: string;
 }
@@ -70,7 +81,7 @@ export interface CreateQuestionRequest {
 }
 
 export interface UpdateQuestionRequest {
-  questionList: question[];
+  questionList: createQuestion[];
 }
 
 export type questionResponse = ApiResponse<{}>;

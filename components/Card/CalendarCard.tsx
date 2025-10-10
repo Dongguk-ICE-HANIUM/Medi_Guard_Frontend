@@ -40,10 +40,10 @@ export default function CalendarCard() {
     const formatted = dayjs(selectedDate).format("YYYY-MM-DD");
 
     if (dayjs(formatted).isBefore(today))
-      router.push(`/calendar/past/${formatted}`);
+      router.push(`/my/calendar/past/${formatted}`);
     else if (dayjs(formatted).isSame(today))
-      router.push(`/calendar/today/${formatted}`);
-    else router.push(`/calendar/future/${formatted}`);
+      router.push(`/my/calendar/today/${formatted}`);
+    else router.push(`/my/calendar/future/${formatted}`);
 
     setIsModalVisible(false);
   };

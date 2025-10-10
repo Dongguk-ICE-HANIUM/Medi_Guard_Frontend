@@ -21,14 +21,6 @@ interface SocialLoginResult {
 
 export type SocialLoginResponse = ApiResponse<SocialLoginResult>;
 
-interface kakaoLoginResult {
-  accessToken?: string;
-  refreshToken?: string;
-  isNewUser?: boolean;
-}
-
-export type kakaoLoginResponse = ApiResponse<kakaoLoginResult>;
-
 interface googleLoginResult {
   jwtDto: {
     accessToken: string;
@@ -56,3 +48,14 @@ interface appleLoginResult {
 }
 
 export type appleLoginResponse = ApiResponse<appleLoginResult>;
+
+interface kakaoLoginResult {
+  jwtDto: {
+    accessToken: string;
+    refreshToken: string;
+  };
+  isSignUpNeeded: boolean;
+  userId: string;
+}
+
+export type kakaoLoginResponse = ApiResponse<kakaoLoginResult>;

@@ -18,17 +18,24 @@ async function createQuestion(
 ): Promise<questionResponse> {
   const today = dayjs().format("YYYY-MM-DD");
   const { data } = await axiosInstance.post(
-    `/api/calendar?date=${today}`,
+    `/api/question?date=${today}`,
     body
   );
 
   return data;
 }
 
-async function updateQuestion(
-  body: UpdateQuestionRequest
-): Promise<questionResponse> {
-  const { data } = await axiosInstance.patch("/api/question", body);
+async function updateQuestion({
+  date,
+  body,
+}: {
+  date: string;
+  body: UpdateQuestionRequest;
+}): Promise<questionResponse> {
+  const { data } = await axiosInstance.patch(
+    `/api/question?date=${date}`,
+    body
+  );
 
   return data;
 }

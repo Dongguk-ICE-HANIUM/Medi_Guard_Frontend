@@ -1,30 +1,36 @@
-import { question, QuestionType } from "@/types/question";
+import { Answer, QuestionTemplate } from "@/types/question";
+import React from "react";
 import { View } from "react-native";
 import QuestionItem from "./QuestionItem";
 
-interface RandomQuestionProps {
-  id: number;
-  type: QuestionType;
-  question: string;
-}
-
 interface QuestionListProps {
   isEditing: boolean;
-  todayQuestions?: question[];
+  questions: QuestionTemplate[];
+  answers: Answer[];
+  setAnswers: React.Dispatch<React.SetStateAction<Answer[]>>;
 }
 
 export default function QuestionList({
   isEditing,
-  todayQuestions,
+  questions,
+  answers,
+  setAnswers,
 }: QuestionListProps) {
+  const handleAnswerChange = (index: number, newAnswer: string) => {
+    const updated = [...answers];
+    updated[index] = { ...updated[index], answer: newAnswer };
+    setAnswers(updated);
+  };
   return (
     <View>
-      {todayQuestions?.map((questionData) => (
+      {questions.map((q, idx) => (
         <QuestionItem
-          key={questionData.id}
-          id={questionData.id}
-          data={{ question: questionData.answer }}
+          key={q.id}
+          id={q.id}
+          question={q.text}
+          answer={answers[idx]?.answer ?? ""}
           isEditing={isEditing}
+          onAnswerChange={(val) => handleAnswerChange(idx, val)}
         />
       ))}
     </View>
