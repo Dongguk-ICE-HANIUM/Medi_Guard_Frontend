@@ -2,6 +2,7 @@ import {
   getMe,
   postAppleLogin,
   postGoogleLogin,
+  postKakaoLogin,
   postLogin,
   postSignup,
   postSocialLogin,
@@ -12,6 +13,7 @@ import { LoginResponse } from "@/types/api";
 import {
   appleLoginResponse,
   googleLoginResponse,
+  kakaoLoginResponse,
   SocialLoginResponse,
 } from "@/types/social";
 import { deleteSecureStore, saveSecureStore } from "@/utils/secureStore";
@@ -65,6 +67,7 @@ function useSocialLogin() {
       await saveSecureStore("accessToken", result!.accessToken);
       await saveSecureStore("refreshToken", result!.refreshToken);
 
+      console.log("소셜 로그인 성공");
       router.replace("/");
     },
     onError: (error) => {
@@ -111,11 +114,8 @@ function useAppleLogin() {
   return useMutation({
     mutationFn: postAppleLogin,
     onSuccess: async ({ result }: appleLoginResponse) => {
-      await saveSecureStore("accessToken", result!.jwtDto.accessToken);
-      await saveSecureStore("refreshToken", result!.jwtDto.refreshToken);
-
       if (result?.isSignUpNeeded) router.replace("/auth/signup");
-      else if (result?.jwtDto) {
+      if (result?.jwtDto) {
         await saveSecureStore("accessToken", result.jwtDto.accessToken);
         await saveSecureStore("refreshToken", result.jwtDto.refreshToken);
         router.replace("/");
@@ -129,6 +129,21 @@ function useAppleLogin() {
   });
 }
 
+function useKakaoLogin() {
+  return useMutation({
+    mutationFn: postKakaoLogin,
+    onSuccess: async ({ result }: kakaoLoginResponse) => {
+      if (result?.isSignUpNeeded) router.replace("/auth/signup");
+      else if (result?.jwtDto) {
+        await saveSecureStore("accessToken", result.jwtDto.accessToken);
+        await saveSecureStore("refreshToken", result.jwtDto.refreshToken);
+        router.replace("/");
+      }
+      console.log("카카오로그인 성공");
+    },
+  });
+}
+
 function useAuth() {
   const { data } = useGetMe();
   const loginMutation = useLogin();
@@ -136,6 +151,7 @@ function useAuth() {
   const socialLoginMutation = useSocialLogin();
   const googleLoginMutation = useGoogleLogin();
   const appleLoginMutation = useAppleLogin();
+  const kakaoLoginMutation = useKakaoLogin();
 
   const logout = () => {
     deleteSecureStore("accessToken");
@@ -152,6 +168,7 @@ function useAuth() {
     socialLoginMutation,
     googleLoginMutation,
     appleLoginMutation,
+    kakaoLoginMutation,
   };
 }
 

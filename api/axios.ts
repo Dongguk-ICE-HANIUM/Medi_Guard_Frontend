@@ -2,7 +2,7 @@ import { deleteSecureStore } from "@/utils/secureStore";
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://mediguardlbtest-1434827029.ap-northeast-2.elb.amazonaws.com",
+  baseURL: process.env.EXPO_PUBLIC_BASE_URL,
 });
 
 // 요청 전 SecureStore에서 토큰을 읽어 자동 부착
@@ -14,8 +14,7 @@ axiosInstance.interceptors.request.use(async (config) => {
     return config;
   }
   // const token = await getSecureStore("accessToken");
-  const token =
-    "eyJKV1QiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ1dWlkIjoiNGExMmM3NzQtMDViOC00NTY3LTkwYjItMTNmMTM4Y2Y1MjQ5Iiwicm9sZSI6IlBBVElFTlQiLCJpYXQiOjE3NTc1NTk3ODQsImV4cCI6MTc1NzY0NjE4NH0.Wl1qLYmLc-12lF6-_N7QV8fqqvBEquwngbOfqb_R-zoXNMRFuLADoCdgECD-SWYOpYyF4FIxbK0YlRoK-Qkxjw";
+  const token = process.env.EXPO_PUBLIC_TEST_TOKEN;
   if (token) {
     config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${token}`;
@@ -27,7 +26,7 @@ axiosInstance.interceptors.request.use(async (config) => {
 axiosInstance.interceptors.response.use(
   (res) => res,
   async (error) => {
-    console.log("Network Error Details:", {
+    console.log("Error Details:", {
       message: error.message,
       code: error.code,
       response: error.response?.data,

@@ -32,9 +32,9 @@ export default function EmotionCard({ date }: EmotionCardProps) {
   );
   const [description, setDescription] = useState("");
   const [isEditable, setIsEditable] = useState(false);
-  const createEmotion = useCreateEmotion();
-  const updateEmotion = useUpdateEmotion();
-  const { data: emotionData } = useGetEmotion(date);
+  const createEmotion = useCreateEmotion(date);
+  const updateEmotion = useUpdateEmotion(dayjs().format("YYYY-MM-DD"));
+  const { data: emotionData, refetch } = useGetEmotion(date);
 
   useEffect(() => {
     console.log("[EmotionCard] props.date:", date);
@@ -82,14 +82,22 @@ export default function EmotionCard({ date }: EmotionCardProps) {
         emotion: selectedEmotion!.emotion,
       };
       createEmotion.mutate(newEmotion);
+
+      // 형식 달라서 refetch로 조회 후 저장
+      const created = await refetch();
+      setTodayEmotion(created!.data!.result);
+
       Alert.alert("알림", "저장되었습니다");
     } else {
-      const updatedEmotion: UpdateEmotionRequest = {
+      const updatedEmotion: UpdateEmotionRequest & { date: string } = {
         ...todayEmotion,
         description: description,
         emotion: selectedEmotion!.emotion,
+        date,
       };
       updateEmotion.mutate(updatedEmotion);
+      setTodayEmotion(updatedEmotion);
+
       Alert.alert("알림", "수정되었습니다");
     }
   };

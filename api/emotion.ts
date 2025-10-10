@@ -23,10 +23,7 @@ async function createEmotion(
 async function updateEmotion(
   body: UpdateEmotionRequest
 ): Promise<EmotionResponse> {
-  const { data } = await axiosInstance.patch(
-    `/api/calendar/${body.calendarId}`,
-    body
-  );
+  const { data } = await axiosInstance.patch("/api/calendar", body);
   return data;
 }
 

@@ -3,30 +3,30 @@ import { StyleSheet, Text, TextInput, View } from "react-native";
 
 interface QuestionItemProps {
   id: string;
-  data: {
-    question: string;
-  };
+  question: string;
+  answer: string;
   isEditing: boolean;
-  onUpdate?: (data: any) => void;
-  onRemove?: () => void;
+  onAnswerChange: (val: string) => void;
 }
 
 export default function QuestionItem({
-  data,
+  question,
+  answer,
   isEditing,
-  onUpdate,
-  onRemove,
+  onAnswerChange,
 }: QuestionItemProps) {
   return (
     <View style={styles.questionItem}>
-      <Text>Q. {data.question}</Text>
+      <Text>Q. {question}</Text>
       <View style={styles.textInput}>
         <TextInput
           placeholder="입력해주세요"
           multiline={true}
           textAlignVertical="top"
           style={styles.text}
+          value={answer}
           editable={isEditing}
+          onChangeText={onAnswerChange}
         />
       </View>
     </View>

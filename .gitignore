@@ -43,3 +43,4 @@ config/tokens.ts
 *.tsbuildinfo
 
 app-example
+.env

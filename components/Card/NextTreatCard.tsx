@@ -1,5 +1,4 @@
 import { colors } from "@/constants";
-import { Octicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import { useState } from "react";
@@ -56,12 +55,12 @@ export default function NextTreatCard() {
     <View style={styles.nextTreatCard}>
       <View style={styles.title}>
         <Text style={styles.titleText}>다음 진료 일정</Text>
-        <Octicons
+        {/* <Octicons
           name="plus-circle"
           size={18}
           color="black"
           onPress={() => setIsCalendarVisible(true)}
-        />
+        /> */}
 
         <CalendarModal // 달력모달
           visible={isCalendarVisible}

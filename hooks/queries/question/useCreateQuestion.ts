@@ -10,6 +10,10 @@ function useCreateQuestion(date: string) {
       queryClient.invalidateQueries({
         queryKey: [queryKey.QUESTION, date],
       });
+      console.log("질문 생성 성공");
+    },
+    onError: (error) => {
+      console.error("질문 생성 실패:", error);
     },
   });
 }

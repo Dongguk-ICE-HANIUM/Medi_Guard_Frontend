@@ -1,8 +1,6 @@
-import { kakaoSocialLogin } from "@/api/socialLogin";
 import Button from "@/components/Button";
 import { colors } from "@/constants";
 import useAuth from "@/hooks/queries/useAuth";
-import { saveSecureStore } from "@/utils/secureStore";
 import { getProfile, login } from "@react-native-seoul/kakao-login";
 import { makeRedirectUri } from "expo-auth-session";
 import * as Google from "expo-auth-session/providers/google";
@@ -13,7 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function MainLoginScreen() {
   // 구글 로그인
-  const { googleLoginMutation } = useAuth();
+  const { googleLoginMutation, kakaoLoginMutation } = useAuth();
 
   const redirectUri = makeRedirectUri({
     scheme: "com.dgu.MediGuard",
@@ -49,40 +47,26 @@ export default function MainLoginScreen() {
       console.log("카카오사용자: ", kakaoUser);
 
       //3. 백엔드에 카카오 토큰 전송
-      const loginResponse = await kakaoSocialLogin(kakaoToken.accessToken);
+      kakaoLoginMutation.mutate(kakaoToken.accessToken, {
+        onSuccess: (data) => {
+          const result = data.result;
 
-      if (
-        loginResponse.errorCode === null &&
-        loginResponse.result &&
-        loginResponse.result.accessToken &&
-        loginResponse.result.refreshToken
-      ) {
-        // 4. 최초로그인은 추가 정보 입력 화면으로 이동
-        if (loginResponse.result!.isNewUser) {
-          router.push({
-            pathname: "/auth/signup/step2",
-            params: {
-              isSocialSignup: "true",
-              bearerToken: loginResponse.result!.accessToken,
-              userId: kakaoUser.id.toString(),
-            },
-          });
-        } else {
-          // 4. 기존사용자는 토큰 저장하고 홈으로
-          await saveSecureStore(
-            "accessToken",
-            loginResponse.result.accessToken
-          );
-          await saveSecureStore(
-            "refreshToken",
-            loginResponse.result.refreshToken
-          );
-          router.replace("/");
-          alert("로그인이 완료되었습니다!");
-        }
-      }
+          if (result?.isSignUpNeeded) {
+            router.push({
+              pathname: "/auth/signup/step2",
+              params: {},
+            });
+          } else if (result?.jwtDto) {
+            alert("로그인이 완료되었습니다!");
+            router.replace("/");
+          }
+        },
+        onError: (error) => {
+          console.log("카카오 로그인 에러: ", error);
+        },
+      });
     } catch (error) {
-      console.log("카카오 로그인 에러:", error);
+      console.log("카카오 SDK 로그인 실패:", error);
     }
   };
   return (

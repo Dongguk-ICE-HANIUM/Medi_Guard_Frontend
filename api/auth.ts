@@ -37,8 +37,12 @@ export async function postSocialLogin(
   return data;
 }
 
-export async function postKakaoLogin(): Promise<kakaoLoginResponse> {
-  const { data } = await axiosInstance.post("/api/auth/kakao/login");
+export async function postKakaoLogin(
+  accessToken: string
+): Promise<kakaoLoginResponse> {
+  const { data } = await axiosInstance.post("/api/auth/kakao/login", {
+    accessToken,
+  });
 
   return data;
 }

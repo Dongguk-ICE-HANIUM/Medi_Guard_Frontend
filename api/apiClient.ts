@@ -2,8 +2,8 @@ import { deleteSecureStore, getSecureStore } from "@/utils/secureStore";
 import axios, { AxiosInstance } from "axios";
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: "http://mediguardlbtest-1434827029.ap-northeast-2.elb.amazonaws.com",
-  timeout: 1000,
+  baseURL: process.env.EXPO_PUBLIC_BASE_URL,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
